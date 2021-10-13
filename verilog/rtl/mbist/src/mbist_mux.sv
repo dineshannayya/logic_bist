@@ -1,0 +1,146 @@
+//////////////////////////////////////////////////////////////////////////////
+// SPDX-FileCopyrightText: 2021 , Dinesh Annayya                          
+// 
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+// SPDX-License-Identifier: Apache-2.0
+// SPDX-FileContributor: Created by Dinesh Annayya <dinesha@opencores.org>
+//
+//////////////////////////////////////////////////////////////////////
+////                                                              ////
+////  MBIST and MEMORY Mux Control Selection                      ////
+////                                                              ////
+////  This file is part of the mbist_ctrl cores project           ////
+////  https://github.com/dineshannayya/mbist_ctrl.git             ////
+////                                                              ////
+////  Description                                                 ////
+////      This block integrate MBIST and Memory control selection ////
+////                                                              ////
+////  To Do:                                                      ////
+////    nothing                                                   ////
+////                                                              ////
+////  Author(s):                                                  ////
+////      - Dinesh Annayya, dinesha@opencores.org                 ////
+////                                                              ////
+////  Revision :                                                  ////
+////    0.0 - 11th Oct 2021, Dinesh A                             ////
+////          Initial integration 
+////                                                              ////
+//////////////////////////////////////////////////////////////////////
+
+`include "mbist_def.svh"
+module   mbist_mux(
+
+      input   logic                      rst_n,
+      // MBIST CTRL SIGNAL
+      input   logic                      bist_en,
+      input   logic  [BIST_ADDR_WD-1:0]  bist_addr,
+      input   logic  [BIST_DATA_WD-1:0]  bist_wdata,
+      input   logic                      bist_clk,
+      input   logic                      bist_wr,
+      input   logic                      bist_rd,
+      input   logic                      bist_error,
+      input   logic  [BIST_ADDR_WD-1:0]  bist_error_addr,
+      output  logic                      bist_correct,
+
+      // FUNCTIONAL CTRL SIGNAL
+      input   logic                      func_clk_a,
+      input   logic                      func_cen_a,
+      input   logic  [BIST_ADDR_WD-1:0]  func_addr_a,
+      // Common for func and Mbist i/f
+      output  logic  [BIST_DATA_WD-1:0]  func_dout_a,
+
+      input   logic                      func_clk_b,
+      input   logic                      func_cen_b,
+      input   logic                      func_web_b,
+      input   logic [BIST_DATA_WD/8-1:0] func_mask_b,
+      input   logic  [BIST_ADDR_WD-1:0]  func_addr_b,
+      input   logic  [BIST_DATA_WD-1:0]  func_din_b,
+
+
+     // towards memory
+      output logic                       mem_clk_a,
+      output logic                       mem_cen_a,
+      output logic   [BIST_ADDR_WD-1:0]  mem_addr_a,
+      input  logic   [BIST_DATA_WD-1:0]  mem_dout_a,
+
+      output logic                       mem_clk_b,
+      output logic                       mem_cen_b,
+      output logic                       mem_web_b,
+      output logic [BIST_DATA_WD/8-1:0]  mem_mask_b,
+      output logic   [BIST_ADDR_WD-1:0]  mem_addr_b,
+      output logic   [BIST_DATA_WD-1:0]  mem_din_b
+    );
+
+
+parameter BIST_MASK_WD = BIST_DATA_WD/4;
+
+wire   [BIST_ADDR_WD-1:0]      addr_a;
+wire   [BIST_ADDR_WD-1:0]      addr_b;
+
+
+
+assign addr_a   = (bist_en) ? bist_addr   : func_addr_a;
+assign addr_b   = (bist_en) ? bist_addr   : func_addr_b;
+
+assign mem_cen_a    = (bist_en) ? !bist_rd   : func_cen_a;
+assign mem_cen_b    = (bist_en) ? !bist_wr   : func_cen_b;
+
+assign mem_web_b    = (bist_en) ? !bist_wr   : func_web_b;
+assign mem_mask_b   = (bist_en) ? {BIST_MASK_WD'(1'b1)}       : func_mask_b;
+
+assign mem_clk_a    = (bist_en) ? bist_clk   : func_clk_a;
+assign mem_clk_b    = (bist_en) ? bist_clk   : func_clk_b;
+
+assign mem_din_b    = (bist_en) ? bist_wdata   : func_din_b;
+
+
+
+assign func_dout_a   =  mem_dout_a;
+
+mbist_repair_addr u_repair_A(
+    .AddressOut    (mem_addr_a      ),
+    .Correct       (bist_correct     ),
+
+    .AddressIn     (addr_a           ),
+    .clk           (CLKA_sel         ),
+    .rst_n         (rst_n            ),
+    .Error         (bist_error       ),
+    .ErrorAddr     (bist_error_addr  )
+);
+
+mbist_repair_addr u_repair_B(
+    .AddressOut    (mem_addr_b      ),
+    .Correct       (                ), // Both Bist Correct are same
+
+    .AddressIn     (addr_b          ),
+    .clk           (mem_clk_b       ),
+    .rst_n         (rst_n           ),
+    .Error         (bist_error      ),
+    .ErrorAddr     (bist_error_addr )
+);
+
+
+
+
+endmodule
+
+
+
+
+
+
+
+
+
+
+

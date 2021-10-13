@@ -34,30 +34,48 @@ set ::env(VERILOG_FILES) "\
 	$::env(CARAVEL_ROOT)/verilog/rtl/defines.v \
 	$script_dir/../../verilog/rtl/user_project_wrapper.v"
 
+set ::env(SYNTH_DEFINES) [list SYNTHESIS ]
+
 ## Clock configurations
-set ::env(CLOCK_PORT) "user_clock2"
-set ::env(CLOCK_NET) "mprj.clk"
+set ::env(CLOCK_PORT) "wb_clk_i user_clock2"
+set ::env(CLOCK_NET) "wb_clk_i user_clock2"
 
 set ::env(CLOCK_PERIOD) "10"
 
 ## Internal Macros
 ### Macro PDN Connections
+set ::env(FP_PDN_ENABLE_MACROS_GRID) "0"
+set ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS) "1"
+
 set ::env(FP_PDN_MACRO_HOOKS) "\
-	mprj vccd1 vssd1"
+     u_wb_host	vccd1 vssd1 \
+     u_mbist    vccd1 vssd1 \
+     u_sram_2kb vccd1 vssd1 "
+
+set ::env(VDD_NETS) "vccd1"
+set ::env(GND_NETS) "vssd1"
 
 ### Macro Placement
 set ::env(MACRO_PLACEMENT_CFG) $script_dir/macro.cfg
 
+set ::env(PDN_CFG) $script_dir/pdn.tcl
+
 ### Black-box verilog and views
 set ::env(VERILOG_FILES_BLACKBOX) "\
 	$::env(CARAVEL_ROOT)/verilog/rtl/defines.v \
-	$script_dir/../../verilog/rtl/user_proj_example.v"
+	$script_dir/../../verilog/rtl/sram_macros/sky130_sram_2kbyte_1rw1r_32x512_8.v \
+	$script_dir/../../verilog/gl/wb_host.v \
+	$script_dir/../../verilog/gl/mbist.v"
 
 set ::env(EXTRA_LEFS) "\
-	$script_dir/../../lef/user_proj_example.lef"
+	$script_dir/../../lef/sky130_sram_2kbyte_1rw1r_32x512_8.lef \
+	$script_dir/../../lef/mbist.lef \
+	$script_dir/../../lef/wb_host.lef"
 
 set ::env(EXTRA_GDS_FILES) "\
-	$script_dir/../../gds/user_proj_example.gds"
+	$script_dir/../../gds/sky130_sram_2kbyte_1rw1r_32x512_8.gds \
+	$script_dir/../../gds/mbist.gds \
+	$script_dir/../../gds/wb_host.gds"
 
 set ::env(GLB_RT_MAXLAYER) 5
 

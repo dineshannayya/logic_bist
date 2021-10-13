@@ -24,5 +24,21 @@
     `include "gl/user_proj_example.v"
 `else
     `include "user_project_wrapper.v"
-    `include "user_proj_example.v"
+
+
+    `include "mbist/src/mbist_addr_gen.sv"
+    `include "mbist/src/mbist_fsm.sv" 
+    `include "mbist/src/mbist_op_sel.sv" 
+    `include "mbist/src/mbist_repair_addr.sv" 
+    `include "mbist/src/mbist_top.sv" 
+    `include "mbist/src/mbist_sti_sel.sv" 
+    `include "mbist/src/mbist_pat_sel.sv"
+    `include "mbist/src/mbist_mem_sel.sv"
+    `include "mbist/src/mbist_data_cmp.sv"
+
+    `include "wb_host/src/wb_host.sv"
+    `include "lib/async_fifo.sv"
+    `include "lib/async_wb.sv"
+    `include "lib/registers.v"
+
 `endif
