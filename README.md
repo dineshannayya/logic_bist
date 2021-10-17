@@ -28,10 +28,9 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOC.
 
 # Overview
 
-MBIST is a self-testing and repair mechanism which tests the memories through an effective set of algorithms to detect possibly all the faults that could be present inside a typical memory cell whether it is stuck-at (SAF), transition delay faults (TDF), coupling (CF) or neighborhood pattern sensitive faults (NPSF).
-.  This project uses only open source tool set for simulation,synthesis and backend tools.  The SOC flow follow the openlane methodology and SOC environment is compatible with efabless/carvel methodology.
+MBIST is a self-testing and repair mechanism which tests the memories through an effective set of algorithms to detect possibly all the faults that could be present inside a typical memory cell whether it is stuck-at (SAF), transition delay faults (TDF), coupling (CF) or neighborhood pattern sensitive faults (NPSF).  This project uses only open source tool set for simulation,synthesis and backend tools.  The SOC flow follow the openlane methodology and SOC environment is compatible with efabless/carvel methodology.
 
-# Riscduino Block Diagram
+# MBIST Block Diagram
 
 <table>
   <tr>
