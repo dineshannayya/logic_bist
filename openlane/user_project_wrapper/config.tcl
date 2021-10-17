@@ -77,11 +77,21 @@ set ::env(EXTRA_GDS_FILES) "\
 	$script_dir/../../gds/mbist.gds \
 	$script_dir/../../gds/wb_host.gds"
 
+set ::env(SDC_FILE) "$script_dir/base.sdc"
+set ::env(BASE_SDC_FILE) "$script_dir/base.sdc"
+
 set ::env(GLB_RT_MAXLAYER) 5
 
 # disable pdn check nodes becuase it hangs with multiple power domains.
 # any issue with pdn connections will be flagged with LVS so it is not a critical check.
 set ::env(FP_PDN_CHECK_NODES) 0
+
+### Macro PDN Connections
+set ::env(FP_PDN_ENABLE_MACROS_GRID) "0"
+set ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS) "1"
+
+set ::env(VDD_NETS) "vccd1 vccd2 vdda1 vdda2"
+set ::env(GND_NETS) "vssd1 vssd2 vssa1 vssa2"
 
 # The following is because there are no std cells in the example wrapper project.
 set ::env(SYNTH_TOP_LEVEL) 1
@@ -98,3 +108,12 @@ set ::env(DIODE_INSERTION_STRATEGY) 0
 set ::env(FILL_INSERTION) 0
 set ::env(TAP_DECAP_INSERTION) 0
 set ::env(CLOCK_TREE_SYNTH) 0
+
+set ::env(QUIT_ON_LVS_ERROR) "0"
+set ::env(QUIT_ON_MAGIC_DRC) "0"
+set ::env(QUIT_ON_NEGATIVE_WNS) "0"
+set ::env(QUIT_ON_SLEW_VIOLATIONS) "0"
+set ::env(QUIT_ON_TIMING_VIOLATIONS) "0"
+set ::env(QUIT_ON_TR_DRC) "0"
+
+
