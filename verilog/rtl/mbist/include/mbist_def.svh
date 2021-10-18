@@ -21,12 +21,12 @@
 
 // BIST ADDRESS CONTRL
 //
-parameter BIST_ADDR_WD    = 10     ;
-parameter BIST_ADDR_START = 10'h000 ; 
-parameter BIST_ADDR_END   = 10'h3FB ;
+//parameter BIST_ADDR_WD    = 9     ;
+//parameter BIST_ADDR_START = 10'h000 ; 
+//parameter BIST_ADDR_END   = 10'h3FB ;
 
 // BIST DATA CONTRL
-parameter BIST_DATA_WD        = 32;
+//parameter BIST_DATA_WD        = 32;
 parameter BIST_DATA_PAT_SIZE  = 8;
 parameter BIST_DATA_PAT_TYPE1 = 64'h5555_5555_5555_5555;
 parameter BIST_DATA_PAT_TYPE2 = 64'h3333_3333_3333_3333;
@@ -55,10 +55,10 @@ parameter  BIST_STIMULUS_TYPE8 = 12'b000000000000;
 parameter  BIST_OP_SIZE        = 3;
 
 // BIST ADDRESS REPAIR
-parameter  BIST_RAD_WD_I            = BIST_ADDR_WD;
-parameter  BIST_RAD_WD_O            = BIST_ADDR_WD;
+//parameter  BIST_RAD_WD_I            = BIST_ADDR_WD;
+//parameter  BIST_RAD_WD_O            = BIST_ADDR_WD;
 parameter  BIST_ERR_LIMIT           = 4;
 // Make Sure that this address in outside the valid address range
-parameter  BIST_REPAIR_ADDR_START   = 10'h3FC ; 
+//parameter  BIST_REPAIR_ADDR_START   = 10'h3FC ; 
 
 `endif // BIST_DEFINE_SVH

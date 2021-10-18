@@ -39,7 +39,14 @@
 //////////////////////////////////////////////////////////////////////
 
 `include "mbist_def.svh"
-module mbist_top (
+module mbist_top 
+     #(  parameter BIST_ADDR_WD           = 9,
+	 parameter BIST_DATA_WD           = 32,
+	 parameter BIST_ADDR_START        = 9'h000,
+	 parameter BIST_ADDR_END          = 9'h1F8,
+	 parameter BIST_REPAIR_ADDR_START = 9'h1FC,
+	 parameter BIST_RAD_WD_I          = BIST_ADDR_WD,
+	 parameter BIST_RAD_WD_O          = BIST_ADDR_WD) (
 
 	input logic                      bist_clk,
 	input logic                      rst_n,
@@ -134,7 +141,17 @@ assign bist_wdata = (op_invert) ? ~pat_data : pat_data;
 
 // bist main control FSM
 
-mbist_fsm u_fsm (
+mbist_fsm  
+      #(
+	 .BIST_ADDR_WD           (BIST_ADDR_WD           ),
+	 .BIST_DATA_WD           (BIST_DATA_WD           ),
+	 .BIST_ADDR_START        (BIST_ADDR_START        ),
+	 .BIST_ADDR_END          (BIST_ADDR_END          ),
+	 .BIST_REPAIR_ADDR_START (BIST_REPAIR_ADDR_START ),
+	 .BIST_RAD_WD_I          (BIST_RAD_WD_I          ),
+	 .BIST_RAD_WD_O          (BIST_RAD_WD_O          )
+          )
+     u_fsm (
 
 	            .cmd_phase          (cmd_phase           ),
 	            .cmp_phase          (cmp_phase           ),
@@ -158,7 +175,17 @@ mbist_fsm u_fsm (
 
 
 // bist address generation
-mbist_addr_gen   u_addr_gen(
+mbist_addr_gen   
+      #(
+	 .BIST_ADDR_WD           (BIST_ADDR_WD           ),
+	 .BIST_DATA_WD           (BIST_DATA_WD           ),
+	 .BIST_ADDR_START        (BIST_ADDR_START        ),
+	 .BIST_ADDR_END          (BIST_ADDR_END          ),
+	 .BIST_REPAIR_ADDR_START (BIST_REPAIR_ADDR_START ),
+	 .BIST_RAD_WD_I          (BIST_RAD_WD_I          ),
+	 .BIST_RAD_WD_O          (BIST_RAD_WD_O          )
+          )
+      u_addr_gen(
                     .last_addr          (last_addr          ), 
                     .bist_addr          (bist_addr          ),   
                     .sdo                (bist_addr_sdo      ),         
@@ -175,7 +202,17 @@ mbist_addr_gen   u_addr_gen(
 
 
 // BIST current stimulus selection
-mbist_sti_sel u_sti_sel(
+mbist_sti_sel 
+      #(
+	 .BIST_ADDR_WD           (BIST_ADDR_WD           ),
+	 .BIST_DATA_WD           (BIST_DATA_WD           ),
+	 .BIST_ADDR_START        (BIST_ADDR_START        ),
+	 .BIST_ADDR_END          (BIST_ADDR_END          ),
+	 .BIST_REPAIR_ADDR_START (BIST_REPAIR_ADDR_START ),
+	 .BIST_RAD_WD_I          (BIST_RAD_WD_I          ),
+	 .BIST_RAD_WD_O          (BIST_RAD_WD_O          )
+          )
+       u_sti_sel(
 
 	            .sdo                (bist_sti_sdo       ),  
 	            .last_stimulus      (last_sti           ),  
@@ -191,7 +228,17 @@ mbist_sti_sel u_sti_sel(
 
 
 // Bist Operation selection
-mbist_op_sel u_op_sel (
+mbist_op_sel 
+      #(
+	 .BIST_ADDR_WD           (BIST_ADDR_WD           ),
+	 .BIST_DATA_WD           (BIST_DATA_WD           ),
+	 .BIST_ADDR_START        (BIST_ADDR_START        ),
+	 .BIST_ADDR_END          (BIST_ADDR_END          ),
+	 .BIST_REPAIR_ADDR_START (BIST_REPAIR_ADDR_START ),
+	 .BIST_RAD_WD_I          (BIST_RAD_WD_I          ),
+	 .BIST_RAD_WD_O          (BIST_RAD_WD_O          )
+          )
+        u_op_sel (
 
                     .op_read            (op_read            ), 
 	            .op_write           (op_write           ),
@@ -213,7 +260,17 @@ mbist_op_sel u_op_sel (
 
 
 
-mbist_pat_sel u_pat_sel (
+mbist_pat_sel 
+      #(
+	 .BIST_ADDR_WD           (BIST_ADDR_WD           ),
+	 .BIST_DATA_WD           (BIST_DATA_WD           ),
+	 .BIST_ADDR_START        (BIST_ADDR_START        ),
+	 .BIST_ADDR_END          (BIST_ADDR_END          ),
+	 .BIST_REPAIR_ADDR_START (BIST_REPAIR_ADDR_START ),
+	 .BIST_RAD_WD_I          (BIST_RAD_WD_I          ),
+	 .BIST_RAD_WD_O          (BIST_RAD_WD_O          )
+          )
+      u_pat_sel (
                     .pat_last           (last_pat           ),
                     .pat_data           (pat_data           ),
                     .sdo                (bist_pat_sdo       ),
@@ -226,7 +283,19 @@ mbist_pat_sel u_pat_sel (
    );
 
 
-mbist_data_cmp  u_cmp (
+mbist_data_cmp  
+      #(
+	 .BIST_ADDR_WD           (BIST_ADDR_WD           ),
+	 .BIST_DATA_WD           (BIST_DATA_WD           ),
+	 .BIST_ADDR_START        (BIST_ADDR_START        ),
+	 .BIST_ADDR_END          (BIST_ADDR_END          ),
+	 .BIST_REPAIR_ADDR_START (BIST_REPAIR_ADDR_START ),
+	 .BIST_RAD_WD_I          (BIST_RAD_WD_I          ),
+	 .BIST_RAD_WD_O          (BIST_RAD_WD_O          )
+          )
+
+
+     u_cmp (
                     .error              (bist_error         ),
 		    .error_fix          (bist_error_fix     ),
 		    .error_addr         (bist_error_addr    ),
@@ -241,7 +310,17 @@ mbist_data_cmp  u_cmp (
 	);
 
 
-mbist_mux  u_mem_sel (
+mbist_mux  
+      #(
+	 .BIST_ADDR_WD           (BIST_ADDR_WD           ),
+	 .BIST_DATA_WD           (BIST_DATA_WD           ),
+	 .BIST_ADDR_START        (BIST_ADDR_START        ),
+	 .BIST_ADDR_END          (BIST_ADDR_END          ),
+	 .BIST_REPAIR_ADDR_START (BIST_REPAIR_ADDR_START ),
+	 .BIST_RAD_WD_I          (BIST_RAD_WD_I          ),
+	 .BIST_RAD_WD_O          (BIST_RAD_WD_O          )
+          )
+       u_mem_sel (
 
                     .rst_n                (rst_n         ),
                     // MBIST CTRL SIGNAL

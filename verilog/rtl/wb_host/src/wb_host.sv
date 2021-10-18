@@ -104,7 +104,7 @@ module wb_host (
       // MEM A PORT 
         output   logic             func_clk_a,
         output   logic             func_cen_a,
-        output   logic  [9:0]      func_addr_a,
+        output   logic  [8:0]      func_addr_a,
         input    logic  [31:0]     func_dout_a,
 
        // Functional B Port
@@ -112,7 +112,7 @@ module wb_host (
         output   logic              func_cen_b,
         output   logic              func_web_b,
         output   logic [3:0]        func_mask_b,
-        output   logic  [9:0]       func_addr_b,
+        output   logic  [8:0]       func_addr_b,
         output   logic  [31:0]      func_din_b,
 
 	output   logic  [37:0]      io_out,
@@ -147,6 +147,7 @@ logic [7:0]         cfg_bank_sel;
 logic [31:0]        wbm_adr_int;
 logic               wbm_stb_int;
 logic [31:0]        reg_0;  // Software_Reg_0
+logic [31:0]        reg_1;  // Software_Reg_0
 
 logic  [3:0]        cfg_bist_clk_ctrl;
 logic  [3:0]        cfg_mem_clk_ctrl;
@@ -202,10 +203,8 @@ assign  wbm_err_o   = (reg_sel) ? 1'b0      : wbm_err_int;  // error
 //-----------------------------------------------------------------------
 // caravel user space is 0x3000_0000 to 0x30FF_FFFF
 // So we have allocated 
+// 0x3000_0000 - 0x307F_7FFF - To SRAM Address Space
 // 0x3080_0000 - 0x3080_00FF - Assigned to WB Host Address Space
-// Since We need more than 16MB Address space to access SDRAM/SPI we have
-// added indirect MSB 8 bit address select option
-// So Address will be {Bank_Sel[7:0], wbm_adr_i[23:0}
 // ---------------------------------------------------------------------
 assign reg_sel       = wb_req & (wbm_adr_i[23] == 1'b1);
 
@@ -242,9 +241,10 @@ end
 //-------------------------------------
 // Global + Clock Control
 // -------------------------------------
-assign cfg_glb_ctrl         = reg_0[7:0];
-assign cfg_bist_clk_ctrl    = reg_0[11:8];
-assign cfg_mem_clk_ctrl     = reg_0[15:12];
+assign cfg_glb_ctrl         = reg_1[7:0];
+assign cfg_bist_clk_ctrl    = reg_1[11:8];
+assign cfg_mem_clk_ctrl     = reg_1[15:12];
+assign cfg_bank_sel         = reg_1[23:16];
 
 
 // BIST Control
@@ -264,7 +264,7 @@ begin
 
   case (sw_addr [1:0])
     2'b00 :   reg_out [31:0] = reg_0;
-    2'b01 :   reg_out [31:0] = {24'h0,cfg_bank_sel [7:0]};     
+    2'b01 :   reg_out [31:0] = reg_1;
     2'b10 :   reg_out [31:0] = cfg_bist_ctrl [31:0];    
     2'b11 :   reg_out [31:0] = cfg_bist_status [31:0];     
     default : reg_out [31:0] = 'h0;
@@ -272,10 +272,9 @@ begin
 end
 
 
-
-generic_register #(32,0  ) u_glb_ctrl (
-	      .we            ({24{sw_wr_en_0}}   ),		 
-	      .data_in       (wbm_dat_i[23:0]    ),
+generic_register #(32,32'hAABBCCDD  ) u_chip_id (
+	      .we            ({32{sw_wr_en_0}}   ),		 
+	      .data_in       (wbm_dat_i[31:0]    ),
 	      .reset_n       (wbm_rst_n         ),
 	      .clk           (wbm_clk_i         ),
 	      
@@ -283,15 +282,16 @@ generic_register #(32,0  ) u_glb_ctrl (
 	      .data_out      (reg_0[31:0])
           );
 
-generic_register #(8,8'h10 ) u_bank_sel (
-	      .we            ({8{sw_wr_en_1}}   ),		 
-	      .data_in       (wbm_dat_i[7:0]    ),
+generic_register #(32,32'h100000  ) u_glb_ctrl (
+	      .we            ({32{sw_wr_en_1}}  ),		 
+	      .data_in       (wbm_dat_i[31:0]   ),
 	      .reset_n       (wbm_rst_n         ),
 	      .clk           (wbm_clk_i         ),
 	      
 	      //List of Outs
-	      .data_out      (cfg_bank_sel[7:0] )
+	      .data_out      (reg_1[31:0]       )
           );
+
 
 
 generic_register #(32,0  ) u_clk_ctrl1 (
@@ -310,7 +310,7 @@ assign wbm_stb_int = wb_req & !reg_sel;
 
 // Since design need more than 16MB address space, we have implemented
 // indirect access
-assign wbm_adr_int = {cfg_bank_sel[7:0],wbm_adr_i[23:0]};  
+assign wbm_adr_int = {4'b0000,cfg_bank_sel[7:0],wbm_adr_i[19:0]};  
 
 async_wb u_async_wb(
 // Master Port
@@ -346,15 +346,14 @@ assign func_clk_b     = mem_clk;
 assign func_cen_b     = !wbs_stb_o;
 assign func_web_b     = !wbs_we_o;
 assign func_mask_b    = wbs_sel_o;
-assign func_addr_b    = wbs_adr_o[11:2];
+assign func_addr_b    = wbs_adr_o[10:2];
 assign func_din_b     = wbs_dat_o;
 
 assign func_clk_a     = mem_clk;
 assign func_cen_a     = !(wbs_stb_o == 1'b0 && wbs_we_o == 1'b0);
-assign func_addr_a    = wbs_adr_o[11:2];
+assign func_addr_a    = wbs_adr_o[10:2];
 assign wbs_dat_i      = func_dout_a;
 
-assign wbs_ack_i   = func_cen_a;
 assign wbs_err_i   = 1'b0;
 
 always_ff @(negedge wbs_rst_n or posedge mem_clk) begin

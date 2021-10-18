@@ -40,7 +40,15 @@
 //-----------------------------------
 // MBIST Data Pattern Selection Logic
 //-----------------------------------
-module mbist_pat_sel (
+module mbist_pat_sel 
+     #(  parameter BIST_ADDR_WD           = 9,
+	 parameter BIST_DATA_WD           = 32,
+	 parameter BIST_ADDR_START        = 9'h000,
+	 parameter BIST_ADDR_END          = 9'h1F8,
+	 parameter BIST_REPAIR_ADDR_START = 9'h1FC,
+	 parameter BIST_RAD_WD_I          = BIST_ADDR_WD,
+	 parameter BIST_RAD_WD_O          = BIST_ADDR_WD) (
+
       output  logic                     pat_last,   // Last pattern
       output  logic [BIST_DATA_WD-1:0]  pat_data,   // pattern data
       output  logic                     sdo,        // scan data output

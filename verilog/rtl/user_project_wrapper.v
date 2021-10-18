@@ -90,7 +90,7 @@ module user_project_wrapper #(
     output [2:0] user_irq
 );
 
-parameter BIST_ADDR_WD = 10;
+parameter BIST_ADDR_WD = 11;
 parameter BIST_DATA_WD = 32;
 
 
@@ -111,7 +111,7 @@ wire                      bist_sdo;
 // FUNCTIONAL A PORT 
 wire                      func_clk_a;
 wire                      func_cen_a;
-wire  [BIST_ADDR_WD-1:0]  func_addr_a;
+wire  [BIST_ADDR_WD-1:2]  func_addr_a;
 wire  [BIST_DATA_WD-1:0]  func_dout_a;
 
 // Functional B Port
@@ -119,14 +119,14 @@ wire                      func_clk_b;
 wire                      func_cen_b;
 wire                      func_web_b;
 wire [BIST_DATA_WD/8-1:0] func_mask_b;
-wire  [BIST_ADDR_WD-1:0]  func_addr_b;
+wire  [BIST_ADDR_WD-1:2]  func_addr_b;
 wire  [BIST_DATA_WD-1:0]  func_din_b;
 
 
 // towards memory
 // PORT-A
 wire                      mem_clk_a;
-wire   [BIST_ADDR_WD-1:0] mem_addr_a;
+wire   [BIST_ADDR_WD-1:2] mem_addr_a;
 wire                      mem_cen_a;
 wire   [BIST_DATA_WD-1:0] mem_din_b;
 
@@ -135,7 +135,7 @@ wire                      mem_clk_b;
 wire                      mem_cen_b;
 wire                      mem_web_b;
 wire [BIST_DATA_WD/8-1:0] mem_mask_b;
-wire [BIST_ADDR_WD-1:0]   mem_addr_b;
+wire [BIST_ADDR_WD-1:2]   mem_addr_b;
 wire [BIST_DATA_WD-1:0]   mem_dout_a;
 
 
@@ -143,11 +143,23 @@ wb_host u_wb_host(
         .user_clock1          (wb_clk_i         ),
         .user_clock2          (user_clock2      ),
 
+    // Master Port
+        .wbm_rst_i            (wb_rst_i         ),  
+        .wbm_clk_i            (wb_clk_i         ),  
+        .wbm_cyc_i            (wbs_cyc_i        ),  
+        .wbm_stb_i            (wbs_stb_i        ),  
+        .wbm_adr_i            (wbs_adr_i        ),  
+        .wbm_we_i             (wbs_we_i         ),  
+        .wbm_dat_i            (wbs_dat_i        ),  
+        .wbm_sel_i            (wbs_sel_i        ),  
+        .wbm_dat_o            (wbs_dat_o        ),  
+        .wbm_ack_o            (wbs_ack_o        ),  
+        .wbm_err_o            (                 ),  
         .bist_clk             (bist_clk         ),
         .bist_rst_n           (bist_rst_n       ),
 	.mem_clk_out          (mem_clk_out      ),
 	.mem_clk              (mem_clk_out      ),
-	.wbd_int_rst_n        (wbd_int_rst_n    ),
+	.wbd_int_rst_n        (                 ),
 
 	.bist_en              (bist_en          ),
 	.bist_run             (bist_run         ),
@@ -181,8 +193,13 @@ wb_host u_wb_host(
 
 mbist_top  #(
 	`ifndef SYNTHESIS
-	.BIST_ADDR_WD(9), 
-	.BIST_DATA_WD(32)
+	.BIST_ADDR_WD           (BIST_ADDR_WD-2         ),
+	.BIST_DATA_WD           (BIST_DATA_WD           ),
+	.BIST_ADDR_START        (9'h000                 ),
+	.BIST_ADDR_END          (9'h1F8                 ),
+	.BIST_REPAIR_ADDR_START (9'h1FC                 ),
+	.BIST_RAD_WD_I          (BIST_ADDR_WD-2         ),
+	.BIST_RAD_WD_O          (BIST_ADDR_WD-2         )
         `endif
      ) 
 	     u_mbist (

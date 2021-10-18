@@ -17,6 +17,7 @@
 CARAVEL_ROOT?=$(PWD)/caravel
 PRECHECK_ROOT?=${HOME}/mpw_precheck
 SIM ?= RTL
+DUMP ?= OFF
 
 # Install lite version of caravel, (1): caravel-lite, (0): caravel
 CARAVEL_LITE?=1
@@ -43,24 +44,24 @@ SUBMODULE?=1
 .PHONY: verify
 verify:
 	cd ./verilog/dv/ && \
-	export SIM=${SIM} && \
+	export SIM=${SIM} DUMP=${DUMP} && \
 		$(MAKE) -j$(THREADS)
 
 # Install DV setup
 .PHONY: simenv
 simenv:
-	docker pull efabless/dv_setup:latest
+	docker pull dineshannayya/dv_setup:latest
 
 PATTERNS=$(shell cd verilog/dv && find * -maxdepth 0 -type d)
 DV_PATTERNS = $(foreach dv, $(PATTERNS), verify-$(dv))
 TARGET_PATH=$(shell pwd)
-VERIFY_COMMAND="cd ${TARGET_PATH}/verilog/dv/$* && export SIM=${SIM} && make"
+VERIFY_COMMAND="cd ${TARGET_PATH}/verilog/dv/$* && export SIM=${SIM} DUMP=${DUMP} && make"
 $(DV_PATTERNS): verify-% : ./verilog/dv/% 
 	docker run -v ${TARGET_PATH}:${TARGET_PATH} -v ${PDK_ROOT}:${PDK_ROOT} \
                 -v ${CARAVEL_ROOT}:${CARAVEL_ROOT} \
                 -e TARGET_PATH=${TARGET_PATH} -e PDK_ROOT=${PDK_ROOT} \
                 -e CARAVEL_ROOT=${CARAVEL_ROOT} \
-                -u $(id -u $$USER):$(id -g $$USER) efabless/dv_setup:latest \
+                -u $(id -u $$USER):$(id -g $$USER) dineshannayya/dv_setup:latest \
                 sh -c $(VERIFY_COMMAND)
 				
 # Openlane Makefile Targets

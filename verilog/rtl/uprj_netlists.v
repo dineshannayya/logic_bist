@@ -33,12 +33,15 @@
     `include "mbist/src/mbist_top.sv" 
     `include "mbist/src/mbist_sti_sel.sv" 
     `include "mbist/src/mbist_pat_sel.sv"
-    `include "mbist/src/mbist_mem_sel.sv"
+    `include "mbist/src/mbist_mux.sv"
     `include "mbist/src/mbist_data_cmp.sv"
 
     `include "wb_host/src/wb_host.sv"
     `include "lib/async_fifo.sv"
     `include "lib/async_wb.sv"
     `include "lib/registers.v"
+    `include "lib/clk_ctl.v"
+
+    `include "sram_macros/sky130_sram_2kbyte_1rw1r_32x512_8.v"
 
 `endif

@@ -19,17 +19,15 @@
 #include "verilog/dv/caravel/defs.h"
 #include "verilog/dv/caravel/stub.c"
 
-/*
-	Wishbone Test:
-		- Configures MPRJ lower 8-IO pins as outputs
-		- Checks counter value through the wishbone port
-*/
-int i = 0; 
-int clk = 0;
+// User Project Slaves (0x3000_0000)
+#define reg_mprj_slave (*(volatile uint32_t*)0x30000000)
+
+#define reg_mprj_wbhost_reg0 (*(volatile uint32_t*)0x30800000)
 
 void main()
 {
 
+	int bFail = 0;
 	/* 
 	IO Control Registers
 	| DM     | VTRIP | SLOW  | AN_POL | AN_SEL | AN_EN | MOD_SEL | INP_DIS | HOLDH | OEB_N | MGMT_EN |
@@ -80,8 +78,16 @@ void main()
     // Flag start of the test
 	reg_mprj_datal = 0xAB600000;
 
-    reg_mprj_slave = 0x00002710;
-    if (reg_mprj_slave == 0x2752) {
+
+    if (reg_mprj_wbhost_reg0 != 0xAABBCCDD) bFail = 1;
+
+    // Write software Write & Read Register
+    reg_mprj_wbhost_reg0  = 0x11223344; 
+
+
+    if (reg_mprj_wbhost_reg0  != 0x11223344) bFail = 1;
+
+    if(bFail == 0) {
         reg_mprj_datal = 0xAB610000;
     } else {
         reg_mprj_datal = 0xAB600000;
