@@ -102,6 +102,7 @@ module mbist_top
 // Local variable defination
 // ---------------------------------------------------
 //
+logic                    srst_n     ; // sync reset w.r.t bist_clk
 logic                    cmd_phase  ;  // Command Phase
 logic                    cmp_phase  ;  // Compare Phase
 logic                    run_op     ;  // Run next Operation
@@ -140,6 +141,15 @@ assign bist_rd = (cmd_phase && op_read);
 assign compare    = (cmp_phase && op_read);
 assign bist_wdata = (op_invert) ? ~pat_data : pat_data;
 
+reset_sync   u_reset_sync (
+	      .scan_mode  (1'b0      ),
+              .dclk       (bist_clk  ), // Destination clock domain
+	      .arst_n     (rst_n     ), // active low async reset
+              .srst_n     (srst_n    )
+          );
+
+
+
 // bist main control FSM
 
 mbist_fsm  
@@ -164,7 +174,7 @@ mbist_fsm
 
 
 	            .clk                (bist_clk           ),
-	            .rst_n              (rst_n              ),
+	            .rst_n              (srst_n             ),
 	            .bist_run           (bist_run           ),
 	            .last_op            (last_op            ),
 	            .last_addr          (last_addr          ),
@@ -192,7 +202,7 @@ mbist_addr_gen
                     .sdo                (bist_addr_sdo      ),         
 
                     .clk                (bist_clk           ),         
-                    .rst_n              (rst_n              ),       
+                    .rst_n              (srst_n             ),       
                     .run                (run_addr           ),         
                     .updown             (op_updown          ),      
                     .scan_shift         (bist_shift         ),  
@@ -220,7 +230,7 @@ mbist_sti_sel
                     .stimulus           (stimulus           ),
 
 	            .clk                (bist_clk           ),  
-	            .rst_n              (rst_n              ),  
+	            .rst_n              (srst_n             ),  
 	            .scan_shift         (bist_shift         ),  
 	            .sdi                (bist_addr_sdo      ),  
 	            .run                (run_sti            )              
@@ -251,7 +261,7 @@ mbist_op_sel
 	            .last_op            (last_op            ),
 
 	            .clk                (bist_clk           ),
-	            .rst_n              (rst_n              ),
+	            .rst_n              (srst_n             ),
 	            .scan_shift         (bist_shift         ),
 	            .sdi                (bist_sti_sdo       ),
 		    .re_init            (bist_error_correct ),
@@ -277,7 +287,7 @@ mbist_pat_sel
                     .pat_data           (pat_data           ),
                     .sdo                (bist_sdo           ),
                     .clk                (bist_clk           ),
-                    .rst_n              (rst_n              ),
+                    .rst_n              (srst_n             ),
                     .run                (run_pat            ),
                     .scan_shift         (scan_shift         ),
                     .sdi                (bist_op_sdo        )
@@ -304,7 +314,7 @@ mbist_data_cmp
 		    .error_addr         (bist_error_addr    ),
 		    .error_cnt          (bist_error_cnt     ),
                     .clk                (bist_clk           ),
-                    .rst_n              (rst_n              ),
+                    .rst_n              (srst_n             ),
 		    .addr_inc_phase     (run_addr           ),
                     .compare            (compare            ), 
 	            .read_invert        (op_invert          ),
@@ -327,7 +337,7 @@ mbist_mux
           )
        u_mem_sel (
 
-                    .rst_n                (rst_n         ),
+                    .rst_n                (srst_n        ),
                     // MBIST CTRL SIGNAL
                     .bist_en              (bist_en       ),
                     .bist_addr            (bist_addr     ),
