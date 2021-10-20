@@ -105,6 +105,9 @@ wire                      bist_shift;
 wire                      bist_load;
 wire                      bist_sdi;
 
+wire  [3:0]               bist_error_cnt;
+wire                      bist_correct;
+wire                      bist_error;
 wire                      bist_done;
 wire                      bist_sdo;
 
@@ -167,6 +170,9 @@ wb_host u_wb_host(
 	.bist_load            (bist_load        ),
 	.bist_sdi             (bist_sdi         ),
 
+	.bist_error_cnt       (bist_error_cnt   ),
+	.bist_correct         (bist_correct     ),
+	.bist_error           (bist_error       ),
 	.bist_done            (bist_done        ),
 	.bist_sdo             (bist_sdo         ),
 
@@ -214,6 +220,9 @@ mbist_top  #(
 	.bist_load            (bist_load        ),
 	.bist_sdi             (bist_sdi         ),
 
+	.bist_error_cnt       (bist_error_cnt   ),
+	.bist_correct         (bist_correct     ),
+	.bist_error           (bist_error       ),
 	.bist_done            (bist_done        ),
 	.bist_sdo             (bist_sdo         ),
 

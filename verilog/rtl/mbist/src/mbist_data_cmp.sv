@@ -49,12 +49,14 @@ module mbist_data_cmp
 	 parameter BIST_RAD_WD_O          = BIST_ADDR_WD) (
 
           output  logic                      error,
-	  output  logic                      error_fix,
+	  output  logic                      error_correct,
 	  output  logic                      correct,
 	  output  logic [BIST_ADDR_WD-1:0]   error_addr,
+          output  logic  [3:0]               error_cnt,
           input   logic                      clk,
           input   logic                      rst_n,
           input   logic                      compare, 
+	  input   logic                      addr_inc_phase,
 	  input   logic                      read_invert,
           input   logic  [BIST_DATA_WD-1:0]  comp_data,
           input   logic  [BIST_DATA_WD-1:0]  rxd_data,
@@ -62,7 +64,7 @@ module mbist_data_cmp
 	     
 	);
 
-logic  [3:0]               error_cnt;
+logic                      mask_compare;
 logic  [BIST_DATA_WD-1:0]  exp_data;
 logic                      comp_status;
 
@@ -74,7 +76,7 @@ always @(posedge clk or negedge rst_n) begin
    if(!rst_n)         begin
       comp_status <= 1'b0;
       error_addr  <= 'b0;
-   end else if(compare)   begin
+   end else if(compare && !mask_compare)   begin
       comp_status <= |(exp_data ^ rxd_data);
       error_addr  <= addr;
    end else begin 
@@ -82,21 +84,26 @@ always @(posedge clk or negedge rst_n) begin
    end
 end
 
+// Due to cycle diference between compare and write opperation
+// There is chance two error reported for same address
+// To avoid this, once error is detected, comparision is masked
+// unit the next address phase
 always @(posedge clk or negedge rst_n) begin
    if(!rst_n) begin             
-      error_cnt <= 'b0;
-      error_fix  <='b0;
-      correct    <='b0;
-   end else if(comp_status == 0) begin
-      error_fix  <= 1'b0;
-   end else if(error_cnt < BIST_ERR_LIMIT )   begin
-      error_cnt  <= error_cnt+1;
-      error_fix  <= 1'b1;
-      correct    <='b1;
+      error_cnt    <= 'b0;
+      correct      <='b0;
+      mask_compare <= 'b0;
+   end else if(mask_compare && addr_inc_phase) begin 
+      mask_compare <= 1'b0;
+   end else if(comp_status && (error_cnt < BIST_ERR_LIMIT) )   begin
+      error_cnt    <= error_cnt+1;
+      mask_compare <= 1'b1;
+      correct      <='b1;
    end 
 end
 
-assign error = (error_cnt < BIST_ERR_LIMIT) ? 1'b0 :  comp_status;
+assign error = (error_cnt < BIST_ERR_LIMIT) ? 1'b0 :  1'b1;
+assign error_correct = (error_cnt < BIST_ERR_LIMIT) ? comp_status : 1'b0;
 
 endmodule
 

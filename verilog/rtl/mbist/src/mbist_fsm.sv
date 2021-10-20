@@ -112,7 +112,7 @@ begin
             end else begin
                cmd_phase   <= 0;
                cmp_phase   <= 1;
-               run_op     <= 1;
+               run_op      <= 1;
                if(last_op && !(last_addr && op_reverse))
                   run_addr <= 1;
                if(last_addr && last_op) 

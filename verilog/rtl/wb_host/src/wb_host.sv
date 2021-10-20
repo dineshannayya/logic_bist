@@ -98,6 +98,9 @@ module wb_host (
 	output logic               bist_load,
 	output logic               bist_sdi,
 
+	input logic [3:0]          bist_error_cnt,
+	input logic                bist_correct,
+	input logic                bist_error,
 	input logic                bist_done,
 	input logic                bist_sdo,
 
@@ -176,8 +179,8 @@ assign la_data_out = 'h0;
 assign wbm_rst_n = !wbm_rst_i;
 assign wbs_rst_n = !wbm_rst_i;
 
-sky130_fd_sc_hd__bufbuf_16 u_buf_wb_rst        (.A(cfg_glb_ctrl[0]),.X(wbd_int_rst_n));
-sky130_fd_sc_hd__bufbuf_16 u_buf_cpu_rst       (.A(cfg_glb_ctrl[1]),.X(bist_rst_n));
+sky130_fd_sc_hd__bufbuf_16 u_buf_wb_rst     (.A(cfg_glb_ctrl[0]),.X(wbd_int_rst_n));
+sky130_fd_sc_hd__bufbuf_16 u_buf_bist_rst   (.A(cfg_glb_ctrl[1]),.X(bist_rst_n));
 
 
 // To reduce the load/Timing Wishbone I/F, Strobe is register to create
@@ -255,7 +258,7 @@ assign bist_load         = cfg_bist_ctrl[3];
 assign bist_sdi          = cfg_bist_ctrl[4];
 
 // BIST Status
-assign cfg_bist_status   = {30'h0,bist_done,bist_sdo};
+assign cfg_bist_status   = {24'h0,bist_sdo,bist_error_cnt,bist_correct,bist_error,bist_done};
 
 
 always @( *)
@@ -328,7 +331,7 @@ async_wb u_async_wb(
 
 // Slave Port
        .wbs_rst_n   (wbs_rst_n     ),  
-       .wbs_clk_i   (wbs_clk_i     ),  
+       .wbs_clk_i   (mem_clk     ),  
        .wbs_cyc_o   (wbs_cyc_o     ),  
        .wbs_stb_o   (wbs_stb_o     ),  
        .wbs_adr_o   (wbs_adr_o     ),  
@@ -350,7 +353,7 @@ assign func_addr_b    = wbs_adr_o[10:2];
 assign func_din_b     = wbs_dat_o;
 
 assign func_clk_a     = mem_clk;
-assign func_cen_a     = !(wbs_stb_o == 1'b0 && wbs_we_o == 1'b0);
+assign func_cen_a     = !(wbs_stb_o == 1'b1 && wbs_we_o == 1'b0);
 assign func_addr_a    = wbs_adr_o[10:2];
 assign wbs_dat_i      = func_dout_a;
 

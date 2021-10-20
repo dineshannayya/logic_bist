@@ -63,6 +63,7 @@ module mbist_op_sel
 	input  logic                        rst_n         ,  // Reset 
 	input  logic                        scan_shift    ,  // Scan Shift
 	input  logic                        sdi           ,  // Scan data in
+	input  logic                        re_init       ,  // Re-init when there is error correction
 	input  logic                        run           ,  // Run 
         input  logic  [BIST_STI_WD-1:0]     stimulus     
 
@@ -83,13 +84,15 @@ integer                  loop         ;// bit count
 always @(posedge clk or negedge rst_n) begin
   if(!rst_n)           op_sel <= {1'b1,{(BIST_OP_SIZE-1){1'b0}}};
   else if(scan_shift)  op_sel <= {sdi, op_sel[BIST_OP_SIZE-2:1]};
+  else if(re_init)     op_sel <= {1'b1,{(BIST_OP_SIZE-1){1'b0}}}; // need fix for pmbist moode
   else if(run)         op_sel <= {op_sel[0],op_sel[BIST_OP_SIZE-1:1]};
 end
 
 assign op_updown     = stimulus[BIST_STI_WD-1];
 assign op_reverse    = stimulus[BIST_STI_WD-2];
 assign op_repeatflag = stimulus[BIST_STI_WD-3];
-assign last_op       = op_sel[0];
+// Re-wind the operation, when the is error correct
+assign last_op       = (re_init) ? 1'b0 : op_sel[0];
 
 
 

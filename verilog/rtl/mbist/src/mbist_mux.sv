@@ -103,7 +103,7 @@ assign mem_cen_a    = (bist_en) ? !bist_rd   : func_cen_a;
 assign mem_cen_b    = (bist_en) ? !bist_wr   : func_cen_b;
 
 assign mem_web_b    = (bist_en) ? !bist_wr   : func_web_b;
-assign mem_mask_b   = (bist_en) ? {BIST_MASK_WD'(1'b1)}       : func_mask_b;
+assign mem_mask_b   = (bist_en) ? {{BIST_MASK_WD}{1'b1}}       : func_mask_b;
 
 assign mem_clk_a    = (bist_en) ? bist_clk   : func_clk_a;
 assign mem_clk_b    = (bist_en) ? bist_clk   : func_clk_b;
@@ -115,11 +115,11 @@ assign mem_din_b    = (bist_en) ? bist_wdata   : func_din_b;
 assign func_dout_a   =  mem_dout_a;
 
 mbist_repair_addr u_repair_A(
-    .AddressOut    (mem_addr_a      ),
+    .AddressOut    (mem_addr_a       ),
     .Correct       (bist_correct     ),
 
     .AddressIn     (addr_a           ),
-    .clk           (CLKA_sel         ),
+    .clk           (mem_clk_a        ),
     .rst_n         (rst_n            ),
     .Error         (bist_error       ),
     .ErrorAddr     (bist_error_addr  )

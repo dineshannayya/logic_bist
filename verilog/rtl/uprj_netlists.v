@@ -23,7 +23,12 @@
     `include "gl/user_project_wrapper.v"
     `include "gl/user_proj_example.v"
 `else
-    `include "user_project_wrapper.v"
+     `include "libs.ref/sky130_fd_sc_hd/verilog/primitives.v"
+     `include "libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v"
+     `include "libs.ref/sky130_fd_sc_hvl/verilog/primitives.v"
+     `include "libs.ref/sky130_fd_sc_hvl/verilog/sky130_fd_sc_hvl.v"
+
+     `include "user_project_wrapper.v"
 
 
     `include "mbist/src/mbist_addr_gen.sv"

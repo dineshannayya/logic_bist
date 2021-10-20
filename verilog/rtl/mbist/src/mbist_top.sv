@@ -58,6 +58,9 @@ module mbist_top
 	input logic                      bist_load,
 	input logic                      bist_sdi,
 
+	output logic [3:0]               bist_error_cnt,
+	output logic                     bist_correct,
+	output logic                     bist_error,
 	output logic                     bist_done,
 	output logic                     bist_sdo,
 
@@ -116,16 +119,14 @@ logic                    compare    ;  // compare data
 
 //---------------------------------
 // SDI => SDO diasy chain
-// bist_sdi => bist_addr_sdo =>  bist_sti_sdo =>  bist_op_sdo => bist_pat_sdo
+// bist_sdi => bist_addr_sdo =>  bist_sti_sdo =>  bist_op_sdo => bist_sdo
 // ---------------------------------
 logic                    bist_addr_sdo   ;                 
 logic                    bist_sti_sdo    ;                 
 logic                    bist_op_sdo     ;                 
 logic                    bist_pat_sdo    ;                 
 
-logic                    bist_error      ;
-logic                    bist_error_fix  ;
-logic                    bist_correct    ;
+logic                    bist_error_correct  ;
 logic  [BIST_ADDR_WD-1:0]bist_error_addr ; // bist address
 
 logic  [BIST_ADDR_WD-1:0]bist_addr       ; // bist address
@@ -253,6 +254,7 @@ mbist_op_sel
 	            .rst_n              (rst_n              ),
 	            .scan_shift         (bist_shift         ),
 	            .sdi                (bist_sti_sdo       ),
+		    .re_init            (bist_error_correct ),
 	            .run                (run_op             ),
                     .stimulus           (stimulus           )
 
@@ -273,12 +275,12 @@ mbist_pat_sel
       u_pat_sel (
                     .pat_last           (last_pat           ),
                     .pat_data           (pat_data           ),
-                    .sdo                (bist_pat_sdo       ),
+                    .sdo                (bist_sdo           ),
                     .clk                (bist_clk           ),
                     .rst_n              (rst_n              ),
                     .run                (run_pat            ),
                     .scan_shift         (scan_shift         ),
-                    .sdi                (bist_sdo           )
+                    .sdi                (bist_op_sdo        )
 
    );
 
@@ -297,10 +299,13 @@ mbist_data_cmp
 
      u_cmp (
                     .error              (bist_error         ),
-		    .error_fix          (bist_error_fix     ),
+		    .error_correct      (bist_error_correct ),
+		    .correct            (                   ), // same signal available at bist mux
 		    .error_addr         (bist_error_addr    ),
+		    .error_cnt          (bist_error_cnt     ),
                     .clk                (bist_clk           ),
                     .rst_n              (rst_n              ),
+		    .addr_inc_phase     (run_addr           ),
                     .compare            (compare            ), 
 	            .read_invert        (op_invert          ),
                     .comp_data          (pat_data           ),
@@ -327,10 +332,10 @@ mbist_mux
                     .bist_en              (bist_en       ),
                     .bist_addr            (bist_addr     ),
                     .bist_wdata           (bist_wdata    ),
-                    .bist_clk             (mem_clk       ),
+                    .bist_clk             (bist_clk      ),
                     .bist_wr              (bist_wr       ),
                     .bist_rd              (bist_rd       ),
-                    .bist_error           (bist_error_fix),
+                    .bist_error           (bist_error_correct),
                     .bist_error_addr      (bist_error_addr),
                     .bist_correct         (bist_correct  ),
 
