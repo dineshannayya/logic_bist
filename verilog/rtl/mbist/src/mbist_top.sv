@@ -43,7 +43,7 @@ module mbist_top
      #(  parameter BIST_ADDR_WD           = 9,
 	 parameter BIST_DATA_WD           = 32,
 	 parameter BIST_ADDR_START        = 9'h000,
-	 parameter BIST_ADDR_END          = 9'h1F8,
+	 parameter BIST_ADDR_END          = 9'h1FB,
 	 parameter BIST_REPAIR_ADDR_START = 9'h1FC,
 	 parameter BIST_RAD_WD_I          = BIST_ADDR_WD,
 	 parameter BIST_RAD_WD_O          = BIST_ADDR_WD) (

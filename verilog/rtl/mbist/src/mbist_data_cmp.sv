@@ -93,16 +93,18 @@ always @(posedge clk or negedge rst_n) begin
       error_cnt    <= 'b0;
       correct      <='b0;
       mask_compare <= 'b0;
+      error        <= '0;
    end else if(mask_compare && addr_inc_phase) begin 
       mask_compare <= 1'b0;
    end else if(comp_status && (error_cnt < BIST_ERR_LIMIT) )   begin
       error_cnt    <= error_cnt+1;
       mask_compare <= 1'b1;
       correct      <='b1;
+   end else if(comp_status && (error_cnt == BIST_ERR_LIMIT) )   begin
+      error        <= '1;
    end 
 end
 
-assign error = (error_cnt < BIST_ERR_LIMIT) ? 1'b0 :  1'b1;
 assign error_correct = (error_cnt < BIST_ERR_LIMIT) ? comp_status : 1'b0;
 
 endmodule

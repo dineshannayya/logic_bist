@@ -353,20 +353,24 @@ assign func_addr_b    = wbs_adr_o[10:2];
 assign func_din_b     = wbs_dat_o;
 
 assign func_clk_a     = mem_clk;
-assign func_cen_a     = !(wbs_stb_o == 1'b1 && wbs_we_o == 1'b0);
+assign func_cen_a     = (wbs_stb_o == 1'b1 && wbs_we_o == 1'b0 && wbs_ack_i ==0) ? 1'b0 : 1'b1;
 assign func_addr_a    = wbs_adr_o[10:2];
 assign wbs_dat_i      = func_dout_a;
 
 assign wbs_err_i   = 1'b0;
 
+logic func_cen_a_d;
+
 always_ff @(negedge wbs_rst_n or posedge mem_clk) begin
     if ( wbs_rst_n == 1'b0 ) begin
-        wbs_ack_i   <= '0;
+	func_cen_a_d <= 'h0;
    end else begin
-       wbs_ack_i    <= (wbs_ack_i ==0) && (func_cen_a == 1'b0); 
+       func_cen_a_d <= func_cen_a;
    end
 end
 
+assign wbs_ack_i = (wbs_stb_o == 1'b1 && wbs_we_o == 1'b1) ? 1'b1 :  // Write Phase
+                   (wbs_stb_o == 1'b1 && wbs_we_o == 1'b0) ? !func_cen_a_d : 1'b0; // Once Cycle Delay Read Ack
 
 //----------------------------------
 // Generate BIST Clock Generation

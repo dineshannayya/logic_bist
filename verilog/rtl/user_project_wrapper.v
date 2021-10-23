@@ -202,7 +202,7 @@ mbist_top  #(
 	.BIST_ADDR_WD           (BIST_ADDR_WD-2         ),
 	.BIST_DATA_WD           (BIST_DATA_WD           ),
 	.BIST_ADDR_START        (9'h000                 ),
-	.BIST_ADDR_END          (9'h1F8                 ),
+	.BIST_ADDR_END          (9'h1FB                 ),
 	.BIST_REPAIR_ADDR_START (9'h1FC                 ),
 	.BIST_RAD_WD_I          (BIST_ADDR_WD-2         ),
 	.BIST_RAD_WD_O          (BIST_ADDR_WD-2         )
