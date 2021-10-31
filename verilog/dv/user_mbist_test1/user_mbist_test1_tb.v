@@ -92,7 +92,7 @@ module user_mbist_test1_tb;
 	`ifdef WFDUMP
 	   initial begin
 	   	$dumpfile("simx.vcd");
-	   	$dumpvars(4, user_mbist_test1_tb);
+	   	$dumpvars(5, user_mbist_test1_tb);
 		$dumpoff;
 	   end
        `endif
@@ -129,7 +129,7 @@ module user_mbist_test1_tb;
 	    	$display("###################################################");
 	    	$display(" MBIST Test with Single Address Failure");
 	    	$display("###################################################");
-
+                $dumpon;
 		   // Check Is there is any BIST Error
 		   // [0]   - Bist Done      - 1
 		   // [1]   - Bist Error     - 0
@@ -149,7 +149,6 @@ module user_mbist_test1_tb;
 	    	$display("###################################################");
 	    	$display(" MBIST Test with Two Address Failure");
 	    	$display("###################################################");
-
 		// Check Is there is any BIST Error
 		// [0]   - Bist Done      - 1
 		// [1]   - Bist Error     - 0
@@ -185,6 +184,7 @@ module user_mbist_test1_tb;
 	        end else begin
 	    	    $display("Monitor: Step-4: BIST Test with Three Memory Error insertion test Failed");
 		 end
+                $dumpoff;
 	    	$display("###################################################");
 	    	$display(" MBIST Test with Fours Address Failure");
 	    	$display("###################################################");
@@ -438,6 +438,19 @@ begin
    end
    join_any
    disable fork; //disable pending fork activity
+
+   if(num_fault == 1)
+       wb_user_core_read_check('h3080_0014,read_data,{16'h0,7'h0,faultaddr[0]},32'h0000_FFFF);
+   if(num_fault == 2)
+       wb_user_core_read_check('h3080_0014,read_data,{7'h0,faultaddr[1],7'h0,faultaddr[0]},32'hFFFF_FFFF);
+   if(num_fault == 3) begin
+       wb_user_core_read_check('h3080_0014,read_data,{7'h0,faultaddr[1],7'h0,faultaddr[0]},32'hFFFF_FFFF);
+       wb_user_core_read_check('h3080_0014,read_data,{16'h0,7'h0,faultaddr[2]},32'h0000_FFFF);
+   end
+   if(num_fault >= 4) begin
+       wb_user_core_read_check('h3080_0014,read_data,{7'h0,faultaddr[1],7'h0,faultaddr[0]},32'hFFFF_FFFF);
+       wb_user_core_read_check('h3080_0014,read_data,{7'h0,faultaddr[3],7'h0,faultaddr[2]},32'hFFFF_FFFF);
+   end
 end
 endtask
 
@@ -482,6 +495,7 @@ begin
   wbd_ext_cyc_i ='h1;  // strobe/request
   wbd_ext_stb_i ='h1;  // strobe/request
   wait(wbd_ext_ack_o == 1);
+  #1;
   data  = wbd_ext_dat_o;  
   repeat (1) @(posedge clock);
   #1;
@@ -512,6 +526,7 @@ begin
   wbd_ext_cyc_i ='h1;  // strobe/request
   wbd_ext_stb_i ='h1;  // strobe/request
   wait(wbd_ext_ack_o == 1);
+  #1;
   data  = wbd_ext_dat_o;  
   repeat (1) @(posedge clock);
   #1;

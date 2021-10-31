@@ -58,6 +58,9 @@ module   mbist_mux
       input   logic                      bist_error,
       input   logic  [BIST_ADDR_WD-1:0]  bist_error_addr,
       output  logic                      bist_correct,
+      input   logic                      bist_sdi,
+      input   logic                      bist_shift,
+      output  logic                      bist_sdo,
 
       // FUNCTIONAL CTRL SIGNAL
       input   logic                      func_clk_a,
@@ -117,23 +120,29 @@ assign func_dout_a   =  mem_dout_a;
 mbist_repair_addr u_repair_A(
     .AddressOut    (mem_addr_a       ),
     .Correct       (bist_correct     ),
+    .sdo           (bist_sdo         ),
 
     .AddressIn     (addr_a           ),
     .clk           (mem_clk_a        ),
     .rst_n         (rst_n            ),
     .Error         (bist_error       ),
-    .ErrorAddr     (bist_error_addr  )
+    .ErrorAddr     (bist_error_addr  ),
+    .scan_shift    (bist_shift       ),
+    .sdi           (bist_sdi         )
 );
 
 mbist_repair_addr u_repair_B(
     .AddressOut    (mem_addr_b      ),
     .Correct       (                ), // Both Bist Correct are same
+    .sdo           (                ),
 
     .AddressIn     (addr_b          ),
     .clk           (mem_clk_b       ),
     .rst_n         (rst_n           ),
     .Error         (bist_error      ),
-    .ErrorAddr     (bist_error_addr )
+    .ErrorAddr     (bist_error_addr ),
+    .scan_shift    (1'b0            ), // Both Repair hold same address
+    .sdi           (1'b0            )
 );
 
 

@@ -34,7 +34,10 @@
 ////                                                              ////
 ////  Revision :                                                  ////
 ////    0.0 - 11th Oct 2021, Dinesh A                             ////
-////          Initial integration 
+////          Initial integration                                 ////
+////    0.1 - 26th Oct 2021, Dinesh A                             ////
+////          Fixed Error Address are serial shifted through      ////
+////          sdi/sdo                                             ////
 ////                                                              ////
 //////////////////////////////////////////////////////////////////////
 
@@ -120,7 +123,7 @@ logic                    compare    ;  // compare data
 
 //---------------------------------
 // SDI => SDO diasy chain
-// bist_sdi => bist_addr_sdo =>  bist_sti_sdo =>  bist_op_sdo => bist_sdo
+// bist_sdi => bist_addr_sdo =>  bist_sti_sdo =>  bist_op_sdo => bist_pat_sdo => bist_sdo
 // ---------------------------------
 logic                    bist_addr_sdo   ;                 
 logic                    bist_sti_sdo    ;                 
@@ -285,11 +288,11 @@ mbist_pat_sel
       u_pat_sel (
                     .pat_last           (last_pat           ),
                     .pat_data           (pat_data           ),
-                    .sdo                (bist_sdo           ),
+                    .sdo                (bist_pat_sdo       ),
                     .clk                (bist_clk           ),
                     .rst_n              (srst_n             ),
                     .run                (run_pat            ),
-                    .scan_shift         (scan_shift         ),
+                    .scan_shift         (bist_shift         ),
                     .sdi                (bist_op_sdo        )
 
    );
@@ -348,6 +351,9 @@ mbist_mux
                     .bist_error           (bist_error_correct),
                     .bist_error_addr      (bist_error_addr),
                     .bist_correct         (bist_correct  ),
+		    .bist_sdi             (bist_pat_sdo),
+		    .bist_shift           (bist_shift),
+		    .bist_sdo             (bist_sdo),
 
                     // FUNCTIONAL CTRL SIGNAL
                     .func_clk_a          (func_clk_a     ),

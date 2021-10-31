@@ -45,7 +45,8 @@ MBIST is a self-testing and repair mechanism which tests the memories through an
     * Open sourced under Apache-2.0 License (see LICENSE file) - unrestricted commercial use allowed.
     * Mbist controller with memory repair supported
     * Currently only Row Redudency is supported
-    * 2KB SRAM for data memory
+    * 4 Address location memory repair reported
+    * 2KB SRAM
     * Wishbone compatible design
     * Written in System Verilog
     * Open-source tool set
@@ -101,11 +102,21 @@ MBIST is a self-testing and repair mechanism which tests the memories through an
 
 The simulation package includes the following tests:
 
-
+* **wb_port**        - User Wishbone validation
+* **user_mbist_test1** - Standalone Mbist Controller Specific Test for Non Error/Single/Two/Three/Four/Five Location Error
 
 
 # Running Simulation
 
+Examples:
+``` sh
+    make verify-wb_port  
+    make verify-user_mbist_test1
+    make verify-wb_port SIM=RTL DUMP=OFF
+    make verify-wb_port SIM=RTL DUMP=ON
+    make verify-user_mbist_test1 SIM=RTL DUMP=OFF
+    make verify-user_mbist_test1 SIM=RTL DUMP=ON
+```
 
 # Tool Sets
 

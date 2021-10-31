@@ -53,17 +53,25 @@ module mbist_repair_addr
 	
     output logic [BIST_RAD_WD_O-1:0] AddressOut,
     output logic                     Correct,
+    output  logic                    sdo,         //  scan data output
 
     input logic [BIST_RAD_WD_I-1:0]  AddressIn,
     input logic                      clk,
     input logic                      rst_n,
     input logic                      Error,
-    input logic [BIST_RAD_WD_I-1:0]  ErrorAddr
+    input logic [BIST_RAD_WD_I-1:0]  ErrorAddr,
+    input logic                      scan_shift,  //  shift scan input
+    input logic                      sdi          //  scan data input 
 
 
 );
 
 logic [3:0]   ErrorCnt; // Assumed Maximum Error correction is less than 16
+logic [15:0]  shift_reg;
+logic [15:0]  shift_load;
+logic [7:0]   shift_cnt;
+logic         scan_shift_d;
+logic         shift_pos_edge;
 
 logic [BIST_RAD_WD_I-1:0] RepairMem [0:BIST_ERR_LIMIT-1];
 
@@ -95,8 +103,42 @@ begin
    end
 end
 
+/********************************************
+* Serial shifting the Repair address
+* *******************************************/
 
+always@(posedge clk or negedge rst_n)
+begin
+   if(!rst_n) begin
+     shift_reg   <= '0;
+     shift_cnt   <= '0;
+     scan_shift_d <= 1'b0;
+   end begin
+      if(scan_shift && (shift_cnt[7:4] < BIST_ERR_LIMIT)) begin
+         shift_cnt <= shift_cnt+1;
+      end
+      scan_shift_d <= scan_shift;
+      shift_reg <= shift_load;
+   end
+end
 
+// Detect scan_shift pos edge
+assign shift_pos_edge = (scan_shift_d ==0) && (scan_shift);
+
+always_comb 
+begin
+  shift_load = shift_reg;
+  // Block the data reloading every pos edge of shift
+  if(scan_shift && ((shift_cnt[7:4]+1) < BIST_ERR_LIMIT) && (shift_cnt[3:0] == 4'b1111))
+     shift_load = {RepairMem[shift_cnt[7:4]+1]};
+  else if(scan_shift)
+     shift_load = {sdi,shift_reg[15:1]};
+  else
+     shift_load = {RepairMem[shift_cnt[7:4]]};
+  
+end
+
+assign sdo   = shift_reg[0];
 endmodule
 
 

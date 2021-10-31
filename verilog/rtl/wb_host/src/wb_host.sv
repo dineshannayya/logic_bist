@@ -136,7 +136,7 @@ logic               wbm_ack_int; // acknowlegement
 logic               wbm_err_int; // error
 
 logic               reg_sel    ;
-logic [1:0]         sw_addr    ;
+logic [2:0]         sw_addr    ;
 logic               sw_rd_en   ;
 logic               sw_wr_en   ;
 logic [31:0]        reg_rdata  ;
@@ -146,6 +146,8 @@ logic               sw_wr_en_0;
 logic               sw_wr_en_1;
 logic               sw_wr_en_2;
 logic               sw_wr_en_3;
+logic               sw_wr_en_4;
+logic               sw_rd_en_5;
 logic [7:0]         cfg_bank_sel;
 logic [31:0]        wbm_adr_int;
 logic               wbm_stb_int;
@@ -170,6 +172,10 @@ logic               wbs_err_i        ;  // error
 
 logic [31:0]        cfg_bist_ctrl    ;
 logic [31:0]        cfg_bist_status  ;
+logic               ser_acc          ; // Serial Access
+logic               non_ser_acc      ; // Non Serial Access
+logic [31:0]        serail_dout      ;
+logic               serial_ack       ;
 
 assign io_out = 'h0;
 assign io_oeb  = 'h0;
@@ -186,13 +192,20 @@ sky130_fd_sc_hd__bufbuf_16 u_buf_bist_rst   (.A(cfg_glb_ctrl[1]),.X(bist_rst_n))
 // To reduce the load/Timing Wishbone I/F, Strobe is register to create
 // multi-cycle
 logic wb_req;
+logic wb_req_d;
+logic wb_req_pedge;
 always_ff @(negedge wbm_rst_n or posedge wbm_clk_i) begin
     if ( wbm_rst_n == 1'b0 ) begin
-        wb_req   <= '0;
+        wb_req     <= '0;
+        wb_req_d   <= '0;
    end else begin
        wb_req   <= wbm_stb_i && (wbm_ack_o == 0) ;
+       wb_req_d <= wb_req;
    end
 end
+
+// Detect pos edge of request
+assign wb_req_pedge = (wb_req_d ==0) && (wb_req==1'b1);
 
 assign  wbm_dat_o   = (reg_sel) ? reg_rdata : wbm_dat_int;  // data input
 assign  wbm_ack_o   = (reg_sel) ? reg_ack   : wbm_ack_int; // acknowlegement
@@ -211,31 +224,33 @@ assign  wbm_err_o   = (reg_sel) ? 1'b0      : wbm_err_int;  // error
 // ---------------------------------------------------------------------
 assign reg_sel       = wb_req & (wbm_adr_i[23] == 1'b1);
 
-assign sw_addr       = wbm_adr_i [3:2];
+assign sw_addr       = wbm_adr_i [4:2];
 assign sw_rd_en      = reg_sel & !wbm_we_i;
 assign sw_wr_en      = reg_sel & wbm_we_i;
 
-assign  sw_wr_en_0 = sw_wr_en && (sw_addr==0);
-assign  sw_wr_en_1 = sw_wr_en && (sw_addr==1);
-assign  sw_wr_en_2 = sw_wr_en && (sw_addr==2);
-assign  sw_wr_en_3 = sw_wr_en && (sw_addr==3);
+assign  sw_wr_en_0 = sw_wr_en && (sw_addr=='h0);
+assign  sw_wr_en_1 = sw_wr_en && (sw_addr=='h1);
+assign  sw_wr_en_2 = sw_wr_en && (sw_addr=='h2);
+assign  sw_wr_en_3 = sw_wr_en && (sw_addr=='h3);
+assign  sw_wr_en_4 = sw_wr_en && (sw_addr=='h4);
+assign  sw_rd_en_5 = sw_rd_en && (sw_addr=='h5);
+
+
+assign ser_acc = sw_wr_en_4 | sw_rd_en_5;
+assign non_ser_acc = reg_sel ? !ser_acc : 1'b0;
 
 always @ (posedge wbm_clk_i or negedge wbm_rst_n)
 begin : preg_out_Seq
-   if (wbm_rst_n == 1'b0)
-   begin
+   if (wbm_rst_n == 1'b0) begin
       reg_rdata  <= 'h0;
       reg_ack    <= 1'b0;
-   end
-   else if (sw_rd_en && !reg_ack) 
-   begin
+   end else if (ser_acc && serial_ack)  begin
+      reg_rdata <= serail_dout ;
+      reg_ack   <= 1'b1;
+   end else if (non_ser_acc && !reg_ack) begin
       reg_rdata <= reg_out ;
       reg_ack   <= 1'b1;
-   end
-   else if (sw_wr_en && !reg_ack) 
-      reg_ack          <= 1'b1;
-   else
-   begin
+   end else begin
       reg_ack        <= 1'b0;
    end
 end
@@ -253,23 +268,24 @@ assign cfg_bank_sel         = reg_1[23:16];
 // BIST Control
 assign bist_en           = cfg_bist_ctrl[0];
 assign bist_run          = cfg_bist_ctrl[1];
-assign bist_shift        = cfg_bist_ctrl[2];
-assign bist_load         = cfg_bist_ctrl[3];
-assign bist_sdi          = cfg_bist_ctrl[4];
+assign bist_load         = cfg_bist_ctrl[2];
 
 // BIST Status
-assign cfg_bist_status   = {24'h0,bist_sdo,bist_error_cnt,bist_correct,bist_error,bist_done};
+assign cfg_bist_status   = {25'h0,bist_error_cnt,bist_correct,bist_error,bist_done};
 
 
 always @( *)
 begin 
   reg_out [31:0] = 8'd0;
 
-  case (sw_addr [1:0])
-    2'b00 :   reg_out [31:0] = reg_0;
-    2'b01 :   reg_out [31:0] = reg_1;
-    2'b10 :   reg_out [31:0] = cfg_bist_ctrl [31:0];    
-    2'b11 :   reg_out [31:0] = cfg_bist_status [31:0];     
+  case (sw_addr [2:0])
+    3'b000 :   reg_out [31:0] = reg_0;
+    3'b001 :   reg_out [31:0] = reg_1;
+    3'b010 :   reg_out [31:0] = cfg_bist_ctrl [31:0];    
+    3'b011 :   reg_out [31:0] = cfg_bist_status [31:0];     
+    3'b100 :   reg_out [31:0] = 'h0; // Serial Write Data
+    3'b101 :   reg_out [31:0] = serail_dout; // This is with  Shift
+    3'b110 :   reg_out [31:0] = serail_dout; // This is previous Shift 
     default : reg_out [31:0] = 'h0;
   endcase
 end
@@ -308,6 +324,31 @@ generic_register #(32,0  ) u_clk_ctrl1 (
           );
 
 
+
+
+ser_inf_32b u_ser_intf
+       (
+
+    // Master Port
+       .rst_n       (wbm_rst_n),  // Regular Reset signal
+       .clk         (wbm_clk_i),  // System clock
+       .reg_wr      (sw_wr_en_4 & wb_req_pedge),  // Write Request
+       .reg_rd      (sw_rd_en_5 & wb_req_pedge),  // Read Request
+       .reg_wdata   (wbm_dat_i) ,  // data output
+       .reg_rdata   (serail_dout),  // data input
+       .reg_ack     (serial_ack),  // acknowlegement
+
+    // Slave Port
+       .sdi         (bist_sdi),    // Serial SDI
+       .shift       (bist_shift),  // Shift Signal
+       .sdo         (bist_sdo)     // Serial SDO
+
+    );
+
+
+//--------------------------------------------------
+// Wishbone Master to Wishbone Slave 
+// -------------------------------------------------
 
 assign wbm_stb_int = wb_req & !reg_sel;
 

@@ -16,6 +16,7 @@
 // Include caravel global defines for the number of the user project IO pads 
 `include "defines.v"
 `define USE_POWER_PINS
+`define UNIT_DELAY #0.1
 
 `ifdef GL
     // Assume default net type to be wire because GL netlists don't have the wire definitions
@@ -47,6 +48,7 @@
     `include "lib/registers.v"
     `include "lib/clk_ctl.v"
     `include "lib/reset_sync.sv"
+    `include "lib/ser_inf_32b.sv"
 
     `include "sram_macros/sky130_sram_2kbyte_1rw1r_32x512_8.v"
 
