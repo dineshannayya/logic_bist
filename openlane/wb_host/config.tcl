@@ -1,18 +1,18 @@
-# SPDX-FileCopyrightText:  2021 , Dinesh Annayya
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#      http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-# SPDX-License-Identifier: Apache-2.0
-# SPDX-FileContributor: Modified by Dinesh Annayya <dinesha@opencores.org>
+#// SPDX-FileCopyrightText:  2021 , Dinesh Annayya
+#//
+#// Licensed under the Apache License, Version 2.0 (the "License");
+#// you may not use this file except in compliance with the License.
+#// You may obtain a copy of the License at
+#//
+#//      http://www.apache.org/licenses/LICENSE-2.0
+#//
+#// Unless required by applicable law or agreed to in writing, software
+#// distributed under the License is distributed on an "AS IS" BASIS,
+#// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#// See the License for the specific language governing permissions and
+#// limitations under the License.
+#// SPDX-License-Identifier: Apache-2.0
+#// SPDX-FileContributor: Modified by Dinesh Annayya <dinesha@opencores.org>
 
 # Global
 # ------
@@ -39,6 +39,7 @@ set ::env(VERILOG_FILES) "\
      $script_dir/../../verilog/rtl/lib/async_fifo.sv      \
      $script_dir/../../verilog/rtl/lib/async_wb.sv        \
      $script_dir/../../verilog/rtl/lib/clk_ctl.v          \
+     $script_dir/../../verilog/rtl/lib/ser_inf_32b.sv     \
      $script_dir/../../verilog/rtl/lib/registers.v"
 
 set ::env(SYNTH_READ_BLACKBOX_LIB) 1
@@ -57,8 +58,9 @@ set ::env(GND_PIN) [list {vssd1}]
 set ::env(FP_PIN_ORDER_CFG) $::env(DESIGN_DIR)/pin_order.cfg
 
 set ::env(FP_SIZING) absolute
-set ::env(DIE_AREA) "0 0 300 300"
+set ::env(DIE_AREA) "0 0 400 300"
 
+set ::env(PL_TARGET_DENSITY) "0.40"
 
 # If you're going to use multiple power domains, then keep this disabled.
 set ::env(RUN_CVC) 1

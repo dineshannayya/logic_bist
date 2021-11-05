@@ -113,7 +113,7 @@ begin
      shift_reg   <= '0;
      shift_cnt   <= '0;
      scan_shift_d <= 1'b0;
-   end begin
+   end else begin
       if(scan_shift && (shift_cnt[7:4] < BIST_ERR_LIMIT)) begin
          shift_cnt <= shift_cnt+1;
       end

@@ -144,7 +144,7 @@ end
 // For Write is feed through, if there is space in fifo the ack
 // For Read, Wait for Response Path FIFO status
 assign wbm_ack_o = (wbm_stb_i && wbm_we_i)    ?  m_cmd_wr_en : // Write Logic
-	           (wbm_stb_i && (!wbm_we_i)) ? !m_resp_rd_empty : 1'b0; // Read Logic
+	           (wbm_stb_i && (!wbm_we_i)) ?  !m_resp_rd_empty : 1'b0; // Read Logic
 
 assign m_resp_rd_en   = !m_resp_rd_empty;
 assign wbm_dat_o      = m_resp_rd_data[DW-1:0];
@@ -211,7 +211,7 @@ async_fifo #(.W(CFW), .DP(4), .WR_FAST(1), .RD_FAST(1)) u_cmd_if (
 
 // Response used only read path, read is blocking access, expect
 // only one location used in return path - reduced the depth to 2
-async_fifo #(.W(DW+1), .DP(2), .WR_FAST(1), .RD_FAST(1)) u_resp_if (
+async_fifo #(.W(DW+1), .DP(2), .WR_FAST(1), .RD_FAST(0)) u_resp_if (
 	           // Sync w.r.t WR clock
 	           .wr_clk        (wbs_clk_i          ),
                    .wr_reset_n    (wbs_rst_n          ),

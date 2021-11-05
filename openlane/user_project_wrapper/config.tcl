@@ -28,6 +28,10 @@ set ::env(DESIGN_NAME) user_project_wrapper
 #section end
 
 # User Configurations
+#
+set ::env(DESIGN_IS_CORE) 1
+set ::env(FP_PDN_CORE_RING) 1
+
 
 ## Source Verilog Files
 set ::env(VERILOG_FILES) "\
@@ -43,19 +47,9 @@ set ::env(CLOCK_NET) "wb_clk_i user_clock2"
 set ::env(CLOCK_PERIOD) "10"
 
 ## Internal Macros
-### Macro PDN Connections
-set ::env(FP_PDN_ENABLE_MACROS_GRID) "0"
-set ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS) "1"
-
-set ::env(FP_PDN_MACRO_HOOKS) "\
-     u_wb_host	vccd1 vssd1 \
-     u_mbist    vccd1 vssd1 \
-     u_sram_2kb vccd1 vssd1 "
-
-set ::env(VDD_NETS) "vccd1"
-set ::env(GND_NETS) "vssd1"
 
 ### Macro Placement
+set ::env(FP_SIZING) "absolute"
 set ::env(MACRO_PLACEMENT_CFG) $script_dir/macro.cfg
 
 set ::env(PDN_CFG) $script_dir/pdn.tcl
@@ -86,12 +80,29 @@ set ::env(GLB_RT_MAXLAYER) 5
 # any issue with pdn connections will be flagged with LVS so it is not a critical check.
 set ::env(FP_PDN_CHECK_NODES) 0
 
+
+## Internal Macros
 ### Macro PDN Connections
-set ::env(FP_PDN_ENABLE_MACROS_GRID) "0"
-set ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS) "1"
+#set ::env(FP_PDN_ENABLE_MACROS_GRID) "0"
+#set ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS) "1"
 
 set ::env(VDD_NETS) "vccd1 vccd2 vdda1 vdda2"
 set ::env(GND_NETS) "vssd1 vssd2 vssa1 vssa2"
+
+# Add Blockage arond the SRAM to avoid Magic DRC & 
+# add signal routing blockage for met5
+set ::env(GLB_RT_OBS) "li1  300.00 1500.00 983.10 1916.54, \
+	               met1 300.00 1500.00 983.10 1916.54, \
+	               met2 300.00 1500.00 983.10 1916.54, \
+	               met3 300.00 1500.00 983.10 1916.54, \
+		       met5 0 0 2920 3520"
+
+
+set ::env(FP_PDN_MACRO_HOOKS) "\
+     u_wb_host	vccd1 vssd1 \
+     u_mbist    vccd1 vssd1 \
+     u_sram_2kb vccd1 vssd1 "
+
 
 # The following is because there are no std cells in the example wrapper project.
 set ::env(SYNTH_TOP_LEVEL) 1
