@@ -49,6 +49,7 @@
     `include "lib/clk_ctl.v"
     `include "lib/reset_sync.sv"
     `include "lib/ser_inf_32b.sv"
+    `include "lib/ctech_cells.sv"
 
     `include "sram_macros/sky130_sram_2kbyte_1rw1r_32x512_8.v"
 

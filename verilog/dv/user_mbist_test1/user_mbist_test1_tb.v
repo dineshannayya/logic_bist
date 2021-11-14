@@ -367,6 +367,35 @@ user_project_wrapper u_top(
 	force u_top.u_wb_host.u_clkbuf_mem.VGND =VSS;
 	force u_top.u_wb_host.u_clkbuf_mem.VNB = VSS;
 
+	force u_top.u_wb_host.u_cpu_ref_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_cpu_ref_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_cpu_ref_sel.u_mux.VGND =VSS;
+	force u_top.u_wb_host.u_cpu_ref_sel.u_mux.VNB = VSS;
+
+	force u_top.u_wb_host.u_cpu_clk_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_cpu_clk_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_cpu_clk_sel.u_mux.VGND =VSS;
+	force u_top.u_wb_host.u_cpu_clk_sel.u_mux.VNB = VSS;
+	
+	force u_top.u_wb_host.u_mem_ref_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_mem_ref_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_mem_ref_sel.u_mux.VGND =VSS;
+	force u_top.u_wb_host.u_mem_ref_sel.u_mux.VNB = VSS;
+
+	force u_top.u_wb_host.u_mem_clk_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_mem_clk_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_mem_clk_sel.u_mux.VGND =VSS;
+	force u_top.u_wb_host.u_mem_clk_sel.u_mux.VNB = VSS;
+
+	force u_top.u_mbist.u_mem_sel.u_mem_clk_a_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_mbist.u_mem_sel.u_mem_clk_a_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_mbist.u_mem_sel.u_mem_clk_a_sel.u_mux.VGND =VSS;
+	force u_top.u_mbist.u_mem_sel.u_mem_clk_a_sel.u_mux.VNB = VSS;
+	
+	force u_top.u_mbist.u_mem_sel.u_mem_clk_b_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_mbist.u_mem_sel.u_mem_clk_b_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_mbist.u_mem_sel.u_mem_clk_b_sel.u_mux.VGND =VSS;
+	force u_top.u_mbist.u_mem_sel.u_mem_clk_b_sel.u_mux.VNB = VSS;
     end
 `endif    
 
