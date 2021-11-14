@@ -35,6 +35,8 @@
 ////  Revision :                                                  ////
 ////    0.1 - 25th Feb 2021, Dinesh A                             ////
 ////          initial version                                     ////
+////    0.2 - 14th Nov 2021, Dinesh A                             ////
+////          reset_n connectivity fix for bist and memclock      ////
 //////////////////////////////////////////////////////////////////////
 ////                                                              ////
 //// Copyright (C) 2000 Authors and OPENCORES.ORG                 ////
@@ -423,8 +425,12 @@ wire   bist_clk_int;
 wire             cfg_bist_clk_src_sel   = cfg_bist_clk_ctrl[0];
 wire             cfg_bist_clk_div       = cfg_bist_clk_ctrl[1];
 wire [1:0]       cfg_bist_clk_ratio     = cfg_bist_clk_ctrl[3:2];
-assign bist_ref_clk = (cfg_bist_clk_src_sel) ? user_clock2 :user_clock1;
-assign bist_clk_int = (cfg_bist_clk_div)     ? bist_clk_div : bist_ref_clk;
+
+//assign bist_ref_clk = (cfg_bist_clk_src_sel) ? user_clock2 :user_clock1;
+//assign bist_clk_int = (cfg_bist_clk_div)     ? bist_clk_div : bist_ref_clk;
+
+ctech_mux2x1 u_cpu_ref_sel (.A0 (user_clock1), .A1 (user_clock2), .S  (cfg_bist_clk_src_sel), .X  (bist_ref_clk));
+ctech_mux2x1 u_cpu_clk_sel (.A0 (bist_ref_clk),.A1 (bist_clk_div),.S  (cfg_bist_clk_div),     .X  (bist_clk_int));
 
 sky130_fd_sc_hd__clkbuf_16 u_clkbuf_bist (.A (bist_clk_int), . X(bist_clk));
 
@@ -433,7 +439,7 @@ clk_ctl #(1) u_bistclk (
        .clk_o         (bist_clk_div      ),
    // Inputs
        .mclk          (bist_ref_clk      ),
-       .reset_n       (reset_n            ), 
+       .reset_n       (wbm_rst_n         ), 
        .clk_div_ratio (cfg_bist_clk_ratio)
    );
 
@@ -449,9 +455,11 @@ wire       cfg_mem_clk_src_sel   = cfg_mem_clk_ctrl[0];
 wire       cfg_mem_clk_div       = cfg_mem_clk_ctrl[1];
 wire [1:0] cfg_mem_clk_ratio     = cfg_mem_clk_ctrl[3:2];
 
-assign mem_ref_clk = (cfg_mem_clk_src_sel) ? user_clock2 : user_clock1;
-assign mem_clk_int = (cfg_mem_clk_div)     ? mem_clk_div : mem_ref_clk;
+//assign mem_ref_clk = (cfg_mem_clk_src_sel) ? user_clock2 : user_clock1;
+//assign mem_clk_int = (cfg_mem_clk_div)     ? mem_clk_div : mem_ref_clk;
 
+ctech_mux2x1 u_mem_ref_sel (.A0 (user_clock1), .A1 (user_clock2), .S  (cfg_mem_clk_src_sel), .X  (mem_ref_clk));
+ctech_mux2x1 u_mem_clk_sel (.A0 (mem_ref_clk), .A1 (mem_clk_div), .S  (cfg_mem_clk_div),     .X  (mem_clk_int));
 
 sky130_fd_sc_hd__clkbuf_16 u_clkbuf_mem (.A (mem_clk_int), . X(mem_clk_out));
 
@@ -460,7 +468,7 @@ clk_ctl #(1) u_memclk (
        .clk_o         (mem_clk_div      ),
    // Inputs
        .mclk          (mem_ref_clk      ),
-       .reset_n       (reset_n          ), 
+       .reset_n       (wbm_rst_n        ), 
        .clk_div_ratio (cfg_mem_clk_ratio)
    );
 

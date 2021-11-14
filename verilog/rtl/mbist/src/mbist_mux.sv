@@ -108,8 +108,11 @@ assign mem_cen_b    = (bist_en) ? !bist_wr   : func_cen_b;
 assign mem_web_b    = (bist_en) ? !bist_wr   : func_web_b;
 assign mem_mask_b   = (bist_en) ? {{BIST_MASK_WD}{1'b1}}       : func_mask_b;
 
-assign mem_clk_a    = (bist_en) ? bist_clk   : func_clk_a;
-assign mem_clk_b    = (bist_en) ? bist_clk   : func_clk_b;
+//assign mem_clk_a    = (bist_en) ? bist_clk   : func_clk_a;
+//assign mem_clk_b    = (bist_en) ? bist_clk   : func_clk_b;
+
+ctech_mux2x1 u_mem_clk_a_sel (.A0 (func_clk_a),.A1 (bist_clk),.S  (bist_en),     .X  (mem_clk_a));
+ctech_mux2x1 u_mem_clk_b_sel (.A0 (func_clk_b),.A1 (bist_clk),.S  (bist_en),     .X  (mem_clk_b));
 
 assign mem_din_b    = (bist_en) ? bist_wdata   : func_din_b;
 

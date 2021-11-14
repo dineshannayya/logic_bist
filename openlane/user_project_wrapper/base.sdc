@@ -21,8 +21,8 @@ set ::env(WBM_CLOCK_PORT)   "wb_clk_i"
 set ::env(WBM_CLOCK_NAME)   "wbm_clk_i"
 
 set ::env(WBS_CLOCK_PERIOD) "10"
-set ::env(WBS_CLOCK_PORT)   "u_wb_host*wbs_clk_out"
-set ::env(WBS_CLOCK_NAME)   "wbs_clk_i"
+set ::env(WBS_CLOCK_PORT)   "u_wb_host*mem_clk"
+set ::env(WBS_CLOCK_NAME)   "mem_clk"
 
 set ::env(BIST_CLOCK_PERIOD) "20"
 set ::env(BIST_CLOCK_PORT)   "u_wb_host*bist_clk"
@@ -37,6 +37,7 @@ set wb_output_delay_value [expr $::env(WBM_CLOCK_PERIOD) * 0.54]
 puts "\[INFO\]: Setting wb output delay to:$wb_output_delay_value"
 puts "\[INFO\]: Setting wb input delay to: $wb_input_delay_value"
 
+set_false_path -from [get_pins {u_wb_host/bist_en}]
 
 set_input_delay 2.0 -clock [get_clocks $::env(WBM_CLOCK_NAME)] {wb_rst_i}
 
@@ -66,13 +67,13 @@ set_clock_groups -name async_clock -asynchronous -comment "Async Clock group" -g
 ## Add clock uncertainty
 #Note: We have PAD_BIST_CLOCK_NAME => BIST_CLOCK_NAME path only
 
-set_clock_uncertainty -from $::env(WBM_CLOCK_NAME)          -to $::env(WBM_CLOCK_NAME)    -setup 0.200
-set_clock_uncertainty -from $::env(WBS_CLOCK_NAME)          -to $::env(WBS_CLOCK_NAME)    -setup 0.200
+set_clock_uncertainty -from $::env(WBM_CLOCK_NAME)          -to $::env(WBM_CLOCK_NAME)  -setup 0.200
+set_clock_uncertainty -from $::env(WBS_CLOCK_NAME)          -to $::env(WBS_CLOCK_NAME)  -setup 0.200
 set_clock_uncertainty -from $::env(BIST_CLOCK_NAME)        -to $::env(BIST_CLOCK_NAME)  -setup 0.200
 
-set_clock_uncertainty -from $::env(WBM_CLOCK_NAME)          -to $::env(WBM_CLOCK_NAME)    -hold 0.050
-set_clock_uncertainty -from $::env(WBS_CLOCK_NAME)          -to $::env(WBS_CLOCK_NAME)    -hold 0.050
-set_clock_uncertainty -from $::env(BIST_CLOCK_NAME)        -to $::env(BIST_CLOCK_NAME)  -hold 0.050
+set_clock_uncertainty -from $::env(WBM_CLOCK_NAME)          -to $::env(WBM_CLOCK_NAME)  -hold 0.100
+set_clock_uncertainty -from $::env(WBS_CLOCK_NAME)          -to $::env(WBS_CLOCK_NAME)  -hold 0.100
+set_clock_uncertainty -from $::env(BIST_CLOCK_NAME)        -to $::env(BIST_CLOCK_NAME)  -hold 0.100
 
 # TODO set this as parameter
 set_driving_cell -lib_cell $::env(SYNTH_DRIVING_CELL) -pin $::env(SYNTH_DRIVING_CELL_PIN) [all_inputs]

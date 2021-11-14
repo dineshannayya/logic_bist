@@ -26,7 +26,7 @@ set ::env(DESIGN_IS_CORE) "0"
 
 # Timing configuration
 set ::env(CLOCK_PERIOD) "8"
-set ::env(CLOCK_PORT) "bist_clk"
+set ::env(CLOCK_PORT) "bist_clk u_mem_sel.u_mem_clk_a_sel.u_mux/X u_mem_sel.u_mem_clk_b_sel.u_mux/X"
 
 set ::env(SYNTH_MAX_FANOUT) 4
 
@@ -44,14 +44,15 @@ set ::env(VERILOG_FILES) "\
      $script_dir/../../verilog/rtl/mbist/src/mbist_pat_sel.sv \
      $script_dir/../../verilog/rtl/mbist/src/mbist_mux.sv \
      $script_dir/../../verilog/rtl/mbist/src/mbist_data_cmp.sv \
+     $script_dir/../../verilog/rtl/lib/ctech_cells.sv     \
      $script_dir/../../verilog/rtl/lib/reset_sync.sv \
 	     "
 
 set ::env(VERILOG_INCLUDE_DIRS) [glob $script_dir/../../verilog/rtl/mbist/include ]
 
 set ::env(SYNTH_READ_BLACKBOX_LIB) 1
-#set ::env(SDC_FILE) "$script_dir/base.sdc"
-#set ::env(BASE_SDC_FILE) "$script_dir/base.sdc"
+set ::env(SDC_FILE) "$script_dir/base.sdc"
+set ::env(BASE_SDC_FILE) "$script_dir/base.sdc"
 
 set ::env(LEC_ENABLE) 0
 
@@ -74,7 +75,8 @@ set ::env(RUN_CVC) 1
 #set ::env(PDN_CFG) $script_dir/pdn.tcl
 
 
-set ::env(PL_ROUTABILITY_DRIVEN) 1
+set ::env(PL_TIME_DRIVEN) 1
+set ::env(PL_TARGET_DENSITY) "0.30"
 
 
 
