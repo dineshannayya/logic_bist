@@ -26,7 +26,7 @@ set ::env(DESIGN_IS_CORE) "0"
 
 # Timing configuration
 set ::env(CLOCK_PERIOD) "8"
-set ::env(CLOCK_PORT) "bist_clk u_mem_sel.u_mem_clk_a_sel.u_mux/X u_mem_sel.u_mem_clk_b_sel.u_mux/X"
+set ::env(CLOCK_PORT) "bist_clk u_mem_sel.u_cts_mem_clk_a/X u_mem_sel.u_cts_mem_clk_a/X"
 
 set ::env(SYNTH_MAX_FANOUT) 4
 

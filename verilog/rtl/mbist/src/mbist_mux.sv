@@ -96,6 +96,8 @@ parameter BIST_MASK_WD = BIST_DATA_WD/4;
 
 wire   [BIST_ADDR_WD-1:0]      addr_a;
 wire   [BIST_ADDR_WD-1:0]      addr_b;
+wire                           mem_clk_a_cts; // used for internal clock tree
+wire                           mem_clk_b_cts; // usef for internal clock tree
 
 
 
@@ -114,6 +116,9 @@ assign mem_mask_b   = (bist_en) ? {{BIST_MASK_WD}{1'b1}}       : func_mask_b;
 ctech_mux2x1 u_mem_clk_a_sel (.A0 (func_clk_a),.A1 (bist_clk),.S  (bist_en),     .X  (mem_clk_a));
 ctech_mux2x1 u_mem_clk_b_sel (.A0 (func_clk_b),.A1 (bist_clk),.S  (bist_en),     .X  (mem_clk_b));
 
+sky130_fd_sc_hd__clkbuf_16 u_cts_mem_clk_a (.A (mem_clk_a), . X(mem_clk_a_cts));
+sky130_fd_sc_hd__clkbuf_16 u_cts_mem_clk_b (.A (mem_clk_b), . X(mem_clk_b_cts));
+
 assign mem_din_b    = (bist_en) ? bist_wdata   : func_din_b;
 
 
@@ -126,7 +131,7 @@ mbist_repair_addr u_repair_A(
     .sdo           (bist_sdo         ),
 
     .AddressIn     (addr_a           ),
-    .clk           (mem_clk_a        ),
+    .clk           (mem_clk_a_cts    ),
     .rst_n         (rst_n            ),
     .Error         (bist_error       ),
     .ErrorAddr     (bist_error_addr  ),
@@ -140,7 +145,7 @@ mbist_repair_addr u_repair_B(
     .sdo           (                ),
 
     .AddressIn     (addr_b          ),
-    .clk           (mem_clk_b       ),
+    .clk           (mem_clk_b_cts   ),
     .rst_n         (rst_n           ),
     .Error         (bist_error      ),
     .ErrorAddr     (bist_error_addr ),
