@@ -422,9 +422,9 @@ wire   bist_clk_div;
 wire   bist_ref_clk;
 wire   bist_clk_int;
 
-wire             cfg_bist_clk_src_sel   = cfg_bist_clk_ctrl[0];
-wire             cfg_bist_clk_div       = cfg_bist_clk_ctrl[1];
-wire [1:0]       cfg_bist_clk_ratio     = cfg_bist_clk_ctrl[3:2];
+wire             cfg_bist_clk_src_sel   = cfg_bist_clk_ctrl[3];
+wire             cfg_bist_clk_div       = cfg_bist_clk_ctrl[2];
+wire [1:0]       cfg_bist_clk_ratio     = cfg_bist_clk_ctrl[1:0];
 
 //assign bist_ref_clk = (cfg_bist_clk_src_sel) ? user_clock2 :user_clock1;
 //assign bist_clk_int = (cfg_bist_clk_div)     ? bist_clk_div : bist_ref_clk;
@@ -451,9 +451,9 @@ wire   mem_clk_div;
 wire   mem_ref_clk;
 wire   mem_clk_int;
 
-wire       cfg_mem_clk_src_sel   = cfg_mem_clk_ctrl[0];
-wire       cfg_mem_clk_div       = cfg_mem_clk_ctrl[1];
-wire [1:0] cfg_mem_clk_ratio     = cfg_mem_clk_ctrl[3:2];
+wire       cfg_mem_clk_src_sel   = cfg_mem_clk_ctrl[3];
+wire       cfg_mem_clk_div       = cfg_mem_clk_ctrl[2];
+wire [1:0] cfg_mem_clk_ratio     = cfg_mem_clk_ctrl[1:0];
 
 //assign mem_ref_clk = (cfg_mem_clk_src_sel) ? user_clock2 : user_clock1;
 //assign mem_clk_int = (cfg_mem_clk_div)     ? mem_clk_div : mem_ref_clk;
