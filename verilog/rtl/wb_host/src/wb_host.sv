@@ -37,6 +37,8 @@
 ////          initial version                                     ////
 ////    0.2 - 14th Nov 2021, Dinesh A                             ////
 ////          reset_n connectivity fix for bist and memclock      ////
+////    0.1 - Nov 16 2021, Dinesh A                               ////
+////          Wishbone out are register for better timing         //// 
 //////////////////////////////////////////////////////////////////////
 ////                                                              ////
 //// Copyright (C) 2000 Authors and OPENCORES.ORG                 ////
@@ -193,25 +195,31 @@ sky130_fd_sc_hd__bufbuf_16 u_buf_bist_rst   (.A(cfg_glb_ctrl[1]),.X(bist_rst_n))
 
 // To reduce the load/Timing Wishbone I/F, Strobe is register to create
 // multi-cycle
+wire [31:0]  wbm_dat_o1   = (reg_sel) ? reg_rdata : wbm_dat_int;  // data input
+wire         wbm_ack_o1   = (reg_sel) ? reg_ack   : wbm_ack_int; // acknowlegement
+wire         wbm_err_o1   = (reg_sel) ? 1'b0      : wbm_err_int;  // error
+
 logic wb_req;
 logic wb_req_d;
 logic wb_req_pedge;
 always_ff @(negedge wbm_rst_n or posedge wbm_clk_i) begin
     if ( wbm_rst_n == 1'b0 ) begin
-        wb_req     <= '0;
-        wb_req_d   <= '0;
+        wb_req    <= '0;
+	wbm_dat_o <= '0;
+	wbm_ack_o <= '0;
+	wbm_err_o <= '0;
    end else begin
        wb_req   <= wbm_stb_i && (wbm_ack_o == 0) ;
        wb_req_d <= wb_req;
+       wbm_dat_o <= wbm_dat_o1;
+       wbm_ack_o <= wbm_ack_o1;
+       wbm_err_o <= wbm_err_o1;
    end
 end
 
 // Detect pos edge of request
 assign wb_req_pedge = (wb_req_d ==0) && (wb_req==1'b1);
 
-assign  wbm_dat_o   = (reg_sel) ? reg_rdata : wbm_dat_int;  // data input
-assign  wbm_ack_o   = (reg_sel) ? reg_ack   : wbm_ack_int; // acknowlegement
-assign  wbm_err_o   = (reg_sel) ? 1'b0      : wbm_err_int;  // error
 
 //-----------------------------------------------------------------------
 // Local register decide based on address[31] == 1
