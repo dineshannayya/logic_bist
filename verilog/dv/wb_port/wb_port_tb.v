@@ -153,5 +153,26 @@ module wb_port_tb;
 		.io3()			// not used
 	);
 
+`ifndef GL // Drive Power for Hold Fix Buf
+    // All standard cell need power hook-up for functionality work
+    initial begin
+
+	force uut.mprj.u_wb_host.u_buf_wb_rst.VPWR =USER_VDD1V8;
+	force uut.mprj.u_wb_host.u_buf_wb_rst.VPB  =USER_VDD1V8;
+	force uut.mprj.u_wb_host.u_buf_wb_rst.VGND =VSS;
+	force uut.mprj.u_wb_host.u_buf_wb_rst.VNB = VSS;
+
+	force uut.mprj.u_wb_host.u_buf_bist_rst.VPWR =USER_VDD1V8;
+	force uut.mprj.u_wb_host.u_buf_bist_rst.VPB  =USER_VDD1V8;
+	force uut.mprj.u_wb_host.u_buf_bist_rst.VGND =VSS;
+	force uut.mprj.u_wb_host.u_buf_bist_rst.VNB = VSS;
+
+	force uut.mprj.u_wb_host.u_wbs_clk_sel.u_mux.VPWR =USER_VDD1V8;
+	force uut.mprj.u_wb_host.u_wbs_clk_sel.u_mux.VPB  =USER_VDD1V8;
+	force uut.mprj.u_wb_host.u_wbs_clk_sel.u_mux.VGND =VSS;
+	force uut.mprj.u_wb_host.u_wbs_clk_sel.u_mux.VNB = VSS;
+
+    end
+`endif    
 endmodule
 `default_nettype wire

@@ -1,0 +1,1 @@
+iverilog -g2005-sv glbl_cfg.sv ../../lib/ser_inf_32b.sv ../../lib/registers.v

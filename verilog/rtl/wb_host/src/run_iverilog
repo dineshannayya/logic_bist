@@ -1,0 +1,10 @@
+iverilog -g2005-sv \
+wb_host.sv \
+../../lib/async_wb.sv \
+../../lib/async_fifo.sv \
+../../lib/clk_ctl.v \
+../../lib/ctech_cells.sv \
+../../lib/registers.v \
+../../clk_skew_adjust/src/clk_skew_adjust.gv \
+$PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v \
+$PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v

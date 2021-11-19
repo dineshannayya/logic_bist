@@ -14,6 +14,7 @@
 #//
 #// SPDX-License-Identifier: Apache-2.0
 
+#SHELL = sh -xv
 BLOCKS = $(shell find * -maxdepth 0 -type d)
 CONFIG = $(foreach block,$(BLOCKS), ./$(block)/config.tcl)
 CLEAN = $(foreach block,$(BLOCKS), clean-$(block))

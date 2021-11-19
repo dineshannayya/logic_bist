@@ -26,7 +26,7 @@ set ::env(DESIGN_IS_CORE) "0"
 
 # Timing configuration
 set ::env(CLOCK_PERIOD) "10"
-set ::env(CLOCK_PORT) "wbm_clk_i mem_clk"
+set ::env(CLOCK_PORT) "wbm_clk_i wbs_clk_i"
 
 set ::env(SYNTH_MAX_FANOUT) 4
 
@@ -35,11 +35,11 @@ set ::env(SYNTH_MAX_FANOUT) 4
 
 # Local sources + no2usb sources
 set ::env(VERILOG_FILES) "\
+     $script_dir/../../verilog/rtl/clk_skew_adjust/src/clk_skew_adjust.gv \
      $script_dir/../../verilog/rtl/wb_host/src/wb_host.sv \
      $script_dir/../../verilog/rtl/lib/async_fifo.sv      \
      $script_dir/../../verilog/rtl/lib/async_wb.sv        \
      $script_dir/../../verilog/rtl/lib/clk_ctl.v          \
-     $script_dir/../../verilog/rtl/lib/ser_inf_32b.sv     \
      $script_dir/../../verilog/rtl/lib/ctech_cells.sv     \
      $script_dir/../../verilog/rtl/lib/registers.v"
 

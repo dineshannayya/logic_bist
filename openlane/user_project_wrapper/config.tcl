@@ -58,17 +58,30 @@ set ::env(PDN_CFG) $script_dir/pdn.tcl
 set ::env(VERILOG_FILES_BLACKBOX) "\
 	$::env(CARAVEL_ROOT)/verilog/rtl/defines.v \
 	$script_dir/../../verilog/rtl/sram_macros/sky130_sram_2kbyte_1rw1r_32x512_8.v \
+	$script_dir/../../verilog/rtl/sram_macros/sky130_sram_1kbyte_1rw1r_32x256_8.v \
+	$script_dir/../../verilog/gl/wb_interconnect.v \
 	$script_dir/../../verilog/gl/wb_host.v \
-	$script_dir/../../verilog/gl/mbist.v"
+	$script_dir/../../verilog/gl/glbl_cfg.v\
+	$script_dir/../../verilog/gl/mbist1.v\
+	$script_dir/../../verilog/gl/mbist2.v\
+	"
 
 set ::env(EXTRA_LEFS) "\
 	$script_dir/../../lef/sky130_sram_2kbyte_1rw1r_32x512_8.lef \
-	$script_dir/../../lef/mbist.lef \
+	$script_dir/../../lef/sky130_sram_1kbyte_1rw1r_32x256_8.lef \
+	$script_dir/../../lef/glbl_cfg.lef \
+	$script_dir/../../lef/mbist1.lef \
+	$script_dir/../../lef/mbist2.lef \
+	$script_dir/../../lef/wb_interconnect.lef \
 	$script_dir/../../lef/wb_host.lef"
 
 set ::env(EXTRA_GDS_FILES) "\
 	$script_dir/../../gds/sky130_sram_2kbyte_1rw1r_32x512_8.gds \
-	$script_dir/../../gds/mbist.gds \
+	$script_dir/../../gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds \
+	$script_dir/../../gds/glbl_cfg.gds \
+	$script_dir/../../gds/mbist1.gds \
+	$script_dir/../../gds/mbist2.gds \
+	$script_dir/../../gds/wb_interconnect.gds \
 	$script_dir/../../gds/wb_host.gds"
 
 set ::env(SDC_FILE) "$script_dir/base.sdc"
@@ -100,8 +113,17 @@ set ::env(GLB_RT_OBS) "li1  300.00 1500.00 983.10 1916.54, \
 
 set ::env(FP_PDN_MACRO_HOOKS) "\
      u_wb_host	vccd1 vssd1 \
-     u_mbist    vccd1 vssd1 \
-     u_sram_2kb vccd1 vssd1 "
+     u_intercon	vccd1 vssd1 \
+     u_glbl	vccd1 vssd1 \
+     u_mbist1   vccd1 vssd1 \
+     u_mbist2   vccd1 vssd1 \
+     u_mbist3   vccd1 vssd1 \
+     u_mbist4   vccd1 vssd1 \
+     u_sram1_2kb vccd1 vssd1 \
+     u_sram2_2kb vccd1 vssd1 \
+     u_sram3_1kb vccd1 vssd1 \
+     u_sram4_1kb vccd1 vssd1 \
+     "
 
 
 # The following is because there are no std cells in the example wrapper project.

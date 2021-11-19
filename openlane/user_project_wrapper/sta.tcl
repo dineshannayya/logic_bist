@@ -37,14 +37,24 @@ read_liberty -corner tt $::env(LIB_TYPICAL)
 
 
 read_verilog netlist/wb_host.v  
-read_verilog netlist/mbist.v
+read_verilog netlist/mbist1.v
+read_verilog netlist/mbist2.v
+read_verilog netlist/glbl_cfg.v
+read_verilog netlist/wb_interconnect.v
 read_verilog netlist/user_project_wrapper.v  
 read_lib  -corner tt   ../../lib/sky130_sram_2kbyte_1rw1r_32x512_8_TT_1p8V_25C.lib
+read_lib  -corner tt   ../../lib/sram_1rw1r_32_256_8_sky130_TT_1p8V_25C.lib
 link_design  $::env(DESIGN_NAME)
 
 
-read_spef -path u_mbist    ../../spef/mbist_top.spef  
+read_spef -path u_mbist1    ../../spef/mbist_top1.spef  
+read_spef -path u_mbist2    ../../spef/mbist_top1.spef  
+read_spef -path u_mbist3    ../../spef/mbist_top2.spef  
+read_spef -path u_mbist4    ../../spef/mbist_top2.spef  
 read_spef -path u_wb_host  ../../spef/wb_host.spef  
+read_spef -path u_intercon ../../spef/wb_interconnect.spef
+read_spef -path u_glbl     ../../spef/glbl_cfg.spef
+
 read_spef ../../spef/user_project_wrapper.spef  
 
 

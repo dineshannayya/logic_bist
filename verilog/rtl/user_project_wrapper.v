@@ -26,8 +26,11 @@
 ////      This is digital core and integrate all the main block   ////
 ////      here.                                                   ////
 ////      1. Wishbone Host                                        ////
-////      2. MBIST Controller                                     ////
-////      3. SRAM 2KB                                             ////
+////      2. 4x MBIST Controller                                  ////
+////      3. 2x SRAM 2KB                                          ////
+////      4. 2x SRAM 1KB                                          ////
+////      5. Wishbone Interconnect                                ////
+////      6. Global Register                                      ////
 ////                                                              ////
 ////  To Do:                                                      ////
 ////    nothing                                                   ////
@@ -38,6 +41,10 @@
 ////  Revision :                                                  ////
 ////    0.1 - 13th Oct 2021, Dinesh A                             ////
 ////          Initial Version                                     ////
+////    0.2 - 19, Nov 2021, Dinesh A                              ////
+////          Following things are integrated                     ////
+////          2x SRAM 2KB, 2x SRAM 1KB, 4 MBIST ,                 ////
+////          1 Wishbone Interconnect, 1 Global register          ////
 //////////////////////////////////////////////////////////////////////
 `default_nettype none
 
@@ -90,61 +97,201 @@ module user_project_wrapper #(
     output [2:0] user_irq
 );
 
-parameter BIST_ADDR_WD = 11;
+parameter BIST1_ADDR_WD = 11; // 512x32 SRAM
+parameter BIST2_ADDR_WD = 10; // 256x32 SRAM
 parameter BIST_DATA_WD = 32;
+parameter WB_WIDTH = 32; // WB ADDRESS/DARA WIDTH
+
+//---------------------------------------------------------------------
+// WB HOST Interface
+//---------------------------------------------------------------------
+wire                           wbd_int_cyc_i; // strobe/request
+wire                           wbd_int_stb_i; // strobe/request
+wire   [WB_WIDTH-1:0]          wbd_int_adr_i; // address
+wire                           wbd_int_we_i;  // write
+wire   [WB_WIDTH-1:0]          wbd_int_dat_i; // data output
+wire   [3:0]                   wbd_int_sel_i; // byte enable
+wire   [WB_WIDTH-1:0]          wbd_int_dat_o; // data input
+wire                           wbd_int_ack_o; // acknowlegement
+wire                           wbd_int_err_o; // error
+
+//---------------------------------------------------------------------
+//    Global Register Wishbone Interface
+//---------------------------------------------------------------------
+wire                           wbd_glbl_stb_o; // strobe/request
+wire   [7:0]                   wbd_glbl_adr_o; // address
+wire                           wbd_glbl_we_o;  // write
+wire   [WB_WIDTH-1:0]          wbd_glbl_dat_o; // data output
+wire   [3:0]                   wbd_glbl_sel_o; // byte enable
+wire                           wbd_glbl_cyc_o ;
+wire   [WB_WIDTH-1:0]          wbd_glbl_dat_i; // data input
+wire                           wbd_glbl_ack_i; // acknowlegement
+wire                           wbd_glbl_err_i;  // error
+
+//---------------------------------------------------------------------
+//  MBIST1  
+//---------------------------------------------------------------------
+wire                           wbd_mbist1_stb_o; // strobe/request
+wire   [BIST1_ADDR_WD-1:0]     wbd_mbist1_adr_o; // address
+wire                           wbd_mbist1_we_o;  // write
+wire   [WB_WIDTH-1:0]          wbd_mbist1_dat_o; // data output
+wire   [3:0]                   wbd_mbist1_sel_o; // byte enable
+wire                           wbd_mbist1_cyc_o ;
+wire   [WB_WIDTH-1:0]          wbd_mbist1_dat_i; // data input
+wire                           wbd_mbist1_ack_i; // acknowlegement
+wire                           wbd_mbist1_err_i;  // error
+
+//---------------------------------------------------------------------
+//  MBIST2  
+//---------------------------------------------------------------------
+wire                           wbd_mbist2_stb_o; // strobe/request
+wire   [BIST1_ADDR_WD-1:0]     wbd_mbist2_adr_o; // address
+wire                           wbd_mbist2_we_o;  // write
+wire   [WB_WIDTH-1:0]          wbd_mbist2_dat_o; // data output
+wire   [3:0]                   wbd_mbist2_sel_o; // byte enable
+wire                           wbd_mbist2_cyc_o ;
+wire   [WB_WIDTH-1:0]          wbd_mbist2_dat_i; // data input
+wire                           wbd_mbist2_ack_i; // acknowlegement
+wire                           wbd_mbist2_err_i;  // error
+
+//---------------------------------------------------------------------
+//  MBIST3  
+//---------------------------------------------------------------------
+wire                           wbd_mbist3_stb_o; // strobe/request
+wire   [BIST2_ADDR_WD-1:0]     wbd_mbist3_adr_o; // address
+wire                           wbd_mbist3_we_o;  // write
+wire   [WB_WIDTH-1:0]          wbd_mbist3_dat_o; // data output
+wire   [3:0]                   wbd_mbist3_sel_o; // byte enable
+wire                           wbd_mbist3_cyc_o ;
+wire   [WB_WIDTH-1:0]          wbd_mbist3_dat_i; // data input
+wire                           wbd_mbist3_ack_i; // acknowlegement
+wire                           wbd_mbist3_err_i;  // error
+
+//---------------------------------------------------------------------
+//  MBIST4  
+//---------------------------------------------------------------------
+wire                           wbd_mbist4_stb_o; // strobe/request
+wire   [BIST2_ADDR_WD-1:0]     wbd_mbist4_adr_o; // address
+wire                           wbd_mbist4_we_o;  // write
+wire   [WB_WIDTH-1:0]          wbd_mbist4_dat_o; // data output
+wire   [3:0]                   wbd_mbist4_sel_o; // byte enable
+wire                           wbd_mbist4_cyc_o ;
+wire   [WB_WIDTH-1:0]          wbd_mbist4_dat_i; // data input
+wire                           wbd_mbist4_ack_i; // acknowlegement
+wire                           wbd_mbist4_err_i;  // error
 
 
-wire                      bist_clk;
-wire                      mem_clk_out;
-wire                      bist_rst_n;
+wire                           wbd_int_rst_n;
+wire                           bist_rst_n;
 
 	// MBIST I/F
-wire                      bist_en;
-wire                      bist_run;
-wire                      bist_shift;
-wire                      bist_load;
-wire                      bist_sdi;
+wire    [3:0]                  bist_en;
+wire    [3:0]                  bist_run;
+wire    [3:0]                  bist_shift;
+wire    [3:0]                  bist_load;
+wire    [3:0]                  bist_sdi;
 
-wire  [3:0]               bist_error_cnt;
-wire                      bist_correct;
-wire                      bist_error;
-wire                      bist_done;
-wire                      bist_sdo;
+wire    [3:0]                  bist_correct;
+wire    [3:0]                  bist_error;
+wire    [3:0]                  bist_done;
+wire    [3:0]                  bist_sdo;
 
-// FUNCTIONAL A PORT 
-wire                      func_clk_a;
-wire                      func_cen_a;
-wire  [BIST_ADDR_WD-1:2]  func_addr_a;
-wire  [BIST_DATA_WD-1:0]  func_dout_a;
+wire  [3:0]                    bist_error_cnt0;
+wire  [3:0]                    bist_error_cnt1;
+wire  [3:0]                    bist_error_cnt2;
+wire  [3:0]                    bist_error_cnt3;
 
-// Functional B Port
-wire                      func_clk_b;
-wire                      func_cen_b;
-wire                      func_web_b;
-wire [BIST_DATA_WD/8-1:0] func_mask_b;
-wire  [BIST_ADDR_WD-1:2]  func_addr_b;
-wire  [BIST_DATA_WD-1:0]  func_din_b;
-
-
-// towards memory
+// towards memory MBIST1
 // PORT-A
-wire                      mem_clk_a;
-wire   [BIST_ADDR_WD-1:2] mem_addr_a;
-wire                      mem_cen_a;
-wire   [BIST_DATA_WD-1:0] mem_din_b;
+wire                           mem1_clk_a;
+wire   [BIST1_ADDR_WD-1:2]     mem1_addr_a;
+wire                           mem1_cen_a;
+wire   [BIST_DATA_WD-1:0]      mem1_din_b;
 
 // PORT-B
-wire                      mem_clk_b;
-wire                      mem_cen_b;
-wire                      mem_web_b;
-wire [BIST_DATA_WD/8-1:0] mem_mask_b;
-wire [BIST_ADDR_WD-1:2]   mem_addr_b;
-wire [BIST_DATA_WD-1:0]   mem_dout_a;
+wire                           mem1_clk_b;
+wire                           mem1_cen_b;
+wire                           mem1_web_b;
+wire [BIST_DATA_WD/8-1:0]      mem1_mask_b;
+wire [BIST1_ADDR_WD-1:2]       mem1_addr_b;
+wire [BIST_DATA_WD-1:0]        mem1_dout_a;
 
+// towards memory MBIST2
+// PORT-A
+wire                           mem2_clk_a;
+wire   [BIST1_ADDR_WD-1:2]     mem2_addr_a;
+wire                           mem2_cen_a;
+wire   [BIST_DATA_WD-1:0]      mem2_din_b;
+
+// PORT-B
+wire                           mem2_clk_b;
+wire                           mem2_cen_b;
+wire                           mem2_web_b;
+wire [BIST_DATA_WD/8-1:0]      mem2_mask_b;
+wire [BIST1_ADDR_WD-1:2]       mem2_addr_b;
+wire [BIST_DATA_WD-1:0]        mem2_dout_a;
+
+// towards memory MBIST3
+// PORT-A
+wire                           mem3_clk_a;
+wire   [BIST2_ADDR_WD-1:2]     mem3_addr_a;
+wire                           mem3_cen_a;
+wire   [BIST_DATA_WD-1:0]      mem3_din_b;
+
+// PORT-B
+wire                           mem3_clk_b;
+wire                           mem3_cen_b;
+wire                           mem3_web_b;
+wire [BIST_DATA_WD/8-1:0]      mem3_mask_b;
+wire [BIST2_ADDR_WD-1:2]       mem3_addr_b;
+wire [BIST_DATA_WD-1:0]        mem3_dout_a;
+
+// towards memory MBIST3
+// PORT-A
+wire                           mem4_clk_a;
+wire   [BIST2_ADDR_WD-1:2]     mem4_addr_a;
+wire                           mem4_cen_a;
+wire   [BIST_DATA_WD-1:0]      mem4_din_b;
+
+// PORT-B
+wire                           mem4_clk_b;
+wire                           mem4_cen_b;
+wire                           mem4_web_b;
+wire [BIST_DATA_WD/8-1:0]      mem4_mask_b;
+wire [BIST2_ADDR_WD-1:2]       mem4_addr_b;
+wire [BIST_DATA_WD-1:0]        mem4_dout_a;
+
+wire                          wbd_clk_wh   ;
+wire                          wbd_clk_int   ;
+wire                          wbd_clk_wi   ;
+wire                          wbd_clk_glbl  ; // clock for global reg
+wire                          wbd_clk_mbist1; // clock for global reg
+wire                          wbd_clk_mbist2; // clock for global reg
+wire                          wbd_clk_mbist3; // clock for global reg
+wire                          wbd_clk_mbist4; // clock for global reg
+
+wire [31:0]                   cfg_clk_ctrl1;
+wire [31:0]                   cfg_clk_ctrl2;
+/////////////////////////////////////////////////////////
+// Clock Skew Ctrl
+////////////////////////////////////////////////////////
+
+wire [3:0] cfg_cska_wh       = cfg_clk_ctrl1[3:0];
+wire [3:0] cfg_cska_wi       = cfg_clk_ctrl1[7:4];
+wire [3:0] cfg_cska_glbl     = cfg_clk_ctrl1[11:8];
+wire [3:0] cfg_cska_mbist1   = cfg_clk_ctrl1[15:12];
+wire [3:0] cfg_cska_mbist2   = cfg_clk_ctrl1[15:12];
+wire [3:0] cfg_cska_mbist3   = cfg_clk_ctrl1[19:16];
+wire [3:0] cfg_cska_mbist4   = cfg_clk_ctrl1[23:20];
 
 wb_host u_wb_host(
+`ifdef USE_POWER_PINS
+         .vccd1         (vccd1                 ),// User area 1 1.8V supply
+         .vssd1         (vssd1                 ),// User area 1 digital ground
+`endif
         .user_clock1          (wb_clk_i         ),
         .user_clock2          (user_clock2      ),
+	.user_irq             (user_irq         ),
 
     // Master Port
         .wbm_rst_i            (wb_rst_i         ),  
@@ -158,37 +305,30 @@ wb_host u_wb_host(
         .wbm_dat_o            (wbs_dat_o        ),  
         .wbm_ack_o            (wbs_ack_o        ),  
         .wbm_err_o            (                 ),  
-        .bist_clk             (bist_clk         ),
+
+    // Clock Skeq Adjust
+        .wbd_clk_int          (wbd_clk_int      ),
+        .wbd_clk_wh           (wbd_clk_wh       ),  
+        .cfg_cska_wh          (cfg_cska_wh      ),
+
+    // Slave Port
+        .wbs_clk_out          (wbd_clk_int      ),
+        .wbs_clk_i            (wbd_clk_wh       ),  
+        .wbs_cyc_o            (wbd_int_cyc_i    ),  
+        .wbs_stb_o            (wbd_int_stb_i    ),  
+        .wbs_adr_o            (wbd_int_adr_i    ),  
+        .wbs_we_o             (wbd_int_we_i     ),  
+        .wbs_dat_o            (wbd_int_dat_i    ),  
+        .wbs_sel_o            (wbd_int_sel_i    ),  
+        .wbs_dat_i            (wbd_int_dat_o    ),  
+        .wbs_ack_i            (wbd_int_ack_o    ),  
+        .wbs_err_i            (wbd_int_err_o    ),  
+
+        .cfg_clk_ctrl1        (cfg_clk_ctrl1    ),
+        .cfg_clk_ctrl2        (cfg_clk_ctrl2    ),
+
         .bist_rst_n           (bist_rst_n       ),
-	.mem_clk_out          (mem_clk_out      ),
-	.mem_clk              (mem_clk_out      ),
-	.wbd_int_rst_n        (                 ),
-
-	.bist_en              (bist_en          ),
-	.bist_run             (bist_run         ),
-	.bist_shift           (bist_shift       ),
-	.bist_load            (bist_load        ),
-	.bist_sdi             (bist_sdi         ),
-
-	.bist_error_cnt       (bist_error_cnt   ),
-	.bist_correct         (bist_correct     ),
-	.bist_error           (bist_error       ),
-	.bist_done            (bist_done        ),
-	.bist_sdo             (bist_sdo         ),
-
-      // FUNCTIONAL A PORT    
-        .func_clk_a           (func_clk_a       ),
-        .func_cen_a           (func_cen_a       ),
-        .func_addr_a          (func_addr_a      ),
-        .func_dout_a          (func_dout_a      ),
-
-       // Functional B Port   
-        .func_clk_b           (func_clk_b       ),
-        .func_cen_b           (func_cen_b       ),
-	.func_web_b           (func_web_b       ),
-	.func_mask_b          (func_mask_b      ),
-        .func_addr_b          (func_addr_b      ),
-        .func_din_b           (func_din_b       ),
+	.wbd_int_rst_n        (wbd_int_rst_n    ),
 
         .io_out               (io_out           ),
         .io_oeb               (io_oeb           ),
@@ -196,88 +336,484 @@ wb_host u_wb_host(
 
     );
 
+wb_interconnect  u_intercon (
+`ifdef USE_POWER_PINS
+         .vccd1         (vccd1                 ),// User area 1 1.8V supply
+         .vssd1         (vssd1                 ),// User area 1 digital ground
+`endif
+     // Clock Skew adjust
+	 .wbd_clk_int   (wbd_clk_int           ), 
+	 .cfg_cska_wi   (cfg_cska_wi           ), 
+	 .wbd_clk_wi    (wbd_clk_wi            ),
 
-mbist_top  #(
+         .clk_i         (wbd_clk_wi            ), 
+         .rst_n         (wbd_int_rst_n         ),
+
+         // Master 0 Interface
+         .m0_wbd_dat_i  (wbd_int_dat_i         ),
+         .m0_wbd_adr_i  (wbd_int_adr_i         ),
+         .m0_wbd_sel_i  (wbd_int_sel_i         ),
+         .m0_wbd_we_i   (wbd_int_we_i          ),
+         .m0_wbd_cyc_i  (wbd_int_cyc_i         ),
+         .m0_wbd_stb_i  (wbd_int_stb_i         ),
+         .m0_wbd_dat_o  (wbd_int_dat_o         ),
+         .m0_wbd_ack_o  (wbd_int_ack_o         ),
+         .m0_wbd_err_o  (wbd_int_err_o         ),
+
+         // Slave 0 Interface
+         // .s0_wbd_err_i  (1'b0           ), - Moved inside IP
+         .s0_wbd_dat_i  (wbd_glbl_dat_i ),
+         .s0_wbd_ack_i  (wbd_glbl_ack_i ),
+         .s0_wbd_dat_o  (wbd_glbl_dat_o ),
+         .s0_wbd_adr_o  (wbd_glbl_adr_o ),
+         .s0_wbd_sel_o  (wbd_glbl_sel_o ),
+         .s0_wbd_we_o   (wbd_glbl_we_o  ),  
+         .s0_wbd_cyc_o  (wbd_glbl_cyc_o ),
+         .s0_wbd_stb_o  (wbd_glbl_stb_o ),
+         
+         // Slave 0 Interface
+         // .s0_wbd_err_i  (1'b0           ), - Moved inside IP
+         .s1_wbd_dat_i  (wbd_mbist1_dat_i ),
+         .s1_wbd_ack_i  (wbd_mbist1_ack_i ),
+         .s1_wbd_dat_o  (wbd_mbist1_dat_o ),
+         .s1_wbd_adr_o  (wbd_mbist1_adr_o ),
+         .s1_wbd_sel_o  (wbd_mbist1_sel_o ),
+         .s1_wbd_we_o   (wbd_mbist1_we_o  ),  
+         .s1_wbd_cyc_o  (wbd_mbist1_cyc_o ),
+         .s1_wbd_stb_o  (wbd_mbist1_stb_o ),
+         
+         // Slave 1 Interface
+         // .s1_wbd_err_i  (1'b0           ), - Moved inside IP
+         .s2_wbd_dat_i  (wbd_mbist2_dat_i ),
+         .s2_wbd_ack_i  (wbd_mbist2_ack_i ),
+         .s2_wbd_dat_o  (wbd_mbist2_dat_o ),
+         .s2_wbd_adr_o  (wbd_mbist2_adr_o ),
+         .s2_wbd_sel_o  (wbd_mbist2_sel_o ),
+         .s2_wbd_we_o   (wbd_mbist2_we_o  ),  
+         .s2_wbd_cyc_o  (wbd_mbist2_cyc_o ),
+         .s2_wbd_stb_o  (wbd_mbist2_stb_o ),
+         
+         // Slave 2 Interface
+         // .s2_wbd_err_i  (1'b0           ), - Moved inside IP
+         .s3_wbd_dat_i  (wbd_mbist3_dat_i ),
+         .s3_wbd_ack_i  (wbd_mbist3_ack_i ),
+         .s3_wbd_dat_o  (wbd_mbist3_dat_o ),
+         .s3_wbd_adr_o  (wbd_mbist3_adr_o ),
+         .s3_wbd_sel_o  (wbd_mbist3_sel_o ),
+         .s3_wbd_we_o   (wbd_mbist3_we_o  ),  
+         .s3_wbd_cyc_o  (wbd_mbist3_cyc_o ),
+         .s3_wbd_stb_o  (wbd_mbist3_stb_o ),
+
+         // Slave 3 Interface
+         // .s3_wbd_err_i  (1'b0           ), - Moved inside IP
+         .s4_wbd_dat_i  (wbd_mbist4_dat_i ),
+         .s4_wbd_ack_i  (wbd_mbist4_ack_i ),
+         .s4_wbd_dat_o  (wbd_mbist4_dat_o ),
+         .s4_wbd_adr_o  (wbd_mbist4_adr_o ),
+         .s4_wbd_sel_o  (wbd_mbist4_sel_o ),
+         .s4_wbd_we_o   (wbd_mbist4_we_o  ),  
+         .s4_wbd_cyc_o  (wbd_mbist4_cyc_o ),
+         .s4_wbd_stb_o  (wbd_mbist4_stb_o )
+	);
+
+
+glbl_cfg u_glbl(
+`ifdef USE_POWER_PINS
+       .vccd1                  (vccd1                     ),// User area 1 1.8V supply
+       .vssd1                  (vssd1                     ),// User area 1 digital ground
+`endif
+       .wbd_clk_int            (wbd_clk_int               ), 
+       .cfg_cska_glbl          (cfg_cska_glbl             ), 
+       .wbd_clk_glbl           (wbd_clk_glbl              ), 
+
+       .mclk                   (wbd_clk_glbl              ),
+       .reset_n                (wbd_int_rst_n             ),
+
+        // Reg Bus Interface Signal
+       .reg_cs                 (wbd_glbl_stb_o            ),
+       .reg_wr                 (wbd_glbl_we_o             ),
+       .reg_addr               (wbd_glbl_adr_o            ),
+       .reg_wdata              (wbd_glbl_dat_o            ),
+       .reg_be                 (wbd_glbl_sel_o            ),
+
+       // Outputs
+       .reg_rdata              (wbd_glbl_dat_i            ),
+       .reg_ack                (wbd_glbl_ack_i            ),
+
+
+	// BIST I/F
+	.bist_en           (bist_en),
+	.bist_run          (bist_run),
+	.bist_load         (bist_load),
+
+	.bist_sdi          (bist_sdi),
+	.bist_shift        (bist_shift),
+	.bist_sdo          (bist_sdo),
+
+	.bist_done         (bist_done),
+	.bist_error        (bist_error),
+	.bist_correct      (bist_correct),
+	.bist_error_cnt0   (bist_error_cnt0),
+	.bist_error_cnt1   (bist_error_cnt1),
+	.bist_error_cnt2   (bist_error_cnt2),
+	.bist_error_cnt3   (bist_error_cnt3)
+
+        );
+
+
+//------------- MBIST1 - 512x24             ----
+
+mbist_top1  #(
 	`ifndef SYNTHESIS
-	.BIST_ADDR_WD           (BIST_ADDR_WD-2         ),
+	.BIST_ADDR_WD           (BIST1_ADDR_WD-2        ),
 	.BIST_DATA_WD           (BIST_DATA_WD           ),
 	.BIST_ADDR_START        (9'h000                 ),
 	.BIST_ADDR_END          (9'h1FB                 ),
 	.BIST_REPAIR_ADDR_START (9'h1FC                 ),
-	.BIST_RAD_WD_I          (BIST_ADDR_WD-2         ),
-	.BIST_RAD_WD_O          (BIST_ADDR_WD-2         )
+	.BIST_RAD_WD_I          (BIST1_ADDR_WD-2        ),
+	.BIST_RAD_WD_O          (BIST1_ADDR_WD-2        )
         `endif
      ) 
-	     u_mbist (
+	     u_mbist1 (
 
-	.bist_clk             (bist_clk         ),
+`ifdef USE_POWER_PINS
+       .vccd1                  (vccd1                     ),// User area 1 1.8V supply
+       .vssd1                  (vssd1                     ),// User area 1 digital ground
+`endif
+
+     // Clock Skew adjust
+	.wbd_clk_int          (wbd_clk_int      ), 
+	.cfg_cska_mbist       (cfg_cska_mbist1  ), 
+	.wbd_clk_mbist        (wbd_clk_mbist1   ),
+
+	// WB I/F
+        .wb_clk_i             (wbd_clk_mbist1  ),  
+        .wb_cyc_i             (wbd_mbist1_cyc_o),  
+        .wb_stb_i             (wbd_mbist1_stb_o),  
+        .wb_adr_i             (wbd_mbist1_adr_o[BIST1_ADDR_WD-1:2]),  
+        .wb_we_i              (wbd_mbist1_we_o ),  
+        .wb_dat_i             (wbd_mbist1_dat_o),  
+        .wb_sel_i             (wbd_mbist1_sel_o),  
+        .wb_dat_o             (wbd_mbist1_dat_i),  
+        .wb_ack_o             (wbd_mbist1_ack_i),  
+        .wb_err_o             (    ), 
+
 	.rst_n                (bist_rst_n       ),
 
 	
-	.bist_en              (bist_en          ),
-	.bist_run             (bist_run         ),
-	.bist_shift           (bist_shift       ),
-	.bist_load            (bist_load        ),
-	.bist_sdi             (bist_sdi         ),
+	.bist_en              (bist_en[0]       ),
+	.bist_run             (bist_run[0]      ),
+	.bist_shift           (bist_shift[0]    ),
+	.bist_load            (bist_load[0]     ),
+	.bist_sdi             (bist_sdi[0]      ),
 
-	.bist_error_cnt       (bist_error_cnt   ),
-	.bist_correct         (bist_correct     ),
-	.bist_error           (bist_error       ),
-	.bist_done            (bist_done        ),
-	.bist_sdo             (bist_sdo         ),
-
-      // FUNCTIONAL A PORT    
-        .func_clk_a           (func_clk_a       ),
-        .func_cen_a           (func_cen_a       ),
-        .func_addr_a          (func_addr_a      ),
-        .func_dout_a          (func_dout_a      ),
-
-       // Functional B Port   
-        .func_clk_b           (func_clk_b       ),
-        .func_cen_b           (func_cen_b       ),
-	.func_web_b           (func_web_b       ),
-	.func_mask_b          (func_mask_b      ),
-        .func_addr_b          (func_addr_b      ),
-        .func_din_b           (func_din_b       ),
-
+	.bist_error_cnt       (bist_error_cnt0  ),
+	.bist_correct         (bist_correct[0]  ),
+	.bist_error           (bist_error[0]    ),
+	.bist_done            (bist_done[0]     ),
+	.bist_sdo             (bist_sdo[0]      ),
 
      // towards memory
      // PORT-A
-        .mem_clk_a            (mem_clk_a        ),
-        .mem_addr_a           (mem_addr_a       ),
-        .mem_cen_a            (mem_cen_a        ),
-        .mem_dout_a           (mem_dout_a       ),
+        .mem_clk_a            (mem1_clk_a        ),
+        .mem_addr_a           (mem1_addr_a       ),
+        .mem_cen_a            (mem1_cen_a        ),
+        .mem_dout_a           (mem1_dout_a       ),
      // PORT-B
-        .mem_clk_b            (mem_clk_b        ),
-        .mem_cen_b            (mem_cen_b        ),
-        .mem_web_b            (mem_web_b        ),
-        .mem_mask_b           (mem_mask_b       ),
-        .mem_addr_b           (mem_addr_b       ),
-        .mem_din_b            (mem_din_b        )
+        .mem_clk_b            (mem1_clk_b        ),
+        .mem_cen_b            (mem1_cen_b        ),
+        .mem_web_b            (mem1_web_b        ),
+        .mem_mask_b           (mem1_mask_b       ),
+        .mem_addr_b           (mem1_addr_b       ),
+        .mem_din_b            (mem1_din_b        )
 
 
 );
 
-sky130_sram_2kbyte_1rw1r_32x512_8 u_sram_2kb(
+sky130_sram_2kbyte_1rw1r_32x512_8 u_sram1_2kb(
 `ifdef USE_POWER_PINS
     .vccd1 (vccd1),// User area 1 1.8V supply
     .vssd1 (vssd1),// User area 1 digital ground
 `endif
 // Port 0: RW
-    .clk0     (mem_clk_b),
-    .csb0     (mem_cen_b),
-    .web0     (mem_web_b),
-    .wmask0   (mem_mask_b),
-    .addr0    (mem_addr_b),
-    .din0     (mem_din_b),
+    .clk0     (mem1_clk_b),
+    .csb0     (mem1_cen_b),
+    .web0     (mem1_web_b),
+    .wmask0   (mem1_mask_b),
+    .addr0    (mem1_addr_b),
+    .din0     (mem1_din_b),
     .dout0    (),
 // Port 1: R
-    .clk1     (mem_clk_a),
-    .csb1     (mem_cen_a),
-    .addr1    (mem_addr_a),
-    .dout1    (mem_dout_a)
+    .clk1     (mem1_clk_a),
+    .csb1     (mem1_cen_a),
+    .addr1    (mem1_addr_a),
+    .dout1    (mem1_dout_a)
   );
 
+//------------- MBIST2 - 512x24             ----
+
+mbist_top1  #(
+	`ifndef SYNTHESIS
+	.BIST_ADDR_WD           (BIST1_ADDR_WD-2        ),
+	.BIST_DATA_WD           (BIST_DATA_WD           ),
+	.BIST_ADDR_START        (9'h000                 ),
+	.BIST_ADDR_END          (9'h1FB                 ),
+	.BIST_REPAIR_ADDR_START (9'h1FC                 ),
+	.BIST_RAD_WD_I          (BIST1_ADDR_WD-2        ),
+	.BIST_RAD_WD_O          (BIST1_ADDR_WD-2        )
+        `endif
+     ) 
+	     u_mbist2 (
+`ifdef USE_POWER_PINS
+       .vccd1                  (vccd1                     ),// User area 1 1.8V supply
+       .vssd1                  (vssd1                     ),// User area 1 digital ground
+`endif
+
+     // Clock Skew adjust
+	.wbd_clk_int          (wbd_clk_int      ), 
+	.cfg_cska_mbist       (cfg_cska_mbist2  ), 
+	.wbd_clk_mbist        (wbd_clk_mbist2   ),
+
+	// WB I/F
+        .wb_clk_i             (wbd_clk_mbist2  ),  
+        .wb_cyc_i             (wbd_mbist2_cyc_o),  
+        .wb_stb_i             (wbd_mbist2_stb_o),  
+        .wb_adr_i             (wbd_mbist2_adr_o[BIST1_ADDR_WD-1:2]),  
+        .wb_we_i              (wbd_mbist2_we_o ),  
+        .wb_dat_i             (wbd_mbist2_dat_o),  
+        .wb_sel_i             (wbd_mbist2_sel_o),  
+        .wb_dat_o             (wbd_mbist2_dat_i),  
+        .wb_ack_o             (wbd_mbist2_ack_i),  
+        .wb_err_o             (    ), 
+
+	.rst_n                  (bist_rst_n            ),
+
+	
+	.bist_en                (bist_en[1]            ),
+	.bist_run               (bist_run[1]           ),
+	.bist_shift             (bist_shift[1]         ),
+	.bist_load              (bist_load[1]          ),
+	.bist_sdi               (bist_sdi[1]           ),
+
+	.bist_error_cnt         (bist_error_cnt1       ),
+	.bist_correct           (bist_correct[1]       ),
+	.bist_error             (bist_error[1]         ),
+	.bist_done              (bist_done[1]          ),
+	.bist_sdo               (bist_sdo[1]           ),
+
+     // towards memory
+     // PORT-A
+        .mem_clk_a            (mem2_clk_a        ),
+        .mem_addr_a           (mem2_addr_a       ),
+        .mem_cen_a            (mem2_cen_a        ),
+        .mem_dout_a           (mem2_dout_a       ),
+     // PORT-B
+        .mem_clk_b            (mem2_clk_b        ),
+        .mem_cen_b            (mem2_cen_b        ),
+        .mem_web_b            (mem2_web_b        ),
+        .mem_mask_b           (mem2_mask_b       ),
+        .mem_addr_b           (mem2_addr_b       ),
+        .mem_din_b            (mem2_din_b        )
+
+
+);
+
+sky130_sram_2kbyte_1rw1r_32x512_8 u_sram2_2kb(
+`ifdef USE_POWER_PINS
+    .vccd1 (vccd1),// User area 1 1.8V supply
+    .vssd1 (vssd1),// User area 1 digital ground
+`endif
+// Port 0: RW
+    .clk0     (mem2_clk_b),
+    .csb0     (mem2_cen_b),
+    .web0     (mem2_web_b),
+    .wmask0   (mem2_mask_b),
+    .addr0    (mem2_addr_b),
+    .din0     (mem2_din_b),
+    .dout0    (),
+// Port 1: R
+    .clk1     (mem2_clk_a),
+    .csb1     (mem2_cen_a),
+    .addr1    (mem2_addr_a),
+    .dout1    (mem2_dout_a)
+  );
+
+//------------- MBIST3 - 256x32             ----
+
+mbist_top2  #(
+	`ifndef SYNTHESIS
+	.BIST_ADDR_WD           (BIST2_ADDR_WD-2        ),
+	.BIST_DATA_WD           (BIST_DATA_WD           ),
+	.BIST_ADDR_START        (8'h00                  ),
+	.BIST_ADDR_END          (8'hFB                  ),
+	.BIST_REPAIR_ADDR_START (8'hFC                  ),
+	.BIST_RAD_WD_I          (BIST2_ADDR_WD-2        ),
+	.BIST_RAD_WD_O          (BIST2_ADDR_WD-2        )
+        `endif
+     ) 
+	     u_mbist3 (
+`ifdef USE_POWER_PINS
+       .vccd1                  (vccd1                     ),// User area 1 1.8V supply
+       .vssd1                  (vssd1                     ),// User area 1 digital ground
+`endif
+
+     // Clock Skew adjust
+	.wbd_clk_int          (wbd_clk_int      ), 
+	.cfg_cska_mbist       (cfg_cska_mbist3  ), 
+	.wbd_clk_mbist        (wbd_clk_mbist3   ),
+
+	// WB I/F
+        .wb_clk_i             (wbd_clk_mbist3  ),  
+        .wb_cyc_i             (wbd_mbist3_cyc_o),  
+        .wb_stb_i             (wbd_mbist3_stb_o),  
+        .wb_adr_i             (wbd_mbist3_adr_o[BIST2_ADDR_WD-1:2]),  
+        .wb_we_i              (wbd_mbist3_we_o ),  
+        .wb_dat_i             (wbd_mbist3_dat_o),  
+        .wb_sel_i             (wbd_mbist3_sel_o),  
+        .wb_dat_o             (wbd_mbist3_dat_i),  
+        .wb_ack_o             (wbd_mbist3_ack_i),  
+        .wb_err_o             (    ), 
+
+	.rst_n                (bist_rst_n       ),
+
+	
+	.bist_en              (bist_en[2]       ),
+	.bist_run             (bist_run[2]      ),
+	.bist_shift           (bist_shift[2]    ),
+	.bist_load            (bist_load[2]     ),
+	.bist_sdi             (bist_sdi[2]      ),
+
+	.bist_error_cnt       (bist_error_cnt2  ),
+	.bist_correct         (bist_correct[2]  ),
+	.bist_error           (bist_error[2]    ),
+	.bist_done            (bist_done[2]     ),
+	.bist_sdo             (bist_sdo[2]      ),
+
+
+     // towards memory
+     // PORT-A
+        .mem_clk_a            (mem3_clk_a        ),
+        .mem_addr_a           (mem3_addr_a       ),
+        .mem_cen_a            (mem3_cen_a        ),
+        .mem_dout_a           (mem3_dout_a       ),
+     // PORT-B
+        .mem_clk_b            (mem3_clk_b        ),
+        .mem_cen_b            (mem3_cen_b        ),
+        .mem_web_b            (mem3_web_b        ),
+        .mem_mask_b           (mem3_mask_b       ),
+        .mem_addr_b           (mem3_addr_b       ),
+        .mem_din_b            (mem3_din_b        )
+
+
+);
+
+sky130_sram_1kbyte_1rw1r_32x256_8 u_sram3_1kb(
+`ifdef USE_POWER_PINS
+    .vccd1 (vccd1),// User area 1 1.8V supply
+    .vssd1 (vssd1),// User area 1 digital ground
+`endif
+// Port 0: RW
+    .clk0     (mem3_clk_b),
+    .csb0     (mem3_cen_b),
+    .web0     (mem3_web_b),
+    .wmask0   (mem3_mask_b),
+    .addr0    (mem3_addr_b),
+    .din0     (mem3_din_b),
+    .dout0    (),
+// Port 1: R
+    .clk1     (mem3_clk_a),
+    .csb1     (mem3_cen_a),
+    .addr1    (mem3_addr_a),
+    .dout1    (mem3_dout_a)
+  );
+
+//------------- MBIST4 - 256x32             ----
+
+mbist_top2  #(
+	`ifndef SYNTHESIS
+	.BIST_ADDR_WD           (BIST2_ADDR_WD-2        ),
+	.BIST_DATA_WD           (BIST_DATA_WD           ),
+	.BIST_ADDR_START        (8'h00                  ),
+	.BIST_ADDR_END          (8'hFB                  ),
+	.BIST_REPAIR_ADDR_START (8'hFC                  ),
+	.BIST_RAD_WD_I          (BIST2_ADDR_WD-2        ),
+	.BIST_RAD_WD_O          (BIST2_ADDR_WD-2        )
+        `endif
+     ) 
+	     u_mbist4 (
+`ifdef USE_POWER_PINS
+       .vccd1                  (vccd1                     ),// User area 1 1.8V supply
+       .vssd1                  (vssd1                     ),// User area 1 digital ground
+`endif
+
+     // Clock Skew adjust
+	.wbd_clk_int          (wbd_clk_int      ), 
+	.cfg_cska_mbist       (cfg_cska_mbist4  ), 
+	.wbd_clk_mbist        (wbd_clk_mbist4   ),
+
+	// WB I/F
+        .wb_clk_i             (wbd_clk_mbist4  ),  
+        .wb_cyc_i             (wbd_mbist4_cyc_o),  
+        .wb_stb_i             (wbd_mbist4_stb_o),  
+        .wb_adr_i             (wbd_mbist4_adr_o[BIST2_ADDR_WD-1:2]),  
+        .wb_we_i              (wbd_mbist4_we_o ),  
+        .wb_dat_i             (wbd_mbist4_dat_o),  
+        .wb_sel_i             (wbd_mbist4_sel_o),  
+        .wb_dat_o             (wbd_mbist4_dat_i),  
+        .wb_ack_o             (wbd_mbist4_ack_i),  
+        .wb_err_o             (    ), 
+
+	.rst_n                (bist_rst_n       ),
+
+	
+	.bist_en              (bist_en[3]       ),
+	.bist_run             (bist_run[3]      ),
+	.bist_shift           (bist_shift[3]    ),
+	.bist_load            (bist_load[3]     ),
+	.bist_sdi             (bist_sdi[3]      ),
+
+	.bist_error_cnt       (bist_error_cnt3  ),
+	.bist_correct         (bist_correct[3]  ),
+	.bist_error           (bist_error[3]    ),
+	.bist_done            (bist_done[3]     ),
+	.bist_sdo             (bist_sdo[3]      ),
+
+     // towards memory
+     // PORT-A
+        .mem_clk_a            (mem4_clk_a        ),
+        .mem_addr_a           (mem4_addr_a       ),
+        .mem_cen_a            (mem4_cen_a        ),
+        .mem_dout_a           (mem4_dout_a       ),
+     // PORT-B
+        .mem_clk_b            (mem4_clk_b        ),
+        .mem_cen_b            (mem4_cen_b        ),
+        .mem_web_b            (mem4_web_b        ),
+        .mem_mask_b           (mem4_mask_b       ),
+        .mem_addr_b           (mem4_addr_b       ),
+        .mem_din_b            (mem4_din_b        )
+
+
+);
+
+sky130_sram_1kbyte_1rw1r_32x256_8 u_sram4_1kb(
+`ifdef USE_POWER_PINS
+    .vccd1 (vccd1),// User area 1 1.8V supply
+    .vssd1 (vssd1),// User area 1 digital ground
+`endif
+// Port 0: RW
+    .clk0     (mem4_clk_b),
+    .csb0     (mem4_cen_b),
+    .web0     (mem4_web_b),
+    .wmask0   (mem4_mask_b),
+    .addr0    (mem4_addr_b),
+    .din0     (mem4_din_b),
+    .dout0    (),
+// Port 1: R
+    .clk1     (mem4_clk_a),
+    .csb1     (mem4_cen_a),
+    .addr1    (mem4_addr_a),
+    .dout1    (mem4_dout_a)
+  );
 
 endmodule	// user_project_wrapper
 

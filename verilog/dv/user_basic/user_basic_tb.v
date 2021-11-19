@@ -174,44 +174,53 @@ begin
    fork
       begin
 	  // Default Value Check
-	  // assign cfg_glb_ctrl         = reg_1[7:0];
-          // assign cfg_bist_clk_ctrl    = reg_1[11:8];
-          // assign cfg_mem_clk_ctrl     = reg_1[15:12];
-          // assign cfg_bank_sel         = reg_1[23:16];
-	  $display("Step-1, BIST CLK: CLOCK1, MEM CLK: CLOCK1 ");
+	  // assign cfg_glb_ctrl         = reg_0[7:0];
+          // assign cfg_wb_clk_ctrl      = reg_0[11:8];
+
+	  $display("Step-1, WBS CLK: CLOCK1");
 	  test_step = 1;
-          wb_user_core_write('h3080_0004,{16'h0,4'h0,4'h0,8'h00});
-	  clock_monitor(CLK1_PERIOD,CLK1_PERIOD);
+          wb_user_core_write('h3080_0000,{20'h0,4'h0,8'h00});
+	  clock_monitor(CLK1_PERIOD);
 
-	  $display("Step-2, BIST CLK: CLOCK2, MEM CLK: CLOCK2 ");
+	  $display("Step-2, WBS CLK: CLOCK1/2");
 	  test_step = 2;
-          wb_user_core_write('h3080_0004,{16'h0,4'h8,4'h8,8'h00});
-	  clock_monitor(CLK2_PERIOD,CLK2_PERIOD);
+          wb_user_core_write('h3080_0000,{20'h0,4'h8,8'h00});
+	  clock_monitor(2*CLK1_PERIOD);
 
-	  $display("Step-3, BIST CLK: CLOCK1/2, MEM CLK: CLOCK1/2");
+	  $display("Step-3, WBS CLK: CLOCK1/(2+1)");
 	  test_step = 3;
-          wb_user_core_write('h3080_0004,{16'h0,4'h4,4'h4,8'h00});
-	  clock_monitor(2*CLK1_PERIOD,2*CLK1_PERIOD);
+          wb_user_core_write('h3080_0000,{20'h0,4'h9,8'h00});
+	  clock_monitor(3*CLK1_PERIOD);
 
-	  $display("Step-4, BIST CLK: CLOCK1/(2+1), MEM CLK: CLOCK1/(2+1)");
+	  $display("Step-4, WBS CLK: CLOCK1/(2+2)");
 	  test_step = 4;
-          wb_user_core_write('h3080_0004,{16'h0,4'h5,4'h5,8'h00});
-	  clock_monitor(3*CLK1_PERIOD,3*CLK1_PERIOD);
+          wb_user_core_write('h3080_0000,{20'h0,4'hA,8'h00});
+	  clock_monitor(4*CLK1_PERIOD);
 
-	  $display("Step-5, BIST CLK: CLOCK1/(2+2), MEM CLK: CLOCK1/(2+2)");
+	  $display("Step-5, WBS CLK: CLOCK1/(2+3)");
 	  test_step = 5;
-          wb_user_core_write('h3080_0004,{16'h0,4'h6,4'h6,8'h00});
-	  clock_monitor(4*CLK1_PERIOD,4*CLK1_PERIOD);
+          wb_user_core_write('h3080_0000,{20'h0,4'hB,8'h00});
+	  clock_monitor(5*CLK1_PERIOD);
 
-	  $display("Step-6, BIST CLK: CLOCK1/(2+3), MEM CLK: CLOCK1/(2+3)");
+	  $display("Step-6, WBS CLK: CLOCK1/(2+4)");
 	  test_step = 6;
-          wb_user_core_write('h3080_0004,{16'h0,4'h7,4'h7,8'h00});
-	  clock_monitor(5*CLK1_PERIOD,5*CLK1_PERIOD);
+          wb_user_core_write('h3080_0000,{20'h0,4'hC,8'h00});
+	  clock_monitor(6*CLK1_PERIOD);
 
-	  $display("Step-7, BIST CLK: CLOCK2/(2+3), MEM CLK: CLOCK2/(2+3)");
+	  $display("Step-7, WBS CLK: CLOCK2/(2+5)");
 	  test_step = 6;
-          wb_user_core_write('h3080_0004,{16'h0,4'hF,4'hF,8'h00});
-	  clock_monitor(5*CLK2_PERIOD,5*CLK2_PERIOD);
+          wb_user_core_write('h3080_0000,{20'h0,4'hD,8'h00});
+	  clock_monitor(7*CLK1_PERIOD);
+
+	  $display("Step-8, WBS CLK: CLOCK2/(2+6)");
+	  test_step = 8;
+          wb_user_core_write('h3080_0000,{20'h0,4'hE,8'h00});
+	  clock_monitor(8*CLK1_PERIOD);
+
+	  $display("Step-9, WBS CLK: CLOCK2/(2+7)");
+	  test_step = 9;
+          wb_user_core_write('h3080_0000,{20'h0,4'hF,8'h00});
+	  clock_monitor(9*CLK1_PERIOD);
       end
    
       begin
@@ -296,70 +305,20 @@ user_project_wrapper u_top(
 	force u_top.u_wb_host.u_buf_bist_rst.VGND =VSS;
 	force u_top.u_wb_host.u_buf_bist_rst.VNB = VSS;
 
-	force u_top.u_wb_host.u_clkbuf_bist.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_clkbuf_bist.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_clkbuf_bist.VGND =VSS;
-	force u_top.u_wb_host.u_clkbuf_bist.VNB = VSS;
-
-	force u_top.u_wb_host.u_clkbuf_mem.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_clkbuf_mem.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_clkbuf_mem.VGND =VSS;
-	force u_top.u_wb_host.u_clkbuf_mem.VNB = VSS;
-
-	force u_top.u_wb_host.u_cpu_ref_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_cpu_ref_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_cpu_ref_sel.u_mux.VGND =VSS;
-	force u_top.u_wb_host.u_cpu_ref_sel.u_mux.VNB = VSS;
-
-	force u_top.u_wb_host.u_cpu_clk_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_cpu_clk_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_cpu_clk_sel.u_mux.VGND =VSS;
-	force u_top.u_wb_host.u_cpu_clk_sel.u_mux.VNB = VSS;
-	
-	force u_top.u_wb_host.u_mem_ref_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_mem_ref_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_mem_ref_sel.u_mux.VGND =VSS;
-	force u_top.u_wb_host.u_mem_ref_sel.u_mux.VNB = VSS;
-
-	force u_top.u_wb_host.u_mem_clk_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_mem_clk_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_mem_clk_sel.u_mux.VGND =VSS;
-	force u_top.u_wb_host.u_mem_clk_sel.u_mux.VNB = VSS;
-
-	force u_top.u_mbist.u_mem_sel.u_mem_clk_a_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_mbist.u_mem_sel.u_mem_clk_a_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_mbist.u_mem_sel.u_mem_clk_a_sel.u_mux.VGND =VSS;
-	force u_top.u_mbist.u_mem_sel.u_mem_clk_a_sel.u_mux.VNB = VSS;
-	
-	force u_top.u_mbist.u_mem_sel.u_mem_clk_b_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_mbist.u_mem_sel.u_mem_clk_b_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_mbist.u_mem_sel.u_mem_clk_b_sel.u_mux.VGND =VSS;
-	force u_top.u_mbist.u_mem_sel.u_mem_clk_b_sel.u_mux.VNB = VSS;
-
-	force u_top.u_mbist.u_mem_sel.u_cts_mem_clk_a.VPWR =USER_VDD1V8;
-	force u_top.u_mbist.u_mem_sel.u_cts_mem_clk_a.VPB  =USER_VDD1V8;
-	force u_top.u_mbist.u_mem_sel.u_cts_mem_clk_a.VGND =VSS;
-	force u_top.u_mbist.u_mem_sel.u_cts_mem_clk_a.VNB = VSS;
-
-	force u_top.u_mbist.u_mem_sel.u_cts_mem_clk_b.VPWR =USER_VDD1V8;
-	force u_top.u_mbist.u_mem_sel.u_cts_mem_clk_b.VPB  =USER_VDD1V8;
-	force u_top.u_mbist.u_mem_sel.u_cts_mem_clk_b.VGND =VSS;
-	force u_top.u_mbist.u_mem_sel.u_cts_mem_clk_b.VNB = VSS;
+	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VGND =VSS;
+	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VNB = VSS;
 
     end
 `endif    
 
 
 task clock_monitor;
-input [15:0] exp_bist_period;
-input [15:0] exp_mem_period;
+input [15:0] exp_wbs_period;
 begin
-   force clock_mon = u_top.u_wb_host.bist_clk;
-   check_clock_period("BIST CLock",exp_bist_period);
-   release clock_mon;
-
-   force clock_mon = u_top.u_wb_host.mem_clk;
-   check_clock_period("MEM Clock",exp_mem_period);
+   force clock_mon = u_top.u_wb_host.wbs_clk_out;
+   check_clock_period("WBS Clock",exp_wbs_period);
    release clock_mon;
 
 end

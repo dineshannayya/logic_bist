@@ -23,6 +23,8 @@
 #define reg_mprj_slave (*(volatile uint32_t*)0x30000000)
 
 #define reg_mprj_wbhost_reg0 (*(volatile uint32_t*)0x30800000)
+#define reg_mprj_glbl_reg0 (*(volatile uint32_t*)0x30000000)
+#define reg_mprj_glbl_reg1 (*(volatile uint32_t*)0x30000004)
 
 void main()
 {
@@ -78,14 +80,19 @@ void main()
     // Flag start of the test
 	reg_mprj_datal = 0xAB600000;
 
+    // Remove Wishbone Reset
+    reg_mprj_wbhost_reg0 = 0x1;
 
-    if (reg_mprj_wbhost_reg0 != 0xAABBCCDD) bFail = 1;
+    if (reg_mprj_glbl_reg0 != 0x44332211) bFail = 1;
+    if (reg_mprj_glbl_reg1 != 0xDDCCBBAA) bFail = 1;
 
     // Write software Write & Read Register
-    reg_mprj_wbhost_reg0  = 0x11223344; 
+    reg_mprj_glbl_reg0  = 0x11223344; 
+    reg_mprj_glbl_reg1  = 0x22334455; 
 
 
-    if (reg_mprj_wbhost_reg0  != 0x11223344) bFail = 1;
+    if (reg_mprj_glbl_reg0  != 0x11223344) bFail = 1;
+    if (reg_mprj_glbl_reg1  != 0x22334455) bFail = 1;
 
     if(bFail == 0) {
         reg_mprj_datal = 0xAB610000;

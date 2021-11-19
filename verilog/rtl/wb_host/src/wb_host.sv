@@ -74,13 +74,10 @@ module wb_host (
 `endif
        input logic                 user_clock1      ,
        input logic                 user_clock2      ,
-
-       output logic                bist_clk         ,
-       output logic                bist_rst_n       ,
-       output logic                mem_clk_out      ,
-       input  logic                mem_clk          ,
+       output logic [2:0]          user_irq         ,
 
        output logic                wbd_int_rst_n    ,
+       output logic                bist_rst_n       ,
 
     // Master Port
        input   logic               wbm_rst_i        ,  // Regular Reset signal
@@ -95,32 +92,28 @@ module wb_host (
        output  logic               wbm_ack_o        ,  // acknowlegement
        output  logic               wbm_err_o        ,  // error
 
+    // Clock Skew Adjust
+       input   logic               wbd_clk_int      , 
+       output  logic               wbd_clk_wh       ,
+       input   logic [3:0]         cfg_cska_wh      , // clock skew adjust for web host
+
+    // Slave Port
+       output  logic               wbs_clk_out      ,  // System clock
+       input   logic               wbs_clk_i        ,  // System clock
+       output  logic               wbs_cyc_o        ,  // strobe/request
+       output  logic               wbs_stb_o        ,  // strobe/request
+       output  logic [31:0]        wbs_adr_o        ,  // address
+       output  logic               wbs_we_o         ,  // write
+       output  logic [31:0]        wbs_dat_o        ,  // data output
+       output  logic [3:0]         wbs_sel_o        ,  // byte enable
+       input   logic [31:0]        wbs_dat_i        ,  // data input
+       input   logic               wbs_ack_i        ,  // acknowlegement
+       input   logic               wbs_err_i        ,  // error
+
+       output logic [31:0]         cfg_clk_ctrl1    ,
+       output logic [31:0]         cfg_clk_ctrl2    ,
 	// MBIST I/F
-	output  logic              bist_en,
-	output logic               bist_run,
-	output logic               bist_shift,
-	output logic               bist_load,
-	output logic               bist_sdi,
 
-	input logic [3:0]          bist_error_cnt,
-	input logic                bist_correct,
-	input logic                bist_error,
-	input logic                bist_done,
-	input logic                bist_sdo,
-
-      // MEM A PORT 
-        output   logic             func_clk_a,
-        output   logic             func_cen_a,
-        output   logic  [8:0]      func_addr_a,
-        input    logic  [31:0]     func_dout_a,
-
-       // Functional B Port
-        output   logic              func_clk_b,
-        output   logic              func_cen_b,
-        output   logic              func_web_b,
-        output   logic [3:0]        func_mask_b,
-        output   logic  [8:0]       func_addr_b,
-        output   logic  [31:0]      func_din_b,
 
 	output   logic  [37:0]      io_out,
 	output   logic  [37:0]      io_oeb,
@@ -140,7 +133,7 @@ logic               wbm_ack_int; // acknowlegement
 logic               wbm_err_int; // error
 
 logic               reg_sel    ;
-logic [2:0]         sw_addr    ;
+logic [1:0]         sw_addr    ;
 logic               sw_rd_en   ;
 logic               sw_wr_en   ;
 logic [31:0]        reg_rdata  ;
@@ -158,40 +151,31 @@ logic               wbm_stb_int;
 logic [31:0]        reg_0;  // Software_Reg_0
 logic [31:0]        reg_1;  // Software_Reg_0
 
-logic  [3:0]        cfg_bist_clk_ctrl;
-logic  [3:0]        cfg_mem_clk_ctrl;
+logic  [3:0]        cfg_wb_clk_ctrl;
 logic  [7:0]        cfg_glb_ctrl;
-
-// Slave Port
-logic               wbs_clk_out      ;  // System clock
-logic               wbs_cyc_o        ;  // strobe/request
-logic               wbs_stb_o        ;  // strobe/request
-logic [31:0]        wbs_adr_o        ;  // address
-logic               wbs_we_o         ;  // write
-logic [31:0]        wbs_dat_o        ;  // data output
-logic [3:0]         wbs_sel_o        ;  // byte enable
-logic [31:0]        wbs_dat_i        ;  // data input
-logic               wbs_ack_i        ;  // acknowlegement
-logic               wbs_err_i        ;  // error
-
-logic [31:0]        cfg_bist_ctrl    ;
-logic [31:0]        cfg_bist_status  ;
-logic               ser_acc          ; // Serial Access
-logic               non_ser_acc      ; // Non Serial Access
-logic [31:0]        serail_dout      ;
-logic               serial_ack       ;
 
 assign io_out = 'h0;
 assign io_oeb  = 'h0;
 assign la_data_out = 'h0;
 
-
+assign user_irq  = 'h0;
 assign wbm_rst_n = !wbm_rst_i;
 assign wbs_rst_n = !wbm_rst_i;
 
 sky130_fd_sc_hd__bufbuf_16 u_buf_wb_rst     (.A(cfg_glb_ctrl[0]),.X(wbd_int_rst_n));
 sky130_fd_sc_hd__bufbuf_16 u_buf_bist_rst   (.A(cfg_glb_ctrl[1]),.X(bist_rst_n));
 
+// wb_host clock skew control
+clk_skew_adjust u_skew_wh
+       (
+`ifdef USE_POWER_PINS
+               .vccd1      (vccd1                      ),// User area 1 1.8V supply
+               .vssd1      (vssd1                      ),// User area 1 digital ground
+`endif
+	       .clk_in     (wbd_clk_int               ), 
+	       .sel        (cfg_cska_wh               ), 
+	       .clk_out    (wbd_clk_wh                ) 
+       );
 
 // To reduce the load/Timing Wishbone I/F, Strobe is register to create
 // multi-cycle
@@ -200,8 +184,6 @@ wire         wbm_ack_o1   = (reg_sel) ? reg_ack   : wbm_ack_int; // acknowlegeme
 wire         wbm_err_o1   = (reg_sel) ? 1'b0      : wbm_err_int;  // error
 
 logic wb_req;
-logic wb_req_d;
-logic wb_req_pedge;
 always_ff @(negedge wbm_rst_n or posedge wbm_clk_i) begin
     if ( wbm_rst_n == 1'b0 ) begin
         wb_req    <= '0;
@@ -209,16 +191,12 @@ always_ff @(negedge wbm_rst_n or posedge wbm_clk_i) begin
 	wbm_ack_o <= '0;
 	wbm_err_o <= '0;
    end else begin
-       wb_req   <= wbm_stb_i && (wbm_ack_o == 0) ;
-       wb_req_d <= wb_req;
+       wb_req    <= wbm_stb_i && ((wbm_ack_o == 0) && (wbm_ack_o1 == 0)) ;
        wbm_dat_o <= wbm_dat_o1;
        wbm_ack_o <= wbm_ack_o1;
        wbm_err_o <= wbm_err_o1;
    end
 end
-
-// Detect pos edge of request
-assign wb_req_pedge = (wb_req_d ==0) && (wb_req==1'b1);
 
 
 //-----------------------------------------------------------------------
@@ -234,33 +212,31 @@ assign wb_req_pedge = (wb_req_d ==0) && (wb_req==1'b1);
 // ---------------------------------------------------------------------
 assign reg_sel       = wb_req & (wbm_adr_i[23] == 1'b1);
 
-assign sw_addr       = wbm_adr_i [4:2];
+assign sw_addr       = wbm_adr_i [3:2];
 assign sw_rd_en      = reg_sel & !wbm_we_i;
 assign sw_wr_en      = reg_sel & wbm_we_i;
 
-assign  sw_wr_en_0 = sw_wr_en && (sw_addr=='h0);
-assign  sw_wr_en_1 = sw_wr_en && (sw_addr=='h1);
-assign  sw_wr_en_2 = sw_wr_en && (sw_addr=='h2);
-assign  sw_wr_en_3 = sw_wr_en && (sw_addr=='h3);
-assign  sw_wr_en_4 = sw_wr_en && (sw_addr=='h4);
-assign  sw_rd_en_5 = sw_rd_en && (sw_addr=='h5);
-
-
-assign ser_acc = sw_wr_en_4 | sw_rd_en_5;
-assign non_ser_acc = reg_sel ? !ser_acc : 1'b0;
+assign  sw_wr_en_0 = sw_wr_en && (sw_addr==0);
+assign  sw_wr_en_1 = sw_wr_en && (sw_addr==1);
+assign  sw_wr_en_2 = sw_wr_en && (sw_addr==2);
+assign  sw_wr_en_3 = sw_wr_en && (sw_addr==3);
 
 always @ (posedge wbm_clk_i or negedge wbm_rst_n)
 begin : preg_out_Seq
-   if (wbm_rst_n == 1'b0) begin
+   if (wbm_rst_n == 1'b0)
+   begin
       reg_rdata  <= 'h0;
       reg_ack    <= 1'b0;
-   end else if (ser_acc && serial_ack)  begin
-      reg_rdata <= serail_dout ;
-      reg_ack   <= 1'b1;
-   end else if (non_ser_acc && !reg_ack) begin
+   end
+   else if (sw_rd_en && !reg_ack) 
+   begin
       reg_rdata <= reg_out ;
       reg_ack   <= 1'b1;
-   end else begin
+   end
+   else if (sw_wr_en && !reg_ack) 
+      reg_ack          <= 1'b1;
+   else
+   begin
       reg_ack        <= 1'b0;
    end
 end
@@ -269,39 +245,26 @@ end
 //-------------------------------------
 // Global + Clock Control
 // -------------------------------------
-assign cfg_glb_ctrl         = reg_1[7:0];
-assign cfg_bist_clk_ctrl    = reg_1[11:8];
-assign cfg_mem_clk_ctrl     = reg_1[15:12];
-assign cfg_bank_sel         = reg_1[23:16];
-
-
-// BIST Control
-assign bist_en           = cfg_bist_ctrl[0];
-assign bist_run          = cfg_bist_ctrl[1];
-assign bist_load         = cfg_bist_ctrl[2];
-
-// BIST Status
-assign cfg_bist_status   = {25'h0,bist_error_cnt,bist_correct,bist_error,bist_done};
+assign cfg_glb_ctrl         = reg_0[7:0];
+assign cfg_wb_clk_ctrl      = reg_0[11:8];
 
 
 always @( *)
 begin 
-  reg_out [31:0] = 8'd0;
+  reg_out [31:0] = 32'h0;
 
-  case (sw_addr [2:0])
-    3'b000 :   reg_out [31:0] = reg_0;
-    3'b001 :   reg_out [31:0] = reg_1;
-    3'b010 :   reg_out [31:0] = cfg_bist_ctrl [31:0];    
-    3'b011 :   reg_out [31:0] = cfg_bist_status [31:0];     
-    3'b100 :   reg_out [31:0] = 'h0; // Serial Write Data
-    3'b101 :   reg_out [31:0] = serail_dout; // This is with  Shift
-    3'b110 :   reg_out [31:0] = serail_dout; // This is previous Shift 
+  case (sw_addr [1:0])
+    2'b00 :   reg_out [31:0] = reg_0;
+    2'b01 :   reg_out [31:0] = {24'h0,cfg_bank_sel [7:0]};     
+    2'b10 :   reg_out [31:0] = cfg_clk_ctrl1 [31:0];    
+    2'b11 :   reg_out [31:0] = cfg_clk_ctrl2 [31:0];     
     default : reg_out [31:0] = 'h0;
   endcase
 end
 
 
-generic_register #(32,32'hAABBCCDD  ) u_chip_id (
+
+generic_register #(32,0  ) u_glb_ctrl (
 	      .we            ({32{sw_wr_en_0}}   ),		 
 	      .data_in       (wbm_dat_i[31:0]    ),
 	      .reset_n       (wbm_rst_n         ),
@@ -311,16 +274,15 @@ generic_register #(32,32'hAABBCCDD  ) u_chip_id (
 	      .data_out      (reg_0[31:0])
           );
 
-generic_register #(32,32'h100000  ) u_glb_ctrl (
-	      .we            ({32{sw_wr_en_1}}  ),		 
-	      .data_in       (wbm_dat_i[31:0]   ),
+generic_register #(8,8'h00 ) u_bank_sel (
+	      .we            ({8{sw_wr_en_1}}   ),		 
+	      .data_in       (wbm_dat_i[7:0]    ),
 	      .reset_n       (wbm_rst_n         ),
 	      .clk           (wbm_clk_i         ),
 	      
 	      //List of Outs
-	      .data_out      (reg_1[31:0]       )
+	      .data_out      (cfg_bank_sel[7:0] )
           );
-
 
 
 generic_register #(32,0  ) u_clk_ctrl1 (
@@ -330,35 +292,19 @@ generic_register #(32,0  ) u_clk_ctrl1 (
 	      .clk           (wbm_clk_i          ),
 	      
 	      //List of Outs
-	      .data_out      (cfg_bist_ctrl[31:0])
+	      .data_out      (cfg_clk_ctrl1[31:0])
           );
 
+generic_register #(32,0  ) u_clk_ctrl2 (
+	      .we            ({32{sw_wr_en_3}}  ),		 
+	      .data_in       (wbm_dat_i[31:0]   ),
+	      .reset_n       (wbm_rst_n         ),
+	      .clk           (wbm_clk_i         ),
+	      
+	      //List of Outs
+	      .data_out      (cfg_clk_ctrl2[31:0])
+          );
 
-
-
-ser_inf_32b u_ser_intf
-       (
-
-    // Master Port
-       .rst_n       (wbm_rst_n),  // Regular Reset signal
-       .clk         (wbm_clk_i),  // System clock
-       .reg_wr      (sw_wr_en_4 & wb_req_pedge),  // Write Request
-       .reg_rd      (sw_rd_en_5 & wb_req_pedge),  // Read Request
-       .reg_wdata   (wbm_dat_i) ,  // data output
-       .reg_rdata   (serail_dout),  // data input
-       .reg_ack     (serial_ack),  // acknowlegement
-
-    // Slave Port
-       .sdi         (bist_sdi),    // Serial SDI
-       .shift       (bist_shift),  // Shift Signal
-       .sdo         (bist_sdo)     // Serial SDO
-
-    );
-
-
-//--------------------------------------------------
-// Wishbone Master to Wishbone Slave 
-// -------------------------------------------------
 
 assign wbm_stb_int = wb_req & !reg_sel;
 
@@ -382,7 +328,7 @@ async_wb u_async_wb(
 
 // Slave Port
        .wbs_rst_n   (wbs_rst_n     ),  
-       .wbs_clk_i   (mem_clk     ),  
+       .wbs_clk_i   (wbs_clk_i     ),  
        .wbs_cyc_o   (wbs_cyc_o     ),  
        .wbs_stb_o   (wbs_stb_o     ),  
        .wbs_adr_o   (wbs_adr_o     ),  
@@ -395,89 +341,30 @@ async_wb u_async_wb(
 
     );
 
-// Memory Write PORT
-assign func_clk_b     = mem_clk;
-assign func_cen_b     = !wbs_stb_o;
-assign func_web_b     = !wbs_we_o;
-assign func_mask_b    = wbs_sel_o;
-assign func_addr_b    = wbs_adr_o[10:2];
-assign func_din_b     = wbs_dat_o;
-
-assign func_clk_a     = mem_clk;
-assign func_cen_a     = (wbs_stb_o == 1'b1 && wbs_we_o == 1'b0 && wbs_ack_i ==0) ? 1'b0 : 1'b1;
-assign func_addr_a    = wbs_adr_o[10:2];
-assign wbs_dat_i      = func_dout_a;
-
-assign wbs_err_i   = 1'b0;
-
-logic func_cen_a_d;
-
-always_ff @(negedge wbs_rst_n or posedge mem_clk) begin
-    if ( wbs_rst_n == 1'b0 ) begin
-	func_cen_a_d <= 'h0;
-   end else begin
-       func_cen_a_d <= func_cen_a;
-   end
-end
-
-assign wbs_ack_i = (wbs_stb_o == 1'b1 && wbs_we_o == 1'b1) ? 1'b1 :  // Write Phase
-                   (wbs_stb_o == 1'b1 && wbs_we_o == 1'b0) ? !func_cen_a_d : 1'b0; // Once Cycle Delay Read Ack
 
 //----------------------------------
-// Generate BIST Clock Generation
+// Generate Internal WishBone Clock
 //----------------------------------
-wire   bist_clk_div;
-wire   bist_ref_clk;
-wire   bist_clk_int;
+logic       wb_clk_div;
+logic       cfg_wb_clk_div;
+logic [2:0] cfg_wb_clk_ratio;
 
-wire             cfg_bist_clk_src_sel   = cfg_bist_clk_ctrl[3];
-wire             cfg_bist_clk_div       = cfg_bist_clk_ctrl[2];
-wire [1:0]       cfg_bist_clk_ratio     = cfg_bist_clk_ctrl[1:0];
+assign    cfg_wb_clk_ratio =  cfg_wb_clk_ctrl[2:0];
+assign    cfg_wb_clk_div   =  cfg_wb_clk_ctrl[3];
 
-//assign bist_ref_clk = (cfg_bist_clk_src_sel) ? user_clock2 :user_clock1;
-//assign bist_clk_int = (cfg_bist_clk_div)     ? bist_clk_div : bist_ref_clk;
 
-ctech_mux2x1 u_cpu_ref_sel (.A0 (user_clock1), .A1 (user_clock2), .S  (cfg_bist_clk_src_sel), .X  (bist_ref_clk));
-ctech_mux2x1 u_cpu_clk_sel (.A0 (bist_ref_clk),.A1 (bist_clk_div),.S  (cfg_bist_clk_div),     .X  (bist_clk_int));
+//assign wbs_clk_out  = (cfg_wb_clk_div)  ? wb_clk_div : wbm_clk_i;
+ctech_mux2x1 u_wbs_clk_sel (.A0 (wbm_clk_i), .A1 (wb_clk_div), .S  (cfg_wb_clk_div), .X  (wbs_clk_out));
 
-sky130_fd_sc_hd__clkbuf_16 u_clkbuf_bist (.A (bist_clk_int), . X(bist_clk));
 
-clk_ctl #(1) u_bistclk (
+clk_ctl #(2) u_wbclk (
    // Outputs
-       .clk_o         (bist_clk_div      ),
+       .clk_o         (wb_clk_div      ),
    // Inputs
-       .mclk          (bist_ref_clk      ),
-       .reset_n       (wbm_rst_n         ), 
-       .clk_div_ratio (cfg_bist_clk_ratio)
-   );
-
-
-//----------------------------------
-// Generate MEM Clock Generation
-//----------------------------------
-wire   mem_clk_div;
-wire   mem_ref_clk;
-wire   mem_clk_int;
-
-wire       cfg_mem_clk_src_sel   = cfg_mem_clk_ctrl[3];
-wire       cfg_mem_clk_div       = cfg_mem_clk_ctrl[2];
-wire [1:0] cfg_mem_clk_ratio     = cfg_mem_clk_ctrl[1:0];
-
-//assign mem_ref_clk = (cfg_mem_clk_src_sel) ? user_clock2 : user_clock1;
-//assign mem_clk_int = (cfg_mem_clk_div)     ? mem_clk_div : mem_ref_clk;
-
-ctech_mux2x1 u_mem_ref_sel (.A0 (user_clock1), .A1 (user_clock2), .S  (cfg_mem_clk_src_sel), .X  (mem_ref_clk));
-ctech_mux2x1 u_mem_clk_sel (.A0 (mem_ref_clk), .A1 (mem_clk_div), .S  (cfg_mem_clk_div),     .X  (mem_clk_int));
-
-sky130_fd_sc_hd__clkbuf_16 u_clkbuf_mem (.A (mem_clk_int), . X(mem_clk_out));
-
-clk_ctl #(1) u_memclk (
-   // Outputs
-       .clk_o         (mem_clk_div      ),
-   // Inputs
-       .mclk          (mem_ref_clk      ),
+       .mclk          (wbm_clk_i       ),
        .reset_n       (wbm_rst_n        ), 
-       .clk_div_ratio (cfg_mem_clk_ratio)
+       .clk_div_ratio (cfg_wb_clk_ratio )
    );
+
 
 endmodule

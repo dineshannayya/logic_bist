@@ -1,0 +1,7 @@
+verilator -cc  \
+wb_interconnect.sv \
+../../lib/wb_stagging.sv \
+../../clk_skew_adjust/src/clk_skew_adjust.gv \
+$PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v \
+$PDK_ROOT/sky130A/libs.ref/sky130_fd_sc_hd/verilog/primitives.v \
+--timescale 1ns/100ps --bbox-unsup
