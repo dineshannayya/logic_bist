@@ -90,21 +90,25 @@ module glbl_cfg (
         output logic            reg_ack,
 
 	// BIST I/F
-	output logic [3:0]      bist_en,
-	output logic [3:0]      bist_run,
-	output logic [3:0]      bist_load,
+	output logic [7:0]      bist_en,
+	output logic [7:0]      bist_run,
+	output logic [7:0]      bist_load,
 
-	output logic [3:0]      bist_sdi,
-	output logic [3:0]      bist_shift,
-	input  logic [3:0]      bist_sdo,
+	output logic [7:0]      bist_sdi,
+	output logic [7:0]      bist_shift,
+	input  logic [7:0]      bist_sdo,
 
-	input logic [3:0]       bist_done,
-	input logic [3:0]       bist_error,
-	input logic [3:0]       bist_correct,
+	input logic [7:0]       bist_done,
+	input logic [7:0]       bist_error,
+	input logic [7:0]       bist_correct,
 	input logic [3:0]       bist_error_cnt0,
 	input logic [3:0]       bist_error_cnt1,
 	input logic [3:0]       bist_error_cnt2,
-	input logic [3:0]       bist_error_cnt3
+	input logic [3:0]       bist_error_cnt3,
+	input logic [3:0]       bist_error_cnt4,
+	input logic [3:0]       bist_error_cnt5,
+	input logic [3:0]       bist_error_cnt6,
+	input logic [3:0]       bist_error_cnt7
 
         );
 
@@ -116,7 +120,7 @@ module glbl_cfg (
 
 logic           sw_rd_en    ;
 logic           sw_wr_en    ;
-logic  [2:0]    sw_addr     ; // addressing 16 registers
+logic  [3:0]    sw_addr     ; // addressing 16 registers
 logic  [3:0]    wr_be       ;
 logic  [31:0]   sw_reg_wdata;
 
@@ -124,8 +128,10 @@ logic  [31:0]   sw_reg_wdata;
 
 logic [31:0]    reg_0;            // Software_Reg 0
 logic [31:0]    reg_1;            // Software Reg 1
-logic [31:0]    cfg_bist_ctrl;    // BIST control
-logic [31:0]    cfg_bist_status;  // BIST Status
+logic [7:0]     cfg_bist_ctrl_1;    // BIST control
+logic [31:0]    cfg_bist_ctrl_2;    // BIST control
+logic [31:0]    cfg_bist_status_1;  // BIST Status
+logic [31:0]    cfg_bist_status_2;  // BIST Status
 logic [31:0]    serail_dout;      // BIST Serial Signature
 
 logic [31:0]    reg_out;
@@ -150,25 +156,29 @@ clk_skew_adjust u_skew_glbl
 // register read enable and write enable decoding logic
 //-----------------------------------------------------------------------
 
-assign       sw_addr       = reg_addr [4:2];
+assign       sw_addr       = reg_addr [5:2];
 assign       sw_rd_en      = reg_cs & !reg_wr;
 assign       sw_wr_en      = reg_cs & reg_wr;
 assign       wr_be         = reg_be;
 assign       sw_reg_wdata  = reg_wdata;
 
 
-wire   sw_wr_en_0 = sw_wr_en & (sw_addr == 3'h0);
-wire   sw_rd_en_0 = sw_rd_en & (sw_addr == 3'h0);
-wire   sw_wr_en_1 = sw_wr_en & (sw_addr == 3'h1);
-wire   sw_rd_en_1 = sw_rd_en & (sw_addr == 3'h1);
-wire   sw_wr_en_2 = sw_wr_en & (sw_addr == 3'h2);
-wire   sw_rd_en_2 = sw_rd_en & (sw_addr == 3'h2);
-wire   sw_wr_en_3 = sw_wr_en & (sw_addr == 3'h3);
-wire   sw_rd_en_3 = sw_rd_en & (sw_addr == 3'h3);
-wire   sw_wr_en_4 = sw_wr_en & (sw_addr == 3'h4);
-wire   sw_rd_en_4 = sw_rd_en & (sw_addr == 3'h4);
-wire   sw_wr_en_5 = sw_wr_en & (sw_addr == 3'h5);
-wire   sw_rd_en_5 = sw_rd_en & (sw_addr == 3'h5);
+wire   sw_wr_en_0 = sw_wr_en & (sw_addr == 4'h0);
+wire   sw_rd_en_0 = sw_rd_en & (sw_addr == 4'h0);
+wire   sw_wr_en_1 = sw_wr_en & (sw_addr == 4'h1);
+wire   sw_rd_en_1 = sw_rd_en & (sw_addr == 4'h1);
+wire   sw_wr_en_2 = sw_wr_en & (sw_addr == 4'h2);
+wire   sw_rd_en_2 = sw_rd_en & (sw_addr == 4'h2);
+wire   sw_wr_en_3 = sw_wr_en & (sw_addr == 4'h3);
+wire   sw_rd_en_3 = sw_rd_en & (sw_addr == 4'h3);
+wire   sw_wr_en_4 = sw_wr_en & (sw_addr == 4'h4);
+wire   sw_rd_en_4 = sw_rd_en & (sw_addr == 4'h4);
+wire   sw_wr_en_5 = sw_wr_en & (sw_addr == 4'h5);
+wire   sw_rd_en_5 = sw_rd_en & (sw_addr == 4'h5);
+wire   sw_wr_en_6 = sw_wr_en & (sw_addr == 4'h6);
+wire   sw_rd_en_6 = sw_rd_en & (sw_addr == 4'h6);
+wire   sw_wr_en_7 = sw_wr_en & (sw_addr == 4'h7);
+wire   sw_rd_en_7 = sw_rd_en & (sw_addr == 4'h7);
 
 
 logic wb_req;
@@ -191,7 +201,7 @@ assign wb_req_pedge = (wb_req_d ==0) && (wb_req==1'b1);
 // Reg 4/5 are BIST Serial I/F register and it takes minimum 32
 // cycle to respond ACK back
 // ----------------------------------------------------------------
-wire ser_acc     = sw_wr_en_4 | sw_rd_en_5;
+wire ser_acc     = sw_wr_en_6 | sw_rd_en_7;
 wire non_ser_acc = reg_cs ? !ser_acc : 1'b0;
 wire serial_ack;
 
@@ -215,14 +225,16 @@ always @( *)
 begin 
   reg_out [31:0] = 32'h0;
 
-  case (sw_addr [2:0])
-    3'b000 :   reg_out [31:0] = reg_0;
-    3'b001 :   reg_out [31:0] = reg_1;
-    3'b010 :   reg_out [31:0] = cfg_bist_ctrl [31:0];    
-    3'b011 :   reg_out [31:0] = cfg_bist_status [31:0];     
-    3'b100 :   reg_out [31:0] = 'h0; // Serial Write Data
-    3'b101 :   reg_out [31:0] = serail_dout; // This is with  Shift
-    3'b110 :   reg_out [31:0] = serail_dout; // This is previous Shift 
+  case (sw_addr [3:0])
+    4'b0000 :   reg_out [31:0] = reg_0;
+    4'b0001 :   reg_out [31:0] = reg_1;
+    4'b0010 :   reg_out [31:0] = {24'h0,cfg_bist_ctrl_1};
+    4'b0011 :   reg_out [31:0] = cfg_bist_ctrl_2 [31:0];    
+    4'b0100 :   reg_out [31:0] = cfg_bist_status_1 [31:0];     
+    4'b0101 :   reg_out [31:0] = cfg_bist_status_2 [31:0];     
+    4'b0110 :   reg_out [31:0] = 'h0; // Serial Write Data
+    4'b0111 :   reg_out [31:0] = serail_dout; // This is with  Shift
+    4'b1000 :   reg_out [31:0] = serail_dout; // This is previous Shift 
     default : reg_out [31:0] = 'h0;
   endcase
 end
@@ -326,27 +338,7 @@ generic_register #(8,8'hDD  ) u_reg1_be3 (
 //-----------------------------------------------------------------------
 //   reg-2
 //   -----------------------------------------------------------------
-// Bist control
-assign bist_en[0]           = cfg_bist_ctrl[0];
-assign bist_run[0]          = cfg_bist_ctrl[1];
-assign bist_load[0]         = cfg_bist_ctrl[2];
-
-assign bist_en[1]           = cfg_bist_ctrl[4];
-assign bist_run[1]          = cfg_bist_ctrl[5];
-assign bist_load[1]         = cfg_bist_ctrl[6];
-
-assign bist_en[2]           = cfg_bist_ctrl[8];
-assign bist_run[2]          = cfg_bist_ctrl[9];
-assign bist_load[2]         = cfg_bist_ctrl[10];
-
-assign bist_en[3]           = cfg_bist_ctrl[12];
-assign bist_run[3]          = cfg_bist_ctrl[13];
-assign bist_load[3]         = cfg_bist_ctrl[14];
-
-wire [3:0] bist_serial_sel  = cfg_bist_ctrl[31:28];
-
-
-generic_register #(8,8'h0  ) u_bist_ctrl_be0 (
+generic_register #(8,8'h0  ) u_reg2_be0 (
 	      .we            ({8{sw_wr_en_2 & 
                                  wr_be[0]   }}  ),		 
 	      .data_in       (sw_reg_wdata[7:0]    ),
@@ -354,39 +346,90 @@ generic_register #(8,8'h0  ) u_bist_ctrl_be0 (
 	      .clk           (mclk              ),
 	      
 	      //List of Outs
-	      .data_out      (cfg_bist_ctrl[7:0]        )
+	      .data_out      (cfg_bist_ctrl_1[7:0]        )
+          );
+
+
+wire [3:0] bist_serial_sel  = cfg_bist_ctrl_1[3:0];
+//-----------------------------------------------------------------------
+//   reg-3
+//   -----------------------------------------------------------------
+// Bist control
+assign bist_en[0]           = cfg_bist_ctrl_2[0];
+assign bist_run[0]          = cfg_bist_ctrl_2[1];
+assign bist_load[0]         = cfg_bist_ctrl_2[2];
+
+assign bist_en[1]           = cfg_bist_ctrl_2[4];
+assign bist_run[1]          = cfg_bist_ctrl_2[5];
+assign bist_load[1]         = cfg_bist_ctrl_2[6];
+
+assign bist_en[2]           = cfg_bist_ctrl_2[8];
+assign bist_run[2]          = cfg_bist_ctrl_2[9];
+assign bist_load[2]         = cfg_bist_ctrl_2[10];
+
+assign bist_en[3]           = cfg_bist_ctrl_2[12];
+assign bist_run[3]          = cfg_bist_ctrl_2[13];
+assign bist_load[3]         = cfg_bist_ctrl_2[14];
+
+assign bist_en[4]           = cfg_bist_ctrl_2[16];
+assign bist_run[4]          = cfg_bist_ctrl_2[17];
+assign bist_load[4]         = cfg_bist_ctrl_2[18];
+
+assign bist_en[5]           = cfg_bist_ctrl_2[20];
+assign bist_run[5]          = cfg_bist_ctrl_2[21];
+assign bist_load[5]         = cfg_bist_ctrl_2[22];
+
+assign bist_en[6]           = cfg_bist_ctrl_2[24];
+assign bist_run[6]          = cfg_bist_ctrl_2[25];
+assign bist_load[6]         = cfg_bist_ctrl_2[26];
+
+assign bist_en[7]           = cfg_bist_ctrl_2[28];
+assign bist_run[7]          = cfg_bist_ctrl_2[29];
+assign bist_load[7]         = cfg_bist_ctrl_2[30];
+
+
+
+generic_register #(8,8'h0  ) u_bist_ctrl_be0 (
+	      .we            ({8{sw_wr_en_3 & 
+                                 wr_be[0]   }}  ),		 
+	      .data_in       (sw_reg_wdata[7:0]    ),
+	      .reset_n       (reset_n           ),
+	      .clk           (mclk              ),
+	      
+	      //List of Outs
+	      .data_out      (cfg_bist_ctrl_2[7:0]        )
           );
 
 generic_register #(8,8'h0  ) u_bist_ctrl_be1 (
-	      .we            ({8{sw_wr_en_2 & 
+	      .we            ({8{sw_wr_en_3 & 
                                  wr_be[1]   }}  ),		 
 	      .data_in       (sw_reg_wdata[15:8]    ),
 	      .reset_n       (reset_n           ),
 	      .clk           (mclk              ),
 	      
 	      //List of Outs
-	      .data_out      (cfg_bist_ctrl[15:8]        )
+	      .data_out      (cfg_bist_ctrl_2[15:8]        )
           );
 generic_register #(8,8'h0  ) u_bist_ctrl_be2 (
-	      .we            ({8{sw_wr_en_2 & 
+	      .we            ({8{sw_wr_en_3 & 
                                  wr_be[2]   }}  ),		 
 	      .data_in       (sw_reg_wdata[23:16]    ),
 	      .reset_n       (reset_n           ),
 	      .clk           (mclk              ),
 	      
 	      //List of Outs
-	      .data_out      (cfg_bist_ctrl[23:16]        )
+	      .data_out      (cfg_bist_ctrl_2[23:16]        )
           );
 
 generic_register #(8,8'h0  ) u_bist_ctrl_be3 (
-	      .we            ({8{sw_wr_en_2 & 
+	      .we            ({8{sw_wr_en_3 & 
                                  wr_be[3]   }}  ),		 
 	      .data_in       (sw_reg_wdata[31:24]    ),
 	      .reset_n       (reset_n           ),
 	      .clk           (mclk              ),
 	      
 	      //List of Outs
-	      .data_out      (cfg_bist_ctrl[31:24]        )
+	      .data_out      (cfg_bist_ctrl_2[31:24]        )
           );
 
 
@@ -394,7 +437,12 @@ generic_register #(8,8'h0  ) u_bist_ctrl_be3 (
 //   reg-3
 //-----------------------------------------------------------------
 
-assign cfg_bist_status   = {  bist_error_cnt3, 1'b0, bist_correct[3], bist_error[3], bist_done[3],
+assign cfg_bist_status_2 = {  bist_error_cnt7, 1'b0, bist_correct[7], bist_error[7], bist_done[7],
+	                      bist_error_cnt6, 1'b0, bist_correct[6], bist_error[6], bist_done[6],
+	                      bist_error_cnt5, 1'b0, bist_correct[5], bist_error[5], bist_done[5],
+	                      bist_error_cnt4, 1'b0, bist_correct[4], bist_error[4], bist_done[4]
+			   };
+assign cfg_bist_status_1 = {  bist_error_cnt3, 1'b0, bist_correct[3], bist_error[3], bist_done[3],
 	                      bist_error_cnt2, 1'b0, bist_correct[2], bist_error[2], bist_done[2],
 	                      bist_error_cnt1, 1'b0, bist_correct[1], bist_error[1], bist_done[1],
 	                      bist_error_cnt0, 1'b0, bist_correct[0], bist_error[0], bist_done[0]
@@ -411,17 +459,30 @@ wire   bist_sdo_int;
 assign bist_sdo_int = (bist_serial_sel == 4'b0000) ? bist_sdo[0] :
                       (bist_serial_sel == 4'b0001) ? bist_sdo[1] :
                       (bist_serial_sel == 4'b0010) ? bist_sdo[2] :
-                      (bist_serial_sel == 4'b0011) ? bist_sdo[3] : 1'b0;
+                      (bist_serial_sel == 4'b0011) ? bist_sdo[3] : 
+                      (bist_serial_sel == 4'b0100) ? bist_sdo[4] : 
+                      (bist_serial_sel == 4'b0101) ? bist_sdo[5] : 
+                      (bist_serial_sel == 4'b0110) ? bist_sdo[6] : 
+                      (bist_serial_sel == 4'b0111) ? bist_sdo[7] : 
+		      1'b0;
 
 assign  bist_shift[0] = (bist_serial_sel == 4'b0000) ? bist_shift_int : 1'b0;
 assign  bist_shift[1] = (bist_serial_sel == 4'b0001) ? bist_shift_int : 1'b0;
 assign  bist_shift[2] = (bist_serial_sel == 4'b0010) ? bist_shift_int : 1'b0;
 assign  bist_shift[3] = (bist_serial_sel == 4'b0011) ? bist_shift_int : 1'b0;
+assign  bist_shift[4] = (bist_serial_sel == 4'b0100) ? bist_shift_int : 1'b0;
+assign  bist_shift[5] = (bist_serial_sel == 4'b0101) ? bist_shift_int : 1'b0;
+assign  bist_shift[6] = (bist_serial_sel == 4'b0110) ? bist_shift_int : 1'b0;
+assign  bist_shift[7] = (bist_serial_sel == 4'b0111) ? bist_shift_int : 1'b0;
 
-assign  bist_sdi[0] = (bist_serial_sel == 4'b0000) ? bist_sdi_int : 1'b0;
-assign  bist_sdi[1] = (bist_serial_sel == 4'b0001) ? bist_sdi_int : 1'b0;
-assign  bist_sdi[2] = (bist_serial_sel == 4'b0010) ? bist_sdi_int : 1'b0;
-assign  bist_sdi[3] = (bist_serial_sel == 4'b0011) ? bist_sdi_int : 1'b0;
+assign  bist_sdi[0]   = (bist_serial_sel == 4'b0000) ? bist_sdi_int : 1'b0;
+assign  bist_sdi[1]   = (bist_serial_sel == 4'b0001) ? bist_sdi_int : 1'b0;
+assign  bist_sdi[2]   = (bist_serial_sel == 4'b0010) ? bist_sdi_int : 1'b0;
+assign  bist_sdi[3]   = (bist_serial_sel == 4'b0011) ? bist_sdi_int : 1'b0;
+assign  bist_sdi[4]   = (bist_serial_sel == 4'b0100) ? bist_sdi_int : 1'b0;
+assign  bist_sdi[5]   = (bist_serial_sel == 4'b0101) ? bist_sdi_int : 1'b0;
+assign  bist_sdi[6]   = (bist_serial_sel == 4'b0110) ? bist_sdi_int : 1'b0;
+assign  bist_sdi[7]   = (bist_serial_sel == 4'b0111) ? bist_sdi_int : 1'b0;
 
 ser_inf_32b u_ser_intf
        (
@@ -429,8 +490,8 @@ ser_inf_32b u_ser_intf
     // Master Port
        .rst_n       (reset_n),  // Regular Reset signal
        .clk         (mclk),  // System clock
-       .reg_wr      (sw_wr_en_4 & wb_req_pedge),  // Write Request
-       .reg_rd      (sw_rd_en_5 & wb_req_pedge),  // Read Request
+       .reg_wr      (sw_wr_en_6 & wb_req_pedge),  // Write Request
+       .reg_rd      (sw_rd_en_7 & wb_req_pedge),  // Read Request
        .reg_wdata   (reg_wdata) ,  // data output
        .reg_rdata   (serail_dout),  // data input
        .reg_ack     (serial_ack),  // acknowlegement

@@ -107,18 +107,14 @@ assign wb_dat_o      = func_dout_a;
 
 assign wb_err_o      = 1'b0;
 
-logic func_cen_a_d;
-
+// Generate Once cycle delayed ACK to get the data from SRAM
 always_ff @(negedge rst_n or posedge wb_clk_i) begin
     if ( rst_n == 1'b0 ) begin
-      func_cen_a_d <= 'h0;
+      wb_ack_o<= 'h0;
    end else begin
-      func_cen_a_d <= func_cen_a;
+      wb_ack_o <= (wb_stb_i == 1'b1) & (wb_ack_o == 0);
    end
 end
-
-assign wb_ack_o = (wb_stb_i == 1'b1 && wb_we_i == 1'b1) ? 1'b1 :  // Write Phase
-                  (wb_stb_i == 1'b1 && wb_we_i == 1'b0) ? !func_cen_a_d : 1'b0; // Once Cycle Delay Read Ack
 
 
 endmodule

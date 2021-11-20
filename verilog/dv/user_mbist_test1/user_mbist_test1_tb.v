@@ -40,6 +40,33 @@
 
 `include "uprj_netlists.v"
 
+`define WB_MAP           `30080_0000
+`define GLBL_FUNC_MAP    'h3000_0000
+`define MBIST1_FUNC_MAP  'h3000_1000
+`define MBIST2_FUNC_MAP  'h3000_2000
+`define MBIST3_FUNC_MAP  'h3000_3000
+`define MBIST4_FUNC_MAP  'h3000_4000
+`define MBIST5_FUNC_MAP  'h3000_5000
+`define MBIST6_FUNC_MAP  'h3000_6000
+`define MBIST7_FUNC_MAP  'h3000_7000
+`define MBIST8_FUNC_MAP  'h3000_8000
+
+`define GLBL_BIST_CTRL1  'h3000_0008    
+`define GLBL_BIST_CTRL2  'h3000_000C
+`define GLBL_BIST_STAT1  'h3000_0010
+`define GLBL_BIST_STAT2  'h3000_0014
+`define GLBL_BIST_SWDATA 'h3000_0018
+`define GLBL_BIST_SRDATA 'h3000_001C
+`define GLBL_BIST_SPDATA 'h3000_0020
+
+`define WB_GLBL_CTRL     'h3080_0000
+`define WB_BANK_SEL      'h3080_0004
+`define WB_CLK_CTRL1     'h3080_0008
+`define WB_CLK_CTRL2     'h3080_000C
+
+
+
+
 module user_mbist_test1_tb;
 	reg clock;
 	reg wb_rst_i;
@@ -108,8 +135,9 @@ module user_mbist_test1_tb;
 
 		test_fail = 0;
 		// Remove Wb Reset
-		wb_user_core_write('h3080_0000,'h1);
+		wb_user_core_write(`WB_GLBL_CTRL,'h1);
 
+		$dumpon;
 	    	$display("###################################################");
 	    	$display(" MBIST Test with Without Address Failure");
 	    	$display("###################################################");
@@ -120,17 +148,17 @@ module user_mbist_test1_tb;
 		// [2]   - Bist Correct   - 0
 		// [3]   - Reserved       - 0
 		// [7:4] - Bist Error Cnt - 4'h0
-		insert_fault(0,0,32'h01010101);
+		insert_fault(0,0,64'h01010101_01010101);
 
           	if(test_fail == 0) begin
 	    	    $display("Monitor: Step-1: BIST Test without any Memory Error insertion test Passed");
 	        end else begin
 	    	    $display("Monitor: Step-1: BIST Test without any Memory Error insertion test Failed");
-		 end
+		end
+		$dumpon;
 	    	$display("###################################################");
 	    	$display(" MBIST Test with Single Address Failure");
 	    	$display("###################################################");
-                $dumpoff;
 		   // Check Is there is any BIST Error
 		   // [0]   - Bist Done      - 1
 		   // [1]   - Bist Error     - 0
@@ -139,7 +167,7 @@ module user_mbist_test1_tb;
 		   // [7:4] - Bist Error Cnt - 4'h1
 		   //if(read_data[6:0]  != 7'b0001101) test_fail = 1; // Bist correct = 1 and Bist Err Cnt - 0x1
 		faultaddr[0] = 9'h10;
-		insert_fault(1,1,32'h15151515);
+		insert_fault(1,1,64'h15151515_15151515);
 
           	if(test_fail == 0) begin
 	    	    $display("Monitor: Step-2: BIST Test with One Memory Error insertion test Passed");
@@ -147,7 +175,7 @@ module user_mbist_test1_tb;
 	    	    $display("Monitor: Step-2: BIST Test with One Memory Error insertion test Failed");
 		 end
 	    	$display("###################################################");
-
+		$dumpoff;
 	    	$display("###################################################");
 	    	$display(" MBIST Test with Two Address Failure");
 	    	$display("###################################################");
@@ -160,7 +188,7 @@ module user_mbist_test1_tb;
 		//if(read_data[6:0]  != 7'b0010101) test_fail = 1; // Bist correct = 1 and Bist Err Cnt - 0x2
 		faultaddr[0] = 9'h10;
 		faultaddr[1] = 9'h20;
-		insert_fault(2,0,32'h25252525);
+		insert_fault(2,0,64'h25252525_25252525);
 
           	if(test_fail == 0) begin
 	    	    $display("Monitor: Step-3: BIST Test with Two Memory Error insertion test Passed");
@@ -181,7 +209,7 @@ module user_mbist_test1_tb;
 		faultaddr[0] = 9'h10;
 		faultaddr[1] = 9'h20;
 		faultaddr[2] = 9'h30;
-		insert_fault(3,1,32'h35353535);
+		insert_fault(3,1,64'h35353535_35353535);
 
           	if(test_fail == 0) begin
 	    	    $display("Monitor: Step-4: BIST Test with Three Memory Error insertion test Passed");
@@ -203,7 +231,7 @@ module user_mbist_test1_tb;
 		faultaddr[1] = 9'h20;
 		faultaddr[2] = 9'h30;
 		faultaddr[3] = 9'h40;
-		insert_fault(4,0,32'h45454545);
+		insert_fault(4,0,64'h45454545_45454545);
 
           	if(test_fail == 0) begin
 	    	    $display("Monitor: Step-5: BIST Test with Four Memory Error insertion test Passed");
@@ -226,7 +254,7 @@ module user_mbist_test1_tb;
 		faultaddr[1] = 9'h1;
 		faultaddr[2] = 9'h2;
 		faultaddr[3] = 9'h3;
-		insert_fault(4,0,32'h45454545);
+		insert_fault(4,0,64'h45454545_45454545);
 
           	if(test_fail == 0) begin
 	    	    $display("Monitor: Step-5.2: BIST Test with Four Memory Error insertion test Passed");
@@ -244,11 +272,11 @@ module user_mbist_test1_tb;
 		// [3]   - Reserved       - 0
 		// [7:4] - Bist Error Cnt - 4'h4
 		//if(read_data[6:0]  != 7'b0100101) test_fail = 1; // Bist correct = 1 and Bist Err Cnt - 0x4
-		faultaddr[0] = 9'hF8;
-		faultaddr[1] = 9'hF9;
-		faultaddr[2] = 9'hFA;
-		faultaddr[3] = 9'hFB;
-		insert_fault(4,0,32'h45454545);
+		faultaddr[0] = 9'hF0;
+		faultaddr[1] = 9'hF1;
+		faultaddr[2] = 9'hF2;
+		faultaddr[3] = 9'hF3;
+		insert_fault(4,0,64'h45454545_45454545);
 
           	if(test_fail == 0) begin
 	    	    $display("Monitor: Step-5.3: BIST Test with Four Memory Error insertion test Passed");
@@ -270,7 +298,7 @@ module user_mbist_test1_tb;
 		faultaddr[2] = 9'h30;
 		faultaddr[3] = 9'h40;
 		faultaddr[4] = 9'h50;
-		insert_fault(5,1,32'h47474747);
+		insert_fault(5,1,64'h47474747_47474747);
 
           	if(test_fail == 0) begin
 	    	    $display("Monitor: Step-5: BIST Test with Five Memory Error insertion test Passed");
@@ -278,60 +306,104 @@ module user_mbist_test1_tb;
 	    	    $display("Monitor: Step-5: BIST Test with Five Memory Error insertion test Failed");
 		 end
 
+		$dumpon;
 	    	$display("###################################################");
 	    	$display(" MBIST Test with Functional Access, continuation of previous MBIST Signature");
 	    	$display("###################################################");
 		$dumpon;
-		// Remove the Bist Enable and Bist Run
-                wb_user_core_write('h3000_0008,'h000);
+		fork
+		begin
+		    // Remove the Bist Enable and Bist Run
+                    wb_user_core_write(`GLBL_BIST_CTRL2,'h000);
   
-	        // Fill Random Data	
-		for (i=0; i< 9'h1FC; i=i+1) begin
-   	            writemem[i] = $random;
-                    wb_user_core_write('h3000_1000+(i*4),writemem[i]);
-                    wb_user_core_write('h3000_2000+(i*4),writemem[i]);
-		    if(i < 9'h0FC) begin // SRAM3/SRAM4 are 1KB
-                       wb_user_core_write('h3000_3000+(i*4),writemem[i]);
-                       wb_user_core_write('h3000_4000+(i*4),writemem[i]);
-	            end
-		end
-		for (i=0; i< 9'h1FC; i=i+1) begin
-                    wb_user_core_read_check('h3000_1000+(i*4),read_data,writemem[i],32'hFFFFFFFF);
-                    wb_user_core_read_check('h3000_2000+(i*4),read_data,writemem[i],32'hFFFFFFFF);
-		    if(i < 9'h0FC) begin // SRAM3/SRAM4 are 1KB
-                       wb_user_core_read_check('h3000_3000+(i*4),read_data,writemem[i],32'hFFFFFFFF);
-                       wb_user_core_read_check('h3000_4000+(i*4),read_data,writemem[i],32'hFFFFFFFF);
-	            end
-		end
+	            // Fill Random Data	
+		    for (i=0; i< 9'h1FC; i=i+1) begin
+   	                writemem[i] = $random;
+                        wb_user_core_write(`MBIST1_FUNC_MAP+(i*4),writemem[i]);
+                        wb_user_core_write(`MBIST2_FUNC_MAP+(i*4),writemem[i]);
+                        wb_user_core_write(`MBIST3_FUNC_MAP+(i*4),writemem[i]);
+                        wb_user_core_write(`MBIST4_FUNC_MAP+(i*4),writemem[i]);
+		        if(i < 9'h0FC) begin // SRAM5-SRAM8 are 1KB
+                           wb_user_core_write(`MBIST5_FUNC_MAP+(i*4),writemem[i]);
+                           wb_user_core_write(`MBIST6_FUNC_MAP+(i*4),writemem[i]);
+                           wb_user_core_write(`MBIST7_FUNC_MAP+(i*4),writemem[i]);
+                           wb_user_core_write(`MBIST8_FUNC_MAP+(i*4),writemem[i]);
+	                end
+		    end
+		    // Read back data
+		    for (i=0; i< 9'h1FC; i=i+1) begin
+                        wb_user_core_read_check(`MBIST1_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+                        wb_user_core_read_check(`MBIST2_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+                        wb_user_core_read_check(`MBIST3_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+                        wb_user_core_read_check(`MBIST4_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+		        if(i < 9'h0FC) begin // SRAM5 - SRAM8 are 1KB
+                           wb_user_core_read_check(`MBIST5_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+                           wb_user_core_read_check(`MBIST6_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+                           wb_user_core_read_check(`MBIST7_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+                           wb_user_core_read_check(`MBIST8_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+	                end
+		    end
 
-		// Cross-check Reducency address hold the failure address data
-		// Is last Error inserted address are 0x10,0x20,0x30,0x40
-		// So Address 0x1FC = Data[0x10], 0x1FD = Data[0x20]
-		//    Address 0x1FE = Data[0x30], 0x1FF = Data[0x40]
-		// Check 2kb SRAM1
-                wb_user_core_read_check('h3000_1000 + (9'h1FC *4),read_data,writemem[9'h10],32'hFFFFFFFF);
-                wb_user_core_read_check('h3000_1000 + (9'h1FD *4),read_data,writemem[9'h20],32'hFFFFFFFF);
-                wb_user_core_read_check('h3000_1000 + (9'h1FE *4),read_data,writemem[9'h30],32'hFFFFFFFF);
-                wb_user_core_read_check('h3000_1000 + (9'h1FF *4),read_data,writemem[9'h40],32'hFFFFFFFF);
+		    // Cross-check Reducency address hold the failure address data
+		    // Is last Error inserted address are 0x10,0x20,0x30,0x40
+		    // So Address 0x1FC = Data[0x10], 0x1FD = Data[0x20]
+		    //    Address 0x1FE = Data[0x30], 0x1FF = Data[0x40]
+		    // Check 2kb SRAM1
+                    wb_user_core_read_check(`MBIST1_FUNC_MAP + (9'h1FC *4),read_data,writemem[9'h10],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST1_FUNC_MAP + (9'h1FD *4),read_data,writemem[9'h20],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST1_FUNC_MAP + (9'h1FE *4),read_data,writemem[9'h30],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST1_FUNC_MAP + (9'h1FF *4),read_data,writemem[9'h40],32'hFFFFFFFF);
 
-		// Check 2kb SRAM2
-                wb_user_core_read_check('h3000_2000 + (9'h1FC *4),read_data,writemem[9'h11],32'hFFFFFFFF);
-                wb_user_core_read_check('h3000_2000 + (9'h1FD *4),read_data,writemem[9'h21],32'hFFFFFFFF);
-                wb_user_core_read_check('h3000_2000 + (9'h1FE *4),read_data,writemem[9'h31],32'hFFFFFFFF);
-                wb_user_core_read_check('h3000_2000 + (9'h1FF *4),read_data,writemem[9'h41],32'hFFFFFFFF);
+		    // Check 2kb SRAM2
+                    wb_user_core_read_check(`MBIST2_FUNC_MAP + (9'h1FC *4),read_data,writemem[9'h11],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST2_FUNC_MAP + (9'h1FD *4),read_data,writemem[9'h21],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST2_FUNC_MAP + (9'h1FE *4),read_data,writemem[9'h31],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST2_FUNC_MAP + (9'h1FF *4),read_data,writemem[9'h41],32'hFFFFFFFF);
 
-		// Check 1kb SRAM3
-                wb_user_core_read_check('h3000_3000 + (8'hFC *4),read_data,writemem[9'h12],32'hFFFFFFFF);
-                wb_user_core_read_check('h3000_3000 + (8'hFD *4),read_data,writemem[9'h22],32'hFFFFFFFF);
-                wb_user_core_read_check('h3000_3000 + (8'hFE *4),read_data,writemem[9'h32],32'hFFFFFFFF);
-                wb_user_core_read_check('h3000_3000 + (8'hFF *4),read_data,writemem[9'h42],32'hFFFFFFFF);
+		    // Check 2kb SRAM3
+                    wb_user_core_read_check(`MBIST3_FUNC_MAP + (9'h1FC *4),read_data,writemem[9'h12],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST3_FUNC_MAP + (9'h1FD *4),read_data,writemem[9'h22],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST3_FUNC_MAP + (9'h1FE *4),read_data,writemem[9'h32],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST3_FUNC_MAP + (9'h1FF *4),read_data,writemem[9'h42],32'hFFFFFFFF);
 
-		// Check 1kb SRAM4
-                wb_user_core_read_check('h3000_4000 + (8'hFC *4),read_data,writemem[9'h13],32'hFFFFFFFF);
-                wb_user_core_read_check('h3000_4000 + (8'hFD *4),read_data,writemem[9'h23],32'hFFFFFFFF);
-                wb_user_core_read_check('h3000_4000 + (8'hFE *4),read_data,writemem[9'h33],32'hFFFFFFFF);
-                wb_user_core_read_check('h3000_4000 + (8'hFF *4),read_data,writemem[9'h43],32'hFFFFFFFF);
+		    // Check 2kb SRAM4
+                    wb_user_core_read_check(`MBIST4_FUNC_MAP + (9'h1FC *4),read_data,writemem[9'h13],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST4_FUNC_MAP + (9'h1FD *4),read_data,writemem[9'h23],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST4_FUNC_MAP + (9'h1FE *4),read_data,writemem[9'h33],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST4_FUNC_MAP + (9'h1FF *4),read_data,writemem[9'h43],32'hFFFFFFFF);
 
+		    // Check 1kb SRAM5
+                    wb_user_core_read_check(`MBIST5_FUNC_MAP + (8'hFC *4),read_data,writemem[9'h14],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST5_FUNC_MAP + (8'hFD *4),read_data,writemem[9'h24],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST5_FUNC_MAP + (8'hFE *4),read_data,writemem[9'h34],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST5_FUNC_MAP + (8'hFF *4),read_data,writemem[9'h44],32'hFFFFFFFF);
+
+		    // Check 1kb SRAM6
+                    wb_user_core_read_check(`MBIST6_FUNC_MAP + (8'hFC *4),read_data,writemem[9'h15],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST6_FUNC_MAP + (8'hFD *4),read_data,writemem[9'h25],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST6_FUNC_MAP + (8'hFE *4),read_data,writemem[9'h35],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST6_FUNC_MAP + (8'hFF *4),read_data,writemem[9'h45],32'hFFFFFFFF);
+
+		    // Check 1kb SRAM7
+                    wb_user_core_read_check(`MBIST7_FUNC_MAP + (8'hFC *4),read_data,writemem[9'h16],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST7_FUNC_MAP + (8'hFD *4),read_data,writemem[9'h26],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST7_FUNC_MAP + (8'hFE *4),read_data,writemem[9'h36],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST7_FUNC_MAP + (8'hFF *4),read_data,writemem[9'h46],32'hFFFFFFFF);
+
+		    // Check 1kb SRAM8
+                    wb_user_core_read_check(`MBIST8_FUNC_MAP + (8'hFC *4),read_data,writemem[9'h17],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST8_FUNC_MAP + (8'hFD *4),read_data,writemem[9'h27],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST8_FUNC_MAP + (8'hFE *4),read_data,writemem[9'h37],32'hFFFFFFFF);
+                    wb_user_core_read_check(`MBIST8_FUNC_MAP + (8'hFF *4),read_data,writemem[9'h47],32'hFFFFFFFF);
+                end
+                begin
+                   // Loop for BIST TimeOut
+                   repeat (200000) @(posedge clock);
+                		// $display("+1000 cycles");
+                   test_fail = 1;
+                end
+                join_any
+                disable fork; //disable pending fork activity
           	if(test_fail == 0) begin
 	    	    $display("Monitor: Step-5: BIST Test with Functional access test Passed");
 	        end else begin
@@ -483,6 +555,90 @@ user_project_wrapper u_top(
 	force u_top.u_mbist4.u_mem_sel.u_cts_mem_clk_b.VGND =VSS;
 	force u_top.u_mbist4.u_mem_sel.u_cts_mem_clk_b.VNB = VSS;
 
+	// MBIST5
+	force u_top.u_mbist5.u_mem_sel.u_mem_clk_a_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_mbist5.u_mem_sel.u_mem_clk_a_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_mbist5.u_mem_sel.u_mem_clk_a_sel.u_mux.VGND =VSS;
+	force u_top.u_mbist5.u_mem_sel.u_mem_clk_a_sel.u_mux.VNB = VSS;
+
+	force u_top.u_mbist5.u_mem_sel.u_mem_clk_b_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_mbist5.u_mem_sel.u_mem_clk_b_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_mbist5.u_mem_sel.u_mem_clk_b_sel.u_mux.VGND =VSS;
+	force u_top.u_mbist5.u_mem_sel.u_mem_clk_b_sel.u_mux.VNB = VSS;
+
+	force u_top.u_mbist5.u_mem_sel.u_cts_mem_clk_a.VPWR =USER_VDD1V8;
+	force u_top.u_mbist5.u_mem_sel.u_cts_mem_clk_a.VPB  =USER_VDD1V8;
+	force u_top.u_mbist5.u_mem_sel.u_cts_mem_clk_a.VGND =VSS;
+	force u_top.u_mbist5.u_mem_sel.u_cts_mem_clk_a.VNB = VSS;
+
+	force u_top.u_mbist5.u_mem_sel.u_cts_mem_clk_b.VPWR =USER_VDD1V8;
+	force u_top.u_mbist5.u_mem_sel.u_cts_mem_clk_b.VPB  =USER_VDD1V8;
+	force u_top.u_mbist5.u_mem_sel.u_cts_mem_clk_b.VGND =VSS;
+	force u_top.u_mbist5.u_mem_sel.u_cts_mem_clk_b.VNB = VSS;
+
+	// MBIST6
+	force u_top.u_mbist6.u_mem_sel.u_mem_clk_a_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_mbist6.u_mem_sel.u_mem_clk_a_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_mbist6.u_mem_sel.u_mem_clk_a_sel.u_mux.VGND =VSS;
+	force u_top.u_mbist6.u_mem_sel.u_mem_clk_a_sel.u_mux.VNB = VSS;
+
+	force u_top.u_mbist6.u_mem_sel.u_mem_clk_b_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_mbist6.u_mem_sel.u_mem_clk_b_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_mbist6.u_mem_sel.u_mem_clk_b_sel.u_mux.VGND =VSS;
+	force u_top.u_mbist6.u_mem_sel.u_mem_clk_b_sel.u_mux.VNB = VSS;
+
+	force u_top.u_mbist6.u_mem_sel.u_cts_mem_clk_a.VPWR =USER_VDD1V8;
+	force u_top.u_mbist6.u_mem_sel.u_cts_mem_clk_a.VPB  =USER_VDD1V8;
+	force u_top.u_mbist6.u_mem_sel.u_cts_mem_clk_a.VGND =VSS;
+	force u_top.u_mbist6.u_mem_sel.u_cts_mem_clk_a.VNB = VSS;
+
+	force u_top.u_mbist6.u_mem_sel.u_cts_mem_clk_b.VPWR =USER_VDD1V8;
+	force u_top.u_mbist6.u_mem_sel.u_cts_mem_clk_b.VPB  =USER_VDD1V8;
+	force u_top.u_mbist6.u_mem_sel.u_cts_mem_clk_b.VGND =VSS;
+	force u_top.u_mbist6.u_mem_sel.u_cts_mem_clk_b.VNB = VSS;
+
+	// MBIST7
+	force u_top.u_mbist7.u_mem_sel.u_mem_clk_a_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_mbist7.u_mem_sel.u_mem_clk_a_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_mbist7.u_mem_sel.u_mem_clk_a_sel.u_mux.VGND =VSS;
+	force u_top.u_mbist7.u_mem_sel.u_mem_clk_a_sel.u_mux.VNB = VSS;
+
+	force u_top.u_mbist7.u_mem_sel.u_mem_clk_b_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_mbist7.u_mem_sel.u_mem_clk_b_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_mbist7.u_mem_sel.u_mem_clk_b_sel.u_mux.VGND =VSS;
+	force u_top.u_mbist7.u_mem_sel.u_mem_clk_b_sel.u_mux.VNB = VSS;
+
+	force u_top.u_mbist7.u_mem_sel.u_cts_mem_clk_a.VPWR =USER_VDD1V8;
+	force u_top.u_mbist7.u_mem_sel.u_cts_mem_clk_a.VPB  =USER_VDD1V8;
+	force u_top.u_mbist7.u_mem_sel.u_cts_mem_clk_a.VGND =VSS;
+	force u_top.u_mbist7.u_mem_sel.u_cts_mem_clk_a.VNB = VSS;
+
+	force u_top.u_mbist7.u_mem_sel.u_cts_mem_clk_b.VPWR =USER_VDD1V8;
+	force u_top.u_mbist7.u_mem_sel.u_cts_mem_clk_b.VPB  =USER_VDD1V8;
+	force u_top.u_mbist7.u_mem_sel.u_cts_mem_clk_b.VGND =VSS;
+	force u_top.u_mbist7.u_mem_sel.u_cts_mem_clk_b.VNB = VSS;
+
+	// MBIST8
+	force u_top.u_mbist8.u_mem_sel.u_mem_clk_a_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_mbist8.u_mem_sel.u_mem_clk_a_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_mbist8.u_mem_sel.u_mem_clk_a_sel.u_mux.VGND =VSS;
+	force u_top.u_mbist8.u_mem_sel.u_mem_clk_a_sel.u_mux.VNB = VSS;
+
+	force u_top.u_mbist8.u_mem_sel.u_mem_clk_b_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_mbist8.u_mem_sel.u_mem_clk_b_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_mbist8.u_mem_sel.u_mem_clk_b_sel.u_mux.VGND =VSS;
+	force u_top.u_mbist8.u_mem_sel.u_mem_clk_b_sel.u_mux.VNB = VSS;
+
+	force u_top.u_mbist8.u_mem_sel.u_cts_mem_clk_a.VPWR =USER_VDD1V8;
+	force u_top.u_mbist8.u_mem_sel.u_cts_mem_clk_a.VPB  =USER_VDD1V8;
+	force u_top.u_mbist8.u_mem_sel.u_cts_mem_clk_a.VGND =VSS;
+	force u_top.u_mbist8.u_mem_sel.u_cts_mem_clk_a.VNB = VSS;
+
+	force u_top.u_mbist8.u_mem_sel.u_cts_mem_clk_b.VPWR =USER_VDD1V8;
+	force u_top.u_mbist8.u_mem_sel.u_cts_mem_clk_b.VPB  =USER_VDD1V8;
+	force u_top.u_mbist8.u_mem_sel.u_cts_mem_clk_b.VGND =VSS;
+	force u_top.u_mbist8.u_mem_sel.u_cts_mem_clk_b.VNB = VSS;
+
     end
 `endif    
 
@@ -494,39 +650,47 @@ user_project_wrapper u_top(
 task insert_fault;
 input [3:0]  num_fault;
 input        fault_type; // 0 -> struck at 0 and 1 -> struck at 1
-input [31:0]  mbist_signature;
+input [63:0]  mbist_signature;
 reg [31:0] datain;
+reg [8:0]  fail_addr1;
+reg [8:0]  fail_addr2;
+reg [8:0]  fail_addr3;
+reg [8:0]  fail_addr4;
 integer j;
 begin
    repeat (2) @(posedge clock);
    // Remove the Bist Enable and Bist Run
-   wb_user_core_write('h3000_0008,'h000);
+   wb_user_core_write(`GLBL_BIST_CTRL2,'h000);
    // Remove WB and BIST RESET
-   wb_user_core_write('h3080_0000,'h001);
+   wb_user_core_write(`WB_GLBL_CTRL,'h001);
    // Set the Bist Enable and Bist Run
-   wb_user_core_write('h3000_0008,'h3333);
+   wb_user_core_write(`GLBL_BIST_CTRL2,'h33333333);
    // Remove WB and BIST RESET
-   wb_user_core_write('h3080_0000,'h003);
+   wb_user_core_write(`WB_GLBL_CTRL,'h003);
    fork
    begin
       // Check for MBIST Done
       read_data = 'h0;
       while (read_data[0] != 1'b1) begin
-         wb_user_core_read('h3000_000C,read_data);
+         wb_user_core_read(`GLBL_BIST_STAT1,read_data);
       end
+      // wait for some time for all the BIST to complete
+      repeat (1000) @(posedge clock);
       // Check Is there is any BIST Error
       // [0]   - Bist Done      
       // [1]   - Bist Error     
       // [2]   - Bist Correct   
       // [3]   - Reserved
       // [7:4] - Bist Error Cnt 
-      wb_user_core_read_check('h3000_000C,read_data,mbist_signature,32'hFFFFFFFF);
+      wb_user_core_read_check(`GLBL_BIST_STAT1,read_data,mbist_signature[31:0],32'hFFFFFFFF);
+      wb_user_core_read_check(`GLBL_BIST_STAT2,read_data,mbist_signature[63:32],32'hFFFFFFFF);
    end
    // Insert  Error Insertion
    begin
       while(1) begin
          repeat (1) @(posedge clock);
          #1;
+
          if(u_top.u_sram1_2kb.web0 == 1'b0 && 
 	   ((num_fault > 0 && u_top.u_sram1_2kb.addr0 == faultaddr[0]) ||
 	    (num_fault > 1 && u_top.u_sram1_2kb.addr0 == faultaddr[1]) ||
@@ -545,6 +709,7 @@ begin
          end else begin
             release u_top.u_sram1_2kb.din0;
          end
+
          if(u_top.u_sram2_2kb.web0 == 1'b0 && 
 	   ((num_fault > 0 && u_top.u_sram2_2kb.addr0 == faultaddr[0]+1) ||
 	    (num_fault > 1 && u_top.u_sram2_2kb.addr0 == faultaddr[1]+1) ||
@@ -563,42 +728,121 @@ begin
          end else begin
             release u_top.u_sram2_2kb.din0;
          end
-         if(u_top.u_sram3_1kb.web0 == 1'b0 && 
-	   ((num_fault > 0 && u_top.u_sram3_1kb.addr0 == faultaddr[0]+2) ||
-	    (num_fault > 1 && u_top.u_sram3_1kb.addr0 == faultaddr[1]+2) ||
-	    (num_fault > 2 && u_top.u_sram3_1kb.addr0 == faultaddr[2]+2) ||
-	    (num_fault > 3 && u_top.u_sram3_1kb.addr0 == faultaddr[3]+2) ||
-	    (num_fault > 4 && u_top.u_sram3_1kb.addr0 == faultaddr[4]+2) ||
-	    (num_fault > 5 && u_top.u_sram3_1kb.addr0 == faultaddr[5]+2) ||
-	    (num_fault > 6 && u_top.u_sram3_1kb.addr0 == faultaddr[6]+2) ||
-	    (num_fault > 7 && u_top.u_sram3_1kb.addr0 == faultaddr[7]+2)))
+
+         if(u_top.u_sram3_2kb.web0 == 1'b0 && 
+	   ((num_fault > 0 && u_top.u_sram3_2kb.addr0 == faultaddr[0]+2) ||
+	    (num_fault > 1 && u_top.u_sram3_2kb.addr0 == faultaddr[1]+2) ||
+	    (num_fault > 2 && u_top.u_sram3_2kb.addr0 == faultaddr[2]+2) ||
+	    (num_fault > 3 && u_top.u_sram3_2kb.addr0 == faultaddr[3]+2) ||
+	    (num_fault > 4 && u_top.u_sram3_2kb.addr0 == faultaddr[4]+2) ||
+	    (num_fault > 5 && u_top.u_sram3_2kb.addr0 == faultaddr[5]+2) ||
+	    (num_fault > 6 && u_top.u_sram3_2kb.addr0 == faultaddr[6]+2) ||
+	    (num_fault > 7 && u_top.u_sram3_2kb.addr0 == faultaddr[7]+2)))
              begin
 	   if(fault_type == 0) // Struck at 0
-	      force u_top.u_sram3_1kb.din0 = u_top.mem3_din_b  & 32'hFFFF_FFFE;
+	      force u_top.u_sram3_2kb.din0 = u_top.mem3_din_b  & 32'hFFFF_FFFE;
 	   else
-	      force u_top.u_sram3_1kb.din0 = u_top.mem3_din_b | 32'h1;
+	      force u_top.u_sram3_2kb.din0 = u_top.mem3_din_b | 32'h1;
    	   -> error_insert;
          end else begin
-            release u_top.u_sram3_1kb.din0;
+            release u_top.u_sram3_2kb.din0;
          end
-         if(u_top.u_sram4_1kb.web0 == 1'b0 && 
-	   ((num_fault > 0 && u_top.u_sram4_1kb.addr0 == faultaddr[0]+3) ||
-	    (num_fault > 1 && u_top.u_sram4_1kb.addr0 == faultaddr[1]+3) ||
-	    (num_fault > 2 && u_top.u_sram4_1kb.addr0 == faultaddr[2]+3) ||
-	    (num_fault > 3 && u_top.u_sram4_1kb.addr0 == faultaddr[3]+3) ||
-	    (num_fault > 4 && u_top.u_sram4_1kb.addr0 == faultaddr[4]+3) ||
-	    (num_fault > 5 && u_top.u_sram4_1kb.addr0 == faultaddr[5]+3) ||
-	    (num_fault > 6 && u_top.u_sram4_1kb.addr0 == faultaddr[6]+3) ||
-	    (num_fault > 7 && u_top.u_sram4_1kb.addr0 == faultaddr[7]+3)))
+
+         if(u_top.u_sram4_2kb.web0 == 1'b0 && 
+	   ((num_fault > 0 && u_top.u_sram4_2kb.addr0 == faultaddr[0]+3) ||
+	    (num_fault > 1 && u_top.u_sram4_2kb.addr0 == faultaddr[1]+3) ||
+	    (num_fault > 2 && u_top.u_sram4_2kb.addr0 == faultaddr[2]+3) ||
+	    (num_fault > 3 && u_top.u_sram4_2kb.addr0 == faultaddr[3]+3) ||
+	    (num_fault > 4 && u_top.u_sram4_2kb.addr0 == faultaddr[4]+3) ||
+	    (num_fault > 5 && u_top.u_sram4_2kb.addr0 == faultaddr[5]+3) ||
+	    (num_fault > 6 && u_top.u_sram4_2kb.addr0 == faultaddr[6]+3) ||
+	    (num_fault > 7 && u_top.u_sram4_2kb.addr0 == faultaddr[7]+3)))
              begin
 	   if(fault_type == 0) // Struck at 0
-	      force u_top.u_sram4_1kb.din0 = u_top.mem4_din_b  & 32'hFFFF_FFFE;
+	      force u_top.u_sram4_2kb.din0 = u_top.mem4_din_b  & 32'hFFFF_FFFE;
 	   else
-	      force u_top.u_sram4_1kb.din0 = u_top.mem4_din_b | 32'h1;
+	      force u_top.u_sram4_2kb.din0 = u_top.mem4_din_b | 32'h1;
    	   -> error_insert;
          end else begin
-            release u_top.u_sram4_1kb.din0;
+            release u_top.u_sram4_2kb.din0;
          end
+
+         if(u_top.u_sram5_1kb.web0 == 1'b0 && 
+	   ((num_fault > 0 && u_top.u_sram5_1kb.addr0 == faultaddr[0]+4) ||
+	    (num_fault > 1 && u_top.u_sram5_1kb.addr0 == faultaddr[1]+4) ||
+	    (num_fault > 2 && u_top.u_sram5_1kb.addr0 == faultaddr[2]+4) ||
+	    (num_fault > 3 && u_top.u_sram5_1kb.addr0 == faultaddr[3]+4) ||
+	    (num_fault > 4 && u_top.u_sram5_1kb.addr0 == faultaddr[4]+4) ||
+	    (num_fault > 5 && u_top.u_sram5_1kb.addr0 == faultaddr[5]+4) ||
+	    (num_fault > 6 && u_top.u_sram5_1kb.addr0 == faultaddr[6]+4) ||
+	    (num_fault > 7 && u_top.u_sram5_1kb.addr0 == faultaddr[7]+4)))
+             begin
+	   if(fault_type == 0) // Struck at 0
+	      force u_top.u_sram5_1kb.din0 = u_top.mem5_din_b  & 32'hFFFF_FFFE;
+	   else
+	      force u_top.u_sram5_1kb.din0 = u_top.mem5_din_b | 32'h1;
+   	   -> error_insert;
+         end else begin
+            release u_top.u_sram5_1kb.din0;
+         end
+
+         if(u_top.u_sram6_1kb.web0 == 1'b0 && 
+	   ((num_fault > 0 && u_top.u_sram6_1kb.addr0 == faultaddr[0]+5) ||
+	    (num_fault > 1 && u_top.u_sram6_1kb.addr0 == faultaddr[1]+5) ||
+	    (num_fault > 2 && u_top.u_sram6_1kb.addr0 == faultaddr[2]+5) ||
+	    (num_fault > 3 && u_top.u_sram6_1kb.addr0 == faultaddr[3]+5) ||
+	    (num_fault > 4 && u_top.u_sram6_1kb.addr0 == faultaddr[4]+5) ||
+	    (num_fault > 5 && u_top.u_sram6_1kb.addr0 == faultaddr[5]+5) ||
+	    (num_fault > 6 && u_top.u_sram6_1kb.addr0 == faultaddr[6]+5) ||
+	    (num_fault > 7 && u_top.u_sram6_1kb.addr0 == faultaddr[7]+5)))
+             begin
+	   if(fault_type == 0) // Struck at 0
+	      force u_top.u_sram6_1kb.din0 = u_top.mem6_din_b  & 32'hFFFF_FFFE;
+	   else
+	      force u_top.u_sram6_1kb.din0 = u_top.mem6_din_b | 32'h1;
+   	   -> error_insert;
+         end else begin
+            release u_top.u_sram6_1kb.din0;
+         end
+
+         if(u_top.u_sram7_1kb.web0 == 1'b0 && 
+	   ((num_fault > 0 && u_top.u_sram7_1kb.addr0 == faultaddr[0]+6) ||
+	    (num_fault > 1 && u_top.u_sram7_1kb.addr0 == faultaddr[1]+6) ||
+	    (num_fault > 2 && u_top.u_sram7_1kb.addr0 == faultaddr[2]+6) ||
+	    (num_fault > 3 && u_top.u_sram7_1kb.addr0 == faultaddr[3]+6) ||
+	    (num_fault > 4 && u_top.u_sram7_1kb.addr0 == faultaddr[4]+6) ||
+	    (num_fault > 5 && u_top.u_sram7_1kb.addr0 == faultaddr[5]+6) ||
+	    (num_fault > 6 && u_top.u_sram7_1kb.addr0 == faultaddr[6]+6) ||
+	    (num_fault > 7 && u_top.u_sram7_1kb.addr0 == faultaddr[7]+6)))
+             begin
+	   if(fault_type == 0) // Struck at 0
+	      force u_top.u_sram7_1kb.din0 = u_top.mem7_din_b  & 32'hFFFF_FFFE;
+	   else
+	      force u_top.u_sram7_1kb.din0 = u_top.mem7_din_b | 32'h1;
+   	   -> error_insert;
+         end else begin
+            release u_top.u_sram7_1kb.din0;
+         end
+
+         if(u_top.u_sram8_1kb.web0 == 1'b0 && 
+	   ((num_fault > 0 && u_top.u_sram8_1kb.addr0 == faultaddr[0]+7) ||
+	    (num_fault > 1 && u_top.u_sram8_1kb.addr0 == faultaddr[1]+7) ||
+	    (num_fault > 2 && u_top.u_sram8_1kb.addr0 == faultaddr[2]+7) ||
+	    (num_fault > 3 && u_top.u_sram8_1kb.addr0 == faultaddr[3]+7) ||
+	    (num_fault > 4 && u_top.u_sram8_1kb.addr0 == faultaddr[4]+7) ||
+	    (num_fault > 5 && u_top.u_sram8_1kb.addr0 == faultaddr[5]+7) ||
+	    (num_fault > 6 && u_top.u_sram8_1kb.addr0 == faultaddr[6]+7) ||
+	    (num_fault > 7 && u_top.u_sram8_1kb.addr0 == faultaddr[7]+7)))
+             begin
+	   if(fault_type == 0) // Struck at 0
+	      force u_top.u_sram8_1kb.din0 = u_top.mem8_din_b  & 32'hFFFF_FFFE;
+	   else
+	      force u_top.u_sram8_1kb.din0 = u_top.mem8_din_b | 32'h1;
+   	   -> error_insert;
+         end else begin
+            release u_top.u_sram8_1kb.din0;
+         end
+
       end
    end
    begin
@@ -610,17 +854,27 @@ begin
    join_any
    disable fork; //disable pending fork activity
 
-   if(num_fault == 1)
-       wb_user_core_read_check('h3000_0014,read_data,{16'h0,7'h0,faultaddr[0]},32'h0000_FFFF);
-   if(num_fault == 2)
-       wb_user_core_read_check('h3000_0014,read_data,{7'h0,faultaddr[1],7'h0,faultaddr[0]},32'hFFFF_FFFF);
-   if(num_fault == 3) begin
-       wb_user_core_read_check('h3000_0014,read_data,{7'h0,faultaddr[1],7'h0,faultaddr[0]},32'hFFFF_FFFF);
-       wb_user_core_read_check('h3000_0014,read_data,{16'h0,7'h0,faultaddr[2]},32'h0000_FFFF);
-   end
-   if(num_fault >= 4) begin
-       wb_user_core_read_check('h3000_0014,read_data,{7'h0,faultaddr[1],7'h0,faultaddr[0]},32'hFFFF_FFFF);
-       wb_user_core_read_check('h3000_0014,read_data,{7'h0,faultaddr[3],7'h0,faultaddr[2]},32'hFFFF_FFFF);
+   // Read Back the Failure Address and cross-check all the 8 MBIST
+   for(j=0; j < 8; j=j+1) begin
+      fail_addr1 = faultaddr[0]+j;
+      fail_addr2 = faultaddr[1]+j;
+      fail_addr3 = faultaddr[2]+j;
+      fail_addr4 = faultaddr[3]+j;
+
+      // Select the Serial SDI/SDO interface
+      wb_user_core_write(`GLBL_BIST_CTRL1,j); 
+      if(num_fault == 1)
+          wb_user_core_read_check(`GLBL_BIST_SRDATA,read_data,{16'h0,7'h0,fail_addr1},32'h0000_FFFF);
+      if(num_fault == 2)
+          wb_user_core_read_check(`GLBL_BIST_SRDATA,read_data,{7'h0,fail_addr2,7'h0,fail_addr1},32'hFFFF_FFFF);
+      if(num_fault == 3) begin
+          wb_user_core_read_check(`GLBL_BIST_SRDATA,read_data,{7'h0,fail_addr2,7'h0,fail_addr1},32'hFFFF_FFFF);
+          wb_user_core_read_check(`GLBL_BIST_SRDATA,read_data,{16'h0,7'h0,fail_addr3},32'h0000_FFFF);
+      end
+      if(num_fault >= 4) begin
+          wb_user_core_read_check(`GLBL_BIST_SRDATA,read_data,{7'h0,fail_addr2,7'h0,fail_addr1},32'hFFFF_FFFF);
+          wb_user_core_read_check(`GLBL_BIST_SRDATA,read_data,{7'h0,faultaddr[3]+j,7'h0,fail_addr3},32'hFFFF_FFFF);
+      end
    end
 end
 endtask
@@ -647,7 +901,7 @@ begin
   wbd_ext_we_i  ='h0;  // write
   wbd_ext_dat_i ='h0;  // data output
   wbd_ext_sel_i ='h0;  // byte enable
-  //$display("STATUS: WB USER ACCESS WRITE Address : 0x%x, Data : 0x%x",address,data);
+  $display("STATUS: WB USER ACCESS WRITE Address : 0x%x, Data : 0x%x",address,data);
   repeat (2) @(posedge clock);
 end
 endtask

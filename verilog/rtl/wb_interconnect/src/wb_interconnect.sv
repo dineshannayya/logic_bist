@@ -133,7 +133,7 @@ module wb_interconnect(
          input	logic 	        s3_wbd_ack_i,
          // input	logic 	s3_wbd_err_i,
          output	logic [31:0]	s3_wbd_dat_o,
-         output	logic [9:0]	s3_wbd_adr_o, 
+         output	logic [10:0]	s3_wbd_adr_o, 
          output	logic [3:0]   	s3_wbd_sel_o,
          output	logic 	        s3_wbd_we_o,
          output	logic 	        s3_wbd_cyc_o,
@@ -144,11 +144,56 @@ module wb_interconnect(
          input	logic 	        s4_wbd_ack_i,
          // input	logic 	s4_wbd_err_i,
          output	logic [31:0]	s4_wbd_dat_o,
-         output	logic [9:0]	s4_wbd_adr_o, 
+         output	logic [10:0]	s4_wbd_adr_o, 
          output	logic [3:0]   	s4_wbd_sel_o,
          output	logic 	        s4_wbd_we_o,
          output	logic 	        s4_wbd_cyc_o,
-         output	logic 	        s4_wbd_stb_o
+         output	logic 	        s4_wbd_stb_o,
+
+         // Slave 5 Interface
+         input	logic [31:0]	s5_wbd_dat_i,
+         input	logic 	        s5_wbd_ack_i,
+         // input	logic 	s5_wbd_err_i, - unused
+         output	logic [31:0]	s5_wbd_dat_o,
+         output	logic [9:0]	s5_wbd_adr_o,
+         output	logic [3:0]	s5_wbd_sel_o,
+         output	logic 	        s5_wbd_we_o,
+         output	logic 	        s5_wbd_cyc_o,
+         output	logic 	        s5_wbd_stb_o,
+         
+         // Slave 6 Interface
+         input	logic [31:0]	s6_wbd_dat_i,
+         input	logic 	        s6_wbd_ack_i,
+         // input	logic 	s6_wbd_err_i, - unused
+         output	logic [31:0]	s6_wbd_dat_o,
+         output	logic [9:0]	s6_wbd_adr_o, // glbl reg need only 8 bits
+         output	logic [3:0]	s6_wbd_sel_o,
+         output	logic 	        s6_wbd_we_o,
+         output	logic 	        s6_wbd_cyc_o,
+         output	logic 	        s6_wbd_stb_o,
+
+         // Slave 7 Interface
+	 // Uart is 8bit interface 
+         input	logic [31:0]	s7_wbd_dat_i,
+         input	logic 	        s7_wbd_ack_i,
+         // input	logic 	s7_wbd_err_i,
+         output	logic [31:0]	s7_wbd_dat_o,
+         output	logic [9:0]	s7_wbd_adr_o, 
+         output	logic [3:0]   	s7_wbd_sel_o,
+         output	logic 	        s7_wbd_we_o,
+         output	logic 	        s7_wbd_cyc_o,
+         output	logic 	        s7_wbd_stb_o,
+
+         // Slave 8 Interface
+         input	logic [31:0]	s8_wbd_dat_i,
+         input	logic 	        s8_wbd_ack_i,
+         // input	logic 	s8_wbd_err_i,
+         output	logic [31:0]	s8_wbd_dat_o,
+         output	logic [9:0]	s8_wbd_adr_o, 
+         output	logic [3:0]   	s8_wbd_sel_o,
+         output	logic 	        s8_wbd_we_o,
+         output	logic 	        s8_wbd_cyc_o,
+         output	logic 	        s8_wbd_stb_o
 	);
 
 ////////////////////////////////////////////////////////////////////
@@ -188,6 +233,10 @@ type_wb_wr_intf  s1_wb_wr;
 type_wb_wr_intf  s2_wb_wr;
 type_wb_wr_intf  s3_wb_wr;
 type_wb_wr_intf  s4_wb_wr;
+type_wb_wr_intf  s5_wb_wr;
+type_wb_wr_intf  s6_wb_wr;
+type_wb_wr_intf  s7_wb_wr;
+type_wb_wr_intf  s8_wb_wr;
 
 // Slave Read Interface
 type_wb_rd_intf  s0_wb_rd;
@@ -195,6 +244,10 @@ type_wb_rd_intf  s1_wb_rd;
 type_wb_rd_intf  s2_wb_rd;
 type_wb_rd_intf  s3_wb_rd;
 type_wb_rd_intf  s4_wb_rd;
+type_wb_rd_intf  s5_wb_rd;
+type_wb_rd_intf  s6_wb_rd;
+type_wb_rd_intf  s7_wb_rd;
+type_wb_rd_intf  s8_wb_rd;
 
 
 type_wb_wr_intf  m_bus_wr;  // Multiplexed Master I/F
@@ -222,6 +275,10 @@ clk_skew_adjust u_skew_wi
 // 0x0000_2000 to 0x0000_2FFF  - MBIST2
 // 0x0000_3000 to 0x0000_3FFF  - MBIST3
 // 0x0000_4000 to 0x0000_4FFF  - MBIST4
+// 0x0000_5000 to 0x0000_5FFF  - MBIST5
+// 0x0000_6000 to 0x0000_6FFF  - MBIST6
+// 0x0000_7000 to 0x0000_7FFF  - MBIST7
+// 0x0000_8000 to 0x0000_8FFF  - MBIST8
 // ---------------------------------------------------------------------------
 //
 wire [3:0] m0_wbd_tid_i       = (m0_wbd_adr_i[15:12] == 4'b0000  ) ? 4'b0000 :   // GLBL
@@ -229,6 +286,10 @@ wire [3:0] m0_wbd_tid_i       = (m0_wbd_adr_i[15:12] == 4'b0000  ) ? 4'b0000 :  
                                 (m0_wbd_adr_i[15:12] == 4'b0010  ) ? 4'b0010 :   // MBIST2
                                 (m0_wbd_adr_i[15:12] == 4'b0011  ) ? 4'b0011 :   // MBIST3
                                 (m0_wbd_adr_i[15:12] == 4'b0100  ) ? 4'b0100 :   // MBIST4
+                                (m0_wbd_adr_i[15:12] == 4'b0101  ) ? 4'b0101 :   // MBIST5
+                                (m0_wbd_adr_i[15:12] == 4'b0110  ) ? 4'b0110 :   // MBIST6
+                                (m0_wbd_adr_i[15:12] == 4'b0111  ) ? 4'b0111 :   // MBIST7
+                                (m0_wbd_adr_i[15:12] == 4'b1000  ) ? 4'b1000 :   // MBIST8
 				4'b0000; 
 
 //----------------------------------------
@@ -257,7 +318,8 @@ assign m0_wbd_err_o  =  m0_wb_rd.wbd_err;
  assign  s0_wbd_we_o  =  s0_wb_wr.wbd_we  ;
  assign  s0_wbd_cyc_o =  s0_wb_wr.wbd_cyc ;
  assign  s0_wbd_stb_o =  s0_wb_wr.wbd_stb ;
-                      
+         
+// 2KB SRAM 
  assign  s1_wbd_dat_o =  s1_wb_wr.wbd_dat ;
  assign  s1_wbd_adr_o =  s1_wb_wr.wbd_adr[10:0] ;
  assign  s1_wbd_sel_o =  s1_wb_wr.wbd_sel ;
@@ -272,19 +334,48 @@ assign m0_wbd_err_o  =  m0_wb_rd.wbd_err;
  assign  s2_wbd_cyc_o =  s2_wb_wr.wbd_cyc ;
  assign  s2_wbd_stb_o =  s2_wb_wr.wbd_stb ;
 
- assign  s3_wbd_dat_o =  s3_wb_wr.wbd_dat[31:0] ;
+ assign  s3_wbd_dat_o =  s3_wb_wr.wbd_dat;
  assign  s3_wbd_adr_o =  s3_wb_wr.wbd_adr[10:0] ; // Global Reg Need 8 bit
- assign  s3_wbd_sel_o =  s3_wb_wr.wbd_sel[3:0] ;
+ assign  s3_wbd_sel_o =  s3_wb_wr.wbd_sel;
  assign  s3_wbd_we_o  =  s3_wb_wr.wbd_we  ;
  assign  s3_wbd_cyc_o =  s3_wb_wr.wbd_cyc ;
  assign  s3_wbd_stb_o =  s3_wb_wr.wbd_stb ;
  
- assign  s4_wbd_dat_o =  s4_wb_wr.wbd_dat[31:0] ;
+ assign  s4_wbd_dat_o =  s4_wb_wr.wbd_dat ;
  assign  s4_wbd_adr_o =  s4_wb_wr.wbd_adr[10:0] ; // Global Reg Need 8 bit
- assign  s4_wbd_sel_o =  s4_wb_wr.wbd_sel[3:0] ;
+ assign  s4_wbd_sel_o =  s4_wb_wr.wbd_sel ;
  assign  s4_wbd_we_o  =  s4_wb_wr.wbd_we  ;
  assign  s4_wbd_cyc_o =  s4_wb_wr.wbd_cyc ;
  assign  s4_wbd_stb_o =  s4_wb_wr.wbd_stb ;
+
+// 1KB SRAM 
+ assign  s5_wbd_dat_o =  s5_wb_wr.wbd_dat ;
+ assign  s5_wbd_adr_o =  s5_wb_wr.wbd_adr[9:0] ;
+ assign  s5_wbd_sel_o =  s5_wb_wr.wbd_sel ;
+ assign  s5_wbd_we_o  =  s5_wb_wr.wbd_we  ;
+ assign  s5_wbd_cyc_o =  s5_wb_wr.wbd_cyc ;
+ assign  s5_wbd_stb_o =  s5_wb_wr.wbd_stb ;
+                      
+ assign  s6_wbd_dat_o =  s6_wb_wr.wbd_dat ;
+ assign  s6_wbd_adr_o =  s6_wb_wr.wbd_adr[9:0] ; // Global Reg Need 8 bit
+ assign  s6_wbd_sel_o =  s6_wb_wr.wbd_sel ;
+ assign  s6_wbd_we_o  =  s6_wb_wr.wbd_we  ;
+ assign  s6_wbd_cyc_o =  s6_wb_wr.wbd_cyc ;
+ assign  s6_wbd_stb_o =  s6_wb_wr.wbd_stb ;
+
+ assign  s7_wbd_dat_o =  s7_wb_wr.wbd_dat;
+ assign  s7_wbd_adr_o =  s7_wb_wr.wbd_adr[9:0] ; // Global Reg Need 8 bit
+ assign  s7_wbd_sel_o =  s7_wb_wr.wbd_sel;
+ assign  s7_wbd_we_o  =  s7_wb_wr.wbd_we  ;
+ assign  s7_wbd_cyc_o =  s7_wb_wr.wbd_cyc ;
+ assign  s7_wbd_stb_o =  s7_wb_wr.wbd_stb ;
+ 
+ assign  s8_wbd_dat_o =  s8_wb_wr.wbd_dat ;
+ assign  s8_wbd_adr_o =  s8_wb_wr.wbd_adr[9:0] ; // Global Reg Need 8 bit
+ assign  s8_wbd_sel_o =  s8_wb_wr.wbd_sel ;
+ assign  s8_wbd_we_o  =  s8_wb_wr.wbd_we  ;
+ assign  s8_wbd_cyc_o =  s8_wb_wr.wbd_cyc ;
+ assign  s8_wbd_stb_o =  s8_wb_wr.wbd_stb ;
  
  assign s0_wb_rd.wbd_dat  = s0_wbd_dat_i ;
  assign s0_wb_rd.wbd_ack  = s0_wbd_ack_i ;
@@ -304,7 +395,23 @@ assign m0_wbd_err_o  =  m0_wb_rd.wbd_err;
 
  assign s4_wb_rd.wbd_dat  = s4_wbd_dat_i ;
  assign s4_wb_rd.wbd_ack  = s4_wbd_ack_i ;
- assign s4_wb_rd.wbd_err  = 1'b0; // s3_wbd_err_i ; - unused
+ assign s4_wb_rd.wbd_err  = 1'b0; // s4_wbd_err_i ; - unused
+ 
+ assign s5_wb_rd.wbd_dat  = s5_wbd_dat_i ;
+ assign s5_wb_rd.wbd_ack  = s5_wbd_ack_i ;
+ assign s5_wb_rd.wbd_err  = 1'b0; // s5_wbd_err_i ; - unused
+ 
+ assign s6_wb_rd.wbd_dat  = s6_wbd_dat_i ;
+ assign s6_wb_rd.wbd_ack  = s6_wbd_ack_i ;
+ assign s6_wb_rd.wbd_err  = 1'b0; // s6_wbd_err_i ; - unused
+
+ assign s7_wb_rd.wbd_dat  = s7_wbd_dat_i ;
+ assign s7_wb_rd.wbd_ack  = s7_wbd_ack_i ;
+ assign s7_wb_rd.wbd_err  = 1'b0; // s7_wbd_err_i ; - unused
+
+ assign s8_wb_rd.wbd_dat  = s8_wbd_dat_i ;
+ assign s8_wb_rd.wbd_ack  = s8_wbd_ack_i ;
+ assign s8_wb_rd.wbd_err  = 1'b0; // s8_wbd_err_i ; - unused
 //
 // arbitor removed as only one master
 //
@@ -329,6 +436,10 @@ always_comb begin
         4'h2:	   s_bus_rd = s2_wb_rd;
         4'h3:	   s_bus_rd = s3_wb_rd;
         4'h4:	   s_bus_rd = s4_wb_rd;
+        4'h5:	   s_bus_rd = s5_wb_rd;
+        4'h6:	   s_bus_rd = s6_wb_rd;
+        4'h7:	   s_bus_rd = s7_wb_rd;
+        4'h8:	   s_bus_rd = s8_wb_rd;
         default:   s_bus_rd = s0_wb_rd;
      endcase			
 end
@@ -340,6 +451,10 @@ assign  s1_wb_wr = (s_wbd_tid == 4'b0001) ? s_bus_wr : 'h0;
 assign  s2_wb_wr = (s_wbd_tid == 4'b0010) ? s_bus_wr : 'h0;
 assign  s3_wb_wr = (s_wbd_tid == 4'b0011) ? s_bus_wr : 'h0;
 assign  s4_wb_wr = (s_wbd_tid == 4'b0100) ? s_bus_wr : 'h0;
+assign  s5_wb_wr = (s_wbd_tid == 4'b0101) ? s_bus_wr : 'h0;
+assign  s6_wb_wr = (s_wbd_tid == 4'b0110) ? s_bus_wr : 'h0;
+assign  s7_wb_wr = (s_wbd_tid == 4'b0111) ? s_bus_wr : 'h0;
+assign  s8_wb_wr = (s_wbd_tid == 4'b1000) ? s_bus_wr : 'h0;
 
 // Connect Slave to Master
 assign  m0_wb_rd = (gnt == 2'b00) ? m_bus_rd : 'h0;
