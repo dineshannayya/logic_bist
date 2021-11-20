@@ -49,8 +49,12 @@ link_design  $::env(DESIGN_NAME)
 
 read_spef -path u_mbist1    ../../spef/mbist_top1.spef  
 read_spef -path u_mbist2    ../../spef/mbist_top1.spef  
-read_spef -path u_mbist3    ../../spef/mbist_top2.spef  
-read_spef -path u_mbist4    ../../spef/mbist_top2.spef  
+read_spef -path u_mbist3    ../../spef/mbist_top1.spef  
+read_spef -path u_mbist4    ../../spef/mbist_top1.spef  
+read_spef -path u_mbist5    ../../spef/mbist_top2.spef  
+read_spef -path u_mbist6    ../../spef/mbist_top2.spef  
+read_spef -path u_mbist7    ../../spef/mbist_top2.spef  
+read_spef -path u_mbist8    ../../spef/mbist_top2.spef  
 read_spef -path u_wb_host  ../../spef/wb_host.spef  
 read_spef -path u_intercon ../../spef/wb_interconnect.spef
 read_spef -path u_glbl     ../../spef/glbl_cfg.spef
