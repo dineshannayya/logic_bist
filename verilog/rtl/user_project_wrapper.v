@@ -240,7 +240,7 @@ wire                           wbd_mbist8_err_i;  // error
 wire                           wbd_int_rst_n;
 wire                           bist_rst_n;
 
-	// MBIST I/F
+// MBIST I/F
 wire    [7:0]                  bist_en;
 wire    [7:0]                  bist_run;
 wire    [7:0]                  bist_shift;
@@ -260,6 +260,27 @@ wire  [3:0]                    bist_error_cnt4;
 wire  [3:0]                    bist_error_cnt5;
 wire  [3:0]                    bist_error_cnt6;
 wire  [3:0]                    bist_error_cnt7;
+
+// MBIST I/F Buffered
+wire    [7:0]                  bist_en_int;
+wire    [7:0]                  bist_run_int;
+wire    [7:0]                  bist_shift_int;
+wire    [7:0]                  bist_load_int;
+wire    [7:0]                  bist_sdi_int;
+
+wire    [7:0]                  bist_correct_int;
+wire    [7:0]                  bist_error_int;
+wire    [7:0]                  bist_done_int;
+wire    [7:0]                  bist_sdo_int;
+
+wire  [3:0]                    bist_error_cnt0_int;
+wire  [3:0]                    bist_error_cnt1_int;
+wire  [3:0]                    bist_error_cnt2_int;
+wire  [3:0]                    bist_error_cnt3_int;
+wire  [3:0]                    bist_error_cnt4_int;
+wire  [3:0]                    bist_error_cnt5_int;
+wire  [3:0]                    bist_error_cnt6_int;
+wire  [3:0]                    bist_error_cnt7_int;
 
 // towards memory MBIST1
 // PORT-A
@@ -381,21 +402,30 @@ wire [BIST_DATA_WD/8-1:0]      mem8_mask_b;
 wire [BIST2_ADDR_WD-1:2]       mem8_addr_b;
 wire [BIST_DATA_WD-1:0]        mem8_dout_a;
 
-wire                          wbd_clk_wh   ;
-wire                          wbd_clk_int   ;
-wire                          wbd_clk_wi   ;
-wire                          wbd_clk_glbl  ; // clock for global reg
-wire                          wbd_clk_mbist1; // clock for global reg
-wire                          wbd_clk_mbist2; // clock for global reg
-wire                          wbd_clk_mbist3; // clock for global reg
-wire                          wbd_clk_mbist4; // clock for global reg
-wire                          wbd_clk_mbist5; // clock for global reg
-wire                          wbd_clk_mbist6; // clock for global reg
-wire                          wbd_clk_mbist7; // clock for global reg
-wire                          wbd_clk_mbist8; // clock for global reg
+wire                          wbd_clk_wh         ;
+wire                          wbd_clk_int        ;
+wire                          wbd_clk_glbl_int   ;
+wire                          wbd_clk_mbist1_int ;
+wire                          wbd_clk_mbist2_int ;
+wire                          wbd_clk_mbist3_int ;
+wire                          wbd_clk_mbist4_int ;
+wire                          wbd_clk_mbist5_int ;
+wire                          wbd_clk_mbist6_int ;
+wire                          wbd_clk_mbist7_int ;
+wire                          wbd_clk_mbist8_int ;
+wire                          wbd_clk_wi         ;
+wire                          wbd_clk_glbl       ; // clock for global reg
+wire                          wbd_clk_mbist1     ; // clock for global reg
+wire                          wbd_clk_mbist2     ; // clock for global reg
+wire                          wbd_clk_mbist3     ; // clock for global reg
+wire                          wbd_clk_mbist4     ; // clock for global reg
+wire                          wbd_clk_mbist5     ; // clock for global reg
+wire                          wbd_clk_mbist6     ; // clock for global reg
+wire                          wbd_clk_mbist7     ; // clock for global reg
+wire                          wbd_clk_mbist8     ; // clock for global reg
 
-wire [31:0]                   cfg_clk_ctrl1;
-wire [31:0]                   cfg_clk_ctrl2;
+wire [31:0]                   cfg_clk_ctrl1      ;
+wire [31:0]                   cfg_clk_ctrl2      ;
 /////////////////////////////////////////////////////////
 // Clock Skew Ctrl
 ////////////////////////////////////////////////////////
@@ -465,7 +495,13 @@ wb_host u_wb_host(
 
     );
 
-wb_interconnect  u_intercon (
+wb_interconnect  #(
+	`ifndef SYNTHESIS
+	        .CH_CLK_WD(9),
+	        .CH_DATA_WD(104)
+        `endif
+	   )
+     u_intercon (
 `ifdef USE_POWER_PINS
          .vccd1         (vccd1                 ),// User area 1 1.8V supply
          .vssd1         (vssd1                 ),// User area 1 digital ground
@@ -474,6 +510,206 @@ wb_interconnect  u_intercon (
 	 .wbd_clk_int   (wbd_clk_int           ), 
 	 .cfg_cska_wi   (cfg_cska_wi           ), 
 	 .wbd_clk_wi    (wbd_clk_wi            ),
+
+	 .ch_clk_in     ({
+	                  wbd_clk_int,
+                          wbd_clk_int, 
+                          wbd_clk_int, 
+                          wbd_clk_int, 
+                          wbd_clk_int, 
+                          wbd_clk_int, 
+                          wbd_clk_int, 
+                          wbd_clk_int, 
+                          wbd_clk_int}),
+	 .ch_clk_out    ({
+                         wbd_clk_mbist8_int,  
+                         wbd_clk_mbist7_int,  
+                         wbd_clk_mbist6_int,  
+                         wbd_clk_mbist5_int,  
+                         wbd_clk_mbist4_int,  
+                         wbd_clk_mbist3_int,  
+                         wbd_clk_mbist2_int,  
+                         wbd_clk_mbist1_int, 
+			 wbd_clk_glbl_int
+		         }),
+	 .ch_data_in    ({
+			 bist_error_cnt7,
+			 bist_correct[7],
+			 bist_error[7],
+			 bist_done[7],
+		         bist_sdo[7],
+		         bist_sdi[7],
+		         bist_load[7],
+			 bist_shift[7],
+		         bist_run[7],
+                         bist_en[7],
+			 
+			 bist_error_cnt6,
+			 bist_correct[6],
+			 bist_error[6],
+			 bist_done[6],
+		         bist_sdo[6],
+		         bist_sdi[6],
+		         bist_load[6],
+			 bist_shift[6],
+		         bist_run[6],
+                         bist_en[6],
+			 
+			 bist_error_cnt5,
+			 bist_correct[5],
+			 bist_error[5],
+			 bist_done[5],
+		         bist_sdo[5],
+		         bist_sdi[5],
+		         bist_load[5],
+			 bist_shift[5],
+		         bist_run[5],
+                         bist_en[5],
+			 
+			 bist_error_cnt4,
+			 bist_correct[4],
+			 bist_error[4],
+			 bist_done[4],
+		         bist_sdo[4],
+		         bist_sdi[4],
+		         bist_load[4],
+			 bist_shift[4],
+		         bist_run[4],
+                         bist_en[4],
+			 
+			 bist_error_cnt3,
+			 bist_correct[3],
+			 bist_error[3],
+			 bist_done[3],
+		         bist_sdo[3],
+		         bist_sdi[3],
+		         bist_load[3],
+			 bist_shift[3],
+		         bist_run[3],
+                         bist_en[3],
+			 
+			 bist_error_cnt2,
+			 bist_correct[2],
+			 bist_error[2],
+			 bist_done[2],
+		         bist_sdo[2],
+		         bist_sdi[2],
+		         bist_load[2],
+			 bist_shift[2],
+		         bist_run[2],
+                         bist_en[2],
+			 
+			 bist_error_cnt1,
+			 bist_correct[1],
+			 bist_error[1],
+			 bist_done[1],
+		         bist_sdo[1],
+		         bist_sdi[1],
+		         bist_load[1],
+			 bist_shift[1],
+		         bist_run[1],
+                         bist_en[1],
+
+			 bist_error_cnt0,
+			 bist_correct[0],
+			 bist_error[0],
+			 bist_done[0],
+		         bist_sdo[0],
+		         bist_sdi[0],
+		         bist_load[0],
+			 bist_shift[0],
+		         bist_run[0],
+                         bist_en[0]
+			 } ),
+	 .ch_data_out   ({
+			 bist_error_cnt7_int,
+			 bist_correct_int[7],
+			 bist_error_int[7],
+			 bist_done_int[7],
+		         bist_sdo_int[7],
+		         bist_sdi_int[7],
+		         bist_load_int[7],
+			 bist_shift_int[7],
+		         bist_run_int[7],
+                         bist_en_int[7],
+			 
+			 bist_error_cnt6_int,
+			 bist_correct_int[6],
+			 bist_error_int[6],
+			 bist_done_int[6],
+		         bist_sdo_int[6],
+		         bist_sdi_int[6],
+		         bist_load_int[6],
+			 bist_shift_int[6],
+		         bist_run_int[6],
+                         bist_en_int[6],
+			 
+			 bist_error_cnt5_int,
+			 bist_correct_int[5],
+			 bist_error_int[5],
+			 bist_done_int[5],
+		         bist_sdo_int[5],
+		         bist_sdi_int[5],
+		         bist_load_int[5],
+			 bist_shift_int[5],
+		         bist_run_int[5],
+                         bist_en_int[5],
+			 
+			 bist_error_cnt4_int,
+			 bist_correct_int[4],
+			 bist_error_int[4],
+			 bist_done_int[4],
+		         bist_sdo_int[4],
+		         bist_sdi_int[4],
+		         bist_load_int[4],
+			 bist_shift_int[4],
+		         bist_run_int[4],
+                         bist_en_int[4],
+			 
+			 bist_error_cnt3_int,
+			 bist_correct_int[3],
+			 bist_error_int[3],
+			 bist_done_int[3],
+		         bist_sdo_int[3],
+		         bist_sdi_int[3],
+		         bist_load_int[3],
+			 bist_shift_int[3],
+		         bist_run_int[3],
+                         bist_en_int[3],
+			 
+			 bist_error_cnt2_int,
+			 bist_correct_int[2],
+			 bist_error_int[2],
+			 bist_done_int[2],
+		         bist_sdo_int[2],
+		         bist_sdi_int[2],
+		         bist_load_int[2],
+			 bist_shift_int[2],
+		         bist_run_int[2],
+                         bist_en_int[2],
+			 
+			 bist_error_cnt1_int,
+			 bist_correct_int[1],
+			 bist_error_int[1],
+			 bist_done_int[1],
+		         bist_sdo_int[1],
+		         bist_sdi_int[1],
+		         bist_load_int[1],
+			 bist_shift_int[1],
+		         bist_run_int[1],
+                         bist_en_int[1],
+
+			 bist_error_cnt0_int,
+			 bist_correct_int[0],
+			 bist_error_int[0],
+			 bist_done_int[0],
+		         bist_sdo_int[0],
+		         bist_sdi_int[0],
+		         bist_load_int[0],
+			 bist_shift_int[0],
+		         bist_run_int[0],
+                         bist_en_int[0]
+                         }),
 
          .clk_i         (wbd_clk_wi            ), 
          .rst_n         (wbd_int_rst_n         ),
@@ -595,7 +831,7 @@ glbl_cfg u_glbl(
        .vccd1                  (vccd1                     ),// User area 1 1.8V supply
        .vssd1                  (vssd1                     ),// User area 1 digital ground
 `endif
-       .wbd_clk_int            (wbd_clk_int               ), 
+       .wbd_clk_int            (wbd_clk_glbl_int          ), 
        .cfg_cska_glbl          (cfg_cska_glbl             ), 
        .wbd_clk_glbl           (wbd_clk_glbl              ), 
 
@@ -614,26 +850,27 @@ glbl_cfg u_glbl(
        .reg_ack                (wbd_glbl_ack_i            ),
 
 
-	// BIST I/F
+	// BIST I/F Outputs
 	.bist_en           (bist_en),
 	.bist_run          (bist_run),
 	.bist_load         (bist_load),
 
 	.bist_sdi          (bist_sdi),
 	.bist_shift        (bist_shift),
-	.bist_sdo          (bist_sdo),
 
-	.bist_done         (bist_done),
-	.bist_error        (bist_error),
-	.bist_correct      (bist_correct),
-	.bist_error_cnt0   (bist_error_cnt0),
-	.bist_error_cnt1   (bist_error_cnt1),
-	.bist_error_cnt2   (bist_error_cnt2),
-	.bist_error_cnt3   (bist_error_cnt3),
-	.bist_error_cnt4   (bist_error_cnt4),
-	.bist_error_cnt5   (bist_error_cnt5),
-	.bist_error_cnt6   (bist_error_cnt6),
-	.bist_error_cnt7   (bist_error_cnt7)
+	// BIST Inputs
+	.bist_sdo          (bist_sdo_int),
+	.bist_done         (bist_done_int),
+	.bist_error        (bist_error_int),
+	.bist_correct      (bist_correct_int),
+	.bist_error_cnt0   (bist_error_cnt0_int),
+	.bist_error_cnt1   (bist_error_cnt1_int),
+	.bist_error_cnt2   (bist_error_cnt2_int),
+	.bist_error_cnt3   (bist_error_cnt3_int),
+	.bist_error_cnt4   (bist_error_cnt4_int),
+	.bist_error_cnt5   (bist_error_cnt5_int),
+	.bist_error_cnt6   (bist_error_cnt6_int),
+	.bist_error_cnt7   (bist_error_cnt7_int)
 
         );
 
@@ -659,7 +896,7 @@ mbist_top1  #(
 `endif
 
      // Clock Skew adjust
-	.wbd_clk_int          (wbd_clk_int      ), 
+	.wbd_clk_int          (wbd_clk_mbist1_int), 
 	.cfg_cska_mbist       (cfg_cska_mbist1  ), 
 	.wbd_clk_mbist        (wbd_clk_mbist1   ),
 
@@ -678,17 +915,17 @@ mbist_top1  #(
 	.rst_n                (bist_rst_n       ),
 
 	
-	.bist_en              (bist_en[0]       ),
-	.bist_run             (bist_run[0]      ),
-	.bist_shift           (bist_shift[0]    ),
-	.bist_load            (bist_load[0]     ),
-	.bist_sdi             (bist_sdi[0]      ),
+	.bist_en              (bist_en_int[0]       ),
+	.bist_run             (bist_run_int[0]      ),
+	.bist_shift           (bist_shift_int[0]    ),
+	.bist_load            (bist_load_int[0]     ),
+	.bist_sdi             (bist_sdi_int[0]      ),
 
-	.bist_error_cnt       (bist_error_cnt0  ),
-	.bist_correct         (bist_correct[0]  ),
-	.bist_error           (bist_error[0]    ),
-	.bist_done            (bist_done[0]     ),
-	.bist_sdo             (bist_sdo[0]      ),
+	.bist_error_cnt       (bist_error_cnt0      ),
+	.bist_correct         (bist_correct[0]      ),
+	.bist_error           (bist_error[0]        ),
+	.bist_done            (bist_done[0]         ),
+	.bist_sdo             (bist_sdo[0]          ),
 
      // towards memory
      // PORT-A
@@ -747,7 +984,7 @@ mbist_top1  #(
 `endif
 
      // Clock Skew adjust
-	.wbd_clk_int          (wbd_clk_int      ), 
+	.wbd_clk_int          (wbd_clk_mbist2_int), 
 	.cfg_cska_mbist       (cfg_cska_mbist2  ), 
 	.wbd_clk_mbist        (wbd_clk_mbist2   ),
 
@@ -766,17 +1003,17 @@ mbist_top1  #(
 	.rst_n                  (bist_rst_n            ),
 
 	
-	.bist_en                (bist_en[1]            ),
-	.bist_run               (bist_run[1]           ),
-	.bist_shift             (bist_shift[1]         ),
-	.bist_load              (bist_load[1]          ),
-	.bist_sdi               (bist_sdi[1]           ),
+	.bist_en                (bist_en_int[1]     ),
+	.bist_run               (bist_run_int[1]    ),
+	.bist_shift             (bist_shift_int[1]  ),
+	.bist_load              (bist_load_int[1]   ),
+	.bist_sdi               (bist_sdi_int[1]    ),
 
-	.bist_error_cnt         (bist_error_cnt1       ),
-	.bist_correct           (bist_correct[1]       ),
-	.bist_error             (bist_error[1]         ),
-	.bist_done              (bist_done[1]          ),
-	.bist_sdo               (bist_sdo[1]           ),
+	.bist_error_cnt         (bist_error_cnt1    ),
+	.bist_correct           (bist_correct[1]    ),
+	.bist_error             (bist_error[1]      ),
+	.bist_done              (bist_done[1]       ),
+	.bist_sdo               (bist_sdo[1]        ),
 
      // towards memory
      // PORT-A
@@ -836,7 +1073,7 @@ mbist_top1  #(
 `endif
 
      // Clock Skew adjust
-	.wbd_clk_int          (wbd_clk_int      ), 
+	.wbd_clk_int          (wbd_clk_mbist3_int      ), 
 	.cfg_cska_mbist       (cfg_cska_mbist3  ), 
 	.wbd_clk_mbist        (wbd_clk_mbist3   ),
 
@@ -855,11 +1092,11 @@ mbist_top1  #(
 	.rst_n                (bist_rst_n       ),
 
 	
-	.bist_en              (bist_en[2]       ),
-	.bist_run             (bist_run[2]      ),
-	.bist_shift           (bist_shift[2]    ),
-	.bist_load            (bist_load[2]     ),
-	.bist_sdi             (bist_sdi[2]      ),
+	.bist_en              (bist_en_int[2]   ),
+	.bist_run             (bist_run_int[2]  ),
+	.bist_shift           (bist_shift_int[2]),
+	.bist_load            (bist_load_int[2] ),
+	.bist_sdi             (bist_sdi_int[2]  ),
 
 	.bist_error_cnt       (bist_error_cnt2  ),
 	.bist_correct         (bist_correct[2]  ),
@@ -924,7 +1161,7 @@ mbist_top1  #(
 `endif
 
      // Clock Skew adjust
-	.wbd_clk_int          (wbd_clk_int      ), 
+	.wbd_clk_int          (wbd_clk_mbist4_int      ), 
 	.cfg_cska_mbist       (cfg_cska_mbist4  ), 
 	.wbd_clk_mbist        (wbd_clk_mbist4   ),
 
@@ -943,11 +1180,11 @@ mbist_top1  #(
 	.rst_n                  (bist_rst_n            ),
 
 	
-	.bist_en                (bist_en[3]            ),
-	.bist_run               (bist_run[3]           ),
-	.bist_shift             (bist_shift[3]         ),
-	.bist_load              (bist_load[3]          ),
-	.bist_sdi               (bist_sdi[3]           ),
+	.bist_en                (bist_en_int[3]        ),
+	.bist_run               (bist_run_int[3]       ),
+	.bist_shift             (bist_shift_int[3]     ),
+	.bist_load              (bist_load_int[3]      ),
+	.bist_sdi               (bist_sdi_int[3]       ),
 
 	.bist_error_cnt         (bist_error_cnt3       ),
 	.bist_correct           (bist_correct[3]       ),
@@ -1012,7 +1249,7 @@ mbist_top2  #(
 `endif
 
      // Clock Skew adjust
-	.wbd_clk_int          (wbd_clk_int      ), 
+	.wbd_clk_int          (wbd_clk_mbist5_int      ), 
 	.cfg_cska_mbist       (cfg_cska_mbist5  ), 
 	.wbd_clk_mbist        (wbd_clk_mbist5   ),
 
@@ -1031,11 +1268,11 @@ mbist_top2  #(
 	.rst_n                (bist_rst_n       ),
 
 	
-	.bist_en              (bist_en[4]       ),
-	.bist_run             (bist_run[4]      ),
-	.bist_shift           (bist_shift[4]    ),
-	.bist_load            (bist_load[4]     ),
-	.bist_sdi             (bist_sdi[4]      ),
+	.bist_en              (bist_en_int[4]   ),
+	.bist_run             (bist_run_int[4]  ),
+	.bist_shift           (bist_shift_int[4]),
+	.bist_load            (bist_load_int[4] ),
+	.bist_sdi             (bist_sdi_int[4]  ),
 
 	.bist_error_cnt       (bist_error_cnt4  ),
 	.bist_correct         (bist_correct[4]  ),
@@ -1101,7 +1338,7 @@ mbist_top2  #(
 `endif
 
      // Clock Skew adjust
-	.wbd_clk_int          (wbd_clk_int      ), 
+	.wbd_clk_int          (wbd_clk_mbist6_int      ), 
 	.cfg_cska_mbist       (cfg_cska_mbist6  ), 
 	.wbd_clk_mbist        (wbd_clk_mbist6   ),
 
@@ -1120,11 +1357,11 @@ mbist_top2  #(
 	.rst_n                (bist_rst_n       ),
 
 	
-	.bist_en              (bist_en[5]       ),
-	.bist_run             (bist_run[5]      ),
-	.bist_shift           (bist_shift[5]    ),
-	.bist_load            (bist_load[5]     ),
-	.bist_sdi             (bist_sdi[5]      ),
+	.bist_en              (bist_en_int[5]   ),
+	.bist_run             (bist_run_int[5]  ),
+	.bist_shift           (bist_shift_int[5]),
+	.bist_load            (bist_load_int[5] ),
+	.bist_sdi             (bist_sdi_int[5]  ),
 
 	.bist_error_cnt       (bist_error_cnt5  ),
 	.bist_correct         (bist_correct[5]  ),
@@ -1188,7 +1425,7 @@ mbist_top2  #(
 `endif
 
      // Clock Skew adjust
-	.wbd_clk_int          (wbd_clk_int      ), 
+	.wbd_clk_int          (wbd_clk_mbist7_int      ), 
 	.cfg_cska_mbist       (cfg_cska_mbist7  ), 
 	.wbd_clk_mbist        (wbd_clk_mbist7   ),
 
@@ -1207,11 +1444,11 @@ mbist_top2  #(
 	.rst_n                (bist_rst_n       ),
 
 	
-	.bist_en              (bist_en[6]       ),
-	.bist_run             (bist_run[6]      ),
-	.bist_shift           (bist_shift[6]    ),
-	.bist_load            (bist_load[6]     ),
-	.bist_sdi             (bist_sdi[6]      ),
+	.bist_en              (bist_en_int[6]   ),
+	.bist_run             (bist_run_int[6]  ),
+	.bist_shift           (bist_shift_int[6]),
+	.bist_load            (bist_load_int[6] ),
+	.bist_sdi             (bist_sdi_int[6]  ),
 
 	.bist_error_cnt       (bist_error_cnt6  ),
 	.bist_correct         (bist_correct[6]  ),
@@ -1277,7 +1514,7 @@ mbist_top2  #(
 `endif
 
      // Clock Skew adjust
-	.wbd_clk_int          (wbd_clk_int      ), 
+	.wbd_clk_int          (wbd_clk_mbist8_int), 
 	.cfg_cska_mbist       (cfg_cska_mbist8  ), 
 	.wbd_clk_mbist        (wbd_clk_mbist8   ),
 
@@ -1296,11 +1533,11 @@ mbist_top2  #(
 	.rst_n                (bist_rst_n       ),
 
 	
-	.bist_en              (bist_en[7]       ),
-	.bist_run             (bist_run[7]      ),
-	.bist_shift           (bist_shift[7]    ),
-	.bist_load            (bist_load[7]     ),
-	.bist_sdi             (bist_sdi[7]      ),
+	.bist_en              (bist_en_int[7]   ),
+	.bist_run             (bist_run_int[7]  ),
+	.bist_shift           (bist_shift_int[7]),
+	.bist_load            (bist_load_int[7] ),
+	.bist_sdi             (bist_sdi_int[7]  ),
 
 	.bist_error_cnt       (bist_error_cnt7  ),
 	.bist_correct         (bist_correct[7]  ),

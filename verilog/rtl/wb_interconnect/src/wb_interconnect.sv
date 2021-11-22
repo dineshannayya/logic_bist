@@ -68,7 +68,10 @@
 
 
 
-module wb_interconnect(
+module wb_interconnect #(
+	parameter CH_CLK_WD = 9,
+	parameter CH_DATA_WD = 95
+        ) (
 `ifdef USE_POWER_PINS
          input logic            vccd1,    // User area 1 1.8V supply
          input logic            vssd1,    // User area 1 digital ground
@@ -78,6 +81,11 @@ module wb_interconnect(
          input logic            wbd_clk_int,
 	 output logic           wbd_clk_wi,
 
+	 // Bus repeaters
+	 input [CH_CLK_WD-1:0]  ch_clk_in,
+	 output [CH_CLK_WD-1:0] ch_clk_out,
+	 input [CH_DATA_WD-1:0] ch_data_in,
+	 output [CH_DATA_WD-1:0]ch_data_out,
 
          input logic		clk_i, 
          input logic            rst_n,
@@ -255,6 +263,11 @@ type_wb_rd_intf  m_bus_rd;  // Multiplexed Slave I/F
 
 type_wb_wr_intf  s_bus_wr;  // Multiplexed Master I/F
 type_wb_rd_intf  s_bus_rd;  // Multiplexed Slave I/F
+
+// channel repeater
+assign ch_clk_out  = ch_clk_in;
+assign ch_data_out = ch_data_in;
+
 
 // Wishbone interconnect clock skew control
 clk_skew_adjust u_skew_wi

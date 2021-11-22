@@ -61,6 +61,14 @@ module user_project_wrapper (user_clock2,
  wire \bist_correct[5] ;
  wire \bist_correct[6] ;
  wire \bist_correct[7] ;
+ wire \bist_correct_int[0] ;
+ wire \bist_correct_int[1] ;
+ wire \bist_correct_int[2] ;
+ wire \bist_correct_int[3] ;
+ wire \bist_correct_int[4] ;
+ wire \bist_correct_int[5] ;
+ wire \bist_correct_int[6] ;
+ wire \bist_correct_int[7] ;
  wire \bist_done[0] ;
  wire \bist_done[1] ;
  wire \bist_done[2] ;
@@ -69,6 +77,14 @@ module user_project_wrapper (user_clock2,
  wire \bist_done[5] ;
  wire \bist_done[6] ;
  wire \bist_done[7] ;
+ wire \bist_done_int[0] ;
+ wire \bist_done_int[1] ;
+ wire \bist_done_int[2] ;
+ wire \bist_done_int[3] ;
+ wire \bist_done_int[4] ;
+ wire \bist_done_int[5] ;
+ wire \bist_done_int[6] ;
+ wire \bist_done_int[7] ;
  wire \bist_en[0] ;
  wire \bist_en[1] ;
  wire \bist_en[2] ;
@@ -77,6 +93,14 @@ module user_project_wrapper (user_clock2,
  wire \bist_en[5] ;
  wire \bist_en[6] ;
  wire \bist_en[7] ;
+ wire \bist_en_int[0] ;
+ wire \bist_en_int[1] ;
+ wire \bist_en_int[2] ;
+ wire \bist_en_int[3] ;
+ wire \bist_en_int[4] ;
+ wire \bist_en_int[5] ;
+ wire \bist_en_int[6] ;
+ wire \bist_en_int[7] ;
  wire \bist_error[0] ;
  wire \bist_error[1] ;
  wire \bist_error[2] ;
@@ -89,34 +113,74 @@ module user_project_wrapper (user_clock2,
  wire \bist_error_cnt0[1] ;
  wire \bist_error_cnt0[2] ;
  wire \bist_error_cnt0[3] ;
+ wire \bist_error_cnt0_int[0] ;
+ wire \bist_error_cnt0_int[1] ;
+ wire \bist_error_cnt0_int[2] ;
+ wire \bist_error_cnt0_int[3] ;
  wire \bist_error_cnt1[0] ;
  wire \bist_error_cnt1[1] ;
  wire \bist_error_cnt1[2] ;
  wire \bist_error_cnt1[3] ;
+ wire \bist_error_cnt1_int[0] ;
+ wire \bist_error_cnt1_int[1] ;
+ wire \bist_error_cnt1_int[2] ;
+ wire \bist_error_cnt1_int[3] ;
  wire \bist_error_cnt2[0] ;
  wire \bist_error_cnt2[1] ;
  wire \bist_error_cnt2[2] ;
  wire \bist_error_cnt2[3] ;
+ wire \bist_error_cnt2_int[0] ;
+ wire \bist_error_cnt2_int[1] ;
+ wire \bist_error_cnt2_int[2] ;
+ wire \bist_error_cnt2_int[3] ;
  wire \bist_error_cnt3[0] ;
  wire \bist_error_cnt3[1] ;
  wire \bist_error_cnt3[2] ;
  wire \bist_error_cnt3[3] ;
+ wire \bist_error_cnt3_int[0] ;
+ wire \bist_error_cnt3_int[1] ;
+ wire \bist_error_cnt3_int[2] ;
+ wire \bist_error_cnt3_int[3] ;
  wire \bist_error_cnt4[0] ;
  wire \bist_error_cnt4[1] ;
  wire \bist_error_cnt4[2] ;
  wire \bist_error_cnt4[3] ;
+ wire \bist_error_cnt4_int[0] ;
+ wire \bist_error_cnt4_int[1] ;
+ wire \bist_error_cnt4_int[2] ;
+ wire \bist_error_cnt4_int[3] ;
  wire \bist_error_cnt5[0] ;
  wire \bist_error_cnt5[1] ;
  wire \bist_error_cnt5[2] ;
  wire \bist_error_cnt5[3] ;
+ wire \bist_error_cnt5_int[0] ;
+ wire \bist_error_cnt5_int[1] ;
+ wire \bist_error_cnt5_int[2] ;
+ wire \bist_error_cnt5_int[3] ;
  wire \bist_error_cnt6[0] ;
  wire \bist_error_cnt6[1] ;
  wire \bist_error_cnt6[2] ;
  wire \bist_error_cnt6[3] ;
+ wire \bist_error_cnt6_int[0] ;
+ wire \bist_error_cnt6_int[1] ;
+ wire \bist_error_cnt6_int[2] ;
+ wire \bist_error_cnt6_int[3] ;
  wire \bist_error_cnt7[0] ;
  wire \bist_error_cnt7[1] ;
  wire \bist_error_cnt7[2] ;
  wire \bist_error_cnt7[3] ;
+ wire \bist_error_cnt7_int[0] ;
+ wire \bist_error_cnt7_int[1] ;
+ wire \bist_error_cnt7_int[2] ;
+ wire \bist_error_cnt7_int[3] ;
+ wire \bist_error_int[0] ;
+ wire \bist_error_int[1] ;
+ wire \bist_error_int[2] ;
+ wire \bist_error_int[3] ;
+ wire \bist_error_int[4] ;
+ wire \bist_error_int[5] ;
+ wire \bist_error_int[6] ;
+ wire \bist_error_int[7] ;
  wire \bist_load[0] ;
  wire \bist_load[1] ;
  wire \bist_load[2] ;
@@ -125,6 +189,14 @@ module user_project_wrapper (user_clock2,
  wire \bist_load[5] ;
  wire \bist_load[6] ;
  wire \bist_load[7] ;
+ wire \bist_load_int[0] ;
+ wire \bist_load_int[1] ;
+ wire \bist_load_int[2] ;
+ wire \bist_load_int[3] ;
+ wire \bist_load_int[4] ;
+ wire \bist_load_int[5] ;
+ wire \bist_load_int[6] ;
+ wire \bist_load_int[7] ;
  wire bist_rst_n;
  wire \bist_run[0] ;
  wire \bist_run[1] ;
@@ -134,6 +206,14 @@ module user_project_wrapper (user_clock2,
  wire \bist_run[5] ;
  wire \bist_run[6] ;
  wire \bist_run[7] ;
+ wire \bist_run_int[0] ;
+ wire \bist_run_int[1] ;
+ wire \bist_run_int[2] ;
+ wire \bist_run_int[3] ;
+ wire \bist_run_int[4] ;
+ wire \bist_run_int[5] ;
+ wire \bist_run_int[6] ;
+ wire \bist_run_int[7] ;
  wire \bist_sdi[0] ;
  wire \bist_sdi[1] ;
  wire \bist_sdi[2] ;
@@ -142,6 +222,14 @@ module user_project_wrapper (user_clock2,
  wire \bist_sdi[5] ;
  wire \bist_sdi[6] ;
  wire \bist_sdi[7] ;
+ wire \bist_sdi_int[0] ;
+ wire \bist_sdi_int[1] ;
+ wire \bist_sdi_int[2] ;
+ wire \bist_sdi_int[3] ;
+ wire \bist_sdi_int[4] ;
+ wire \bist_sdi_int[5] ;
+ wire \bist_sdi_int[6] ;
+ wire \bist_sdi_int[7] ;
  wire \bist_sdo[0] ;
  wire \bist_sdo[1] ;
  wire \bist_sdo[2] ;
@@ -150,6 +238,14 @@ module user_project_wrapper (user_clock2,
  wire \bist_sdo[5] ;
  wire \bist_sdo[6] ;
  wire \bist_sdo[7] ;
+ wire \bist_sdo_int[0] ;
+ wire \bist_sdo_int[1] ;
+ wire \bist_sdo_int[2] ;
+ wire \bist_sdo_int[3] ;
+ wire \bist_sdo_int[4] ;
+ wire \bist_sdo_int[5] ;
+ wire \bist_sdo_int[6] ;
+ wire \bist_sdo_int[7] ;
  wire \bist_shift[0] ;
  wire \bist_shift[1] ;
  wire \bist_shift[2] ;
@@ -158,6 +254,14 @@ module user_project_wrapper (user_clock2,
  wire \bist_shift[5] ;
  wire \bist_shift[6] ;
  wire \bist_shift[7] ;
+ wire \bist_shift_int[0] ;
+ wire \bist_shift_int[1] ;
+ wire \bist_shift_int[2] ;
+ wire \bist_shift_int[3] ;
+ wire \bist_shift_int[4] ;
+ wire \bist_shift_int[5] ;
+ wire \bist_shift_int[6] ;
+ wire \bist_shift_int[7] ;
  wire \cfg_clk_ctrl1[0] ;
  wire \cfg_clk_ctrl1[10] ;
  wire \cfg_clk_ctrl1[11] ;
@@ -943,15 +1047,24 @@ module user_project_wrapper (user_clock2,
  wire \mem8_mask_b[3] ;
  wire mem8_web_b;
  wire wbd_clk_glbl;
+ wire wbd_clk_glbl_int;
  wire wbd_clk_int;
  wire wbd_clk_mbist1;
+ wire wbd_clk_mbist1_int;
  wire wbd_clk_mbist2;
+ wire wbd_clk_mbist2_int;
  wire wbd_clk_mbist3;
+ wire wbd_clk_mbist3_int;
  wire wbd_clk_mbist4;
+ wire wbd_clk_mbist4_int;
  wire wbd_clk_mbist5;
+ wire wbd_clk_mbist5_int;
  wire wbd_clk_mbist6;
+ wire wbd_clk_mbist6_int;
  wire wbd_clk_mbist7;
+ wire wbd_clk_mbist7_int;
  wire wbd_clk_mbist8;
+ wire wbd_clk_mbist8_int;
  wire wbd_clk_wh;
  wire wbd_clk_wi;
  wire wbd_glbl_ack_i;
@@ -1809,23 +1922,23 @@ module user_project_wrapper (user_clock2,
     .vccd1(vccd1),
     .vssd1(vssd1),
     .wbd_clk_glbl(wbd_clk_glbl),
-    .wbd_clk_int(wbd_clk_int),
-    .bist_correct({\bist_correct[7] ,
-    \bist_correct[6] ,
-    \bist_correct[5] ,
-    \bist_correct[4] ,
-    \bist_correct[3] ,
-    \bist_correct[2] ,
-    \bist_correct[1] ,
-    \bist_correct[0] }),
-    .bist_done({\bist_done[7] ,
-    \bist_done[6] ,
-    \bist_done[5] ,
-    \bist_done[4] ,
-    \bist_done[3] ,
-    \bist_done[2] ,
-    \bist_done[1] ,
-    \bist_done[0] }),
+    .wbd_clk_int(wbd_clk_glbl_int),
+    .bist_correct({\bist_correct_int[7] ,
+    \bist_correct_int[6] ,
+    \bist_correct_int[5] ,
+    \bist_correct_int[4] ,
+    \bist_correct_int[3] ,
+    \bist_correct_int[2] ,
+    \bist_correct_int[1] ,
+    \bist_correct_int[0] }),
+    .bist_done({\bist_done_int[7] ,
+    \bist_done_int[6] ,
+    \bist_done_int[5] ,
+    \bist_done_int[4] ,
+    \bist_done_int[3] ,
+    \bist_done_int[2] ,
+    \bist_done_int[1] ,
+    \bist_done_int[0] }),
     .bist_en({\bist_en[7] ,
     \bist_en[6] ,
     \bist_en[5] ,
@@ -1834,46 +1947,46 @@ module user_project_wrapper (user_clock2,
     \bist_en[2] ,
     \bist_en[1] ,
     \bist_en[0] }),
-    .bist_error({\bist_error[7] ,
-    \bist_error[6] ,
-    \bist_error[5] ,
-    \bist_error[4] ,
-    \bist_error[3] ,
-    \bist_error[2] ,
-    \bist_error[1] ,
-    \bist_error[0] }),
-    .bist_error_cnt0({\bist_error_cnt0[3] ,
-    \bist_error_cnt0[2] ,
-    \bist_error_cnt0[1] ,
-    \bist_error_cnt0[0] }),
-    .bist_error_cnt1({\bist_error_cnt1[3] ,
-    \bist_error_cnt1[2] ,
-    \bist_error_cnt1[1] ,
-    \bist_error_cnt1[0] }),
-    .bist_error_cnt2({\bist_error_cnt2[3] ,
-    \bist_error_cnt2[2] ,
-    \bist_error_cnt2[1] ,
-    \bist_error_cnt2[0] }),
-    .bist_error_cnt3({\bist_error_cnt3[3] ,
-    \bist_error_cnt3[2] ,
-    \bist_error_cnt3[1] ,
-    \bist_error_cnt3[0] }),
-    .bist_error_cnt4({\bist_error_cnt4[3] ,
-    \bist_error_cnt4[2] ,
-    \bist_error_cnt4[1] ,
-    \bist_error_cnt4[0] }),
-    .bist_error_cnt5({\bist_error_cnt5[3] ,
-    \bist_error_cnt5[2] ,
-    \bist_error_cnt5[1] ,
-    \bist_error_cnt5[0] }),
-    .bist_error_cnt6({\bist_error_cnt6[3] ,
-    \bist_error_cnt6[2] ,
-    \bist_error_cnt6[1] ,
-    \bist_error_cnt6[0] }),
-    .bist_error_cnt7({\bist_error_cnt7[3] ,
-    \bist_error_cnt7[2] ,
-    \bist_error_cnt7[1] ,
-    \bist_error_cnt7[0] }),
+    .bist_error({\bist_error_int[7] ,
+    \bist_error_int[6] ,
+    \bist_error_int[5] ,
+    \bist_error_int[4] ,
+    \bist_error_int[3] ,
+    \bist_error_int[2] ,
+    \bist_error_int[1] ,
+    \bist_error_int[0] }),
+    .bist_error_cnt0({\bist_error_cnt0_int[3] ,
+    \bist_error_cnt0_int[2] ,
+    \bist_error_cnt0_int[1] ,
+    \bist_error_cnt0_int[0] }),
+    .bist_error_cnt1({\bist_error_cnt1_int[3] ,
+    \bist_error_cnt1_int[2] ,
+    \bist_error_cnt1_int[1] ,
+    \bist_error_cnt1_int[0] }),
+    .bist_error_cnt2({\bist_error_cnt2_int[3] ,
+    \bist_error_cnt2_int[2] ,
+    \bist_error_cnt2_int[1] ,
+    \bist_error_cnt2_int[0] }),
+    .bist_error_cnt3({\bist_error_cnt3_int[3] ,
+    \bist_error_cnt3_int[2] ,
+    \bist_error_cnt3_int[1] ,
+    \bist_error_cnt3_int[0] }),
+    .bist_error_cnt4({\bist_error_cnt4_int[3] ,
+    \bist_error_cnt4_int[2] ,
+    \bist_error_cnt4_int[1] ,
+    \bist_error_cnt4_int[0] }),
+    .bist_error_cnt5({\bist_error_cnt5_int[3] ,
+    \bist_error_cnt5_int[2] ,
+    \bist_error_cnt5_int[1] ,
+    \bist_error_cnt5_int[0] }),
+    .bist_error_cnt6({\bist_error_cnt6_int[3] ,
+    \bist_error_cnt6_int[2] ,
+    \bist_error_cnt6_int[1] ,
+    \bist_error_cnt6_int[0] }),
+    .bist_error_cnt7({\bist_error_cnt7_int[3] ,
+    \bist_error_cnt7_int[2] ,
+    \bist_error_cnt7_int[1] ,
+    \bist_error_cnt7_int[0] }),
     .bist_load({\bist_load[7] ,
     \bist_load[6] ,
     \bist_load[5] ,
@@ -1898,14 +2011,14 @@ module user_project_wrapper (user_clock2,
     \bist_sdi[2] ,
     \bist_sdi[1] ,
     \bist_sdi[0] }),
-    .bist_sdo({\bist_sdo[7] ,
-    \bist_sdo[6] ,
-    \bist_sdo[5] ,
-    \bist_sdo[4] ,
-    \bist_sdo[3] ,
-    \bist_sdo[2] ,
-    \bist_sdo[1] ,
-    \bist_sdo[0] }),
+    .bist_sdo({\bist_sdo_int[7] ,
+    \bist_sdo_int[6] ,
+    \bist_sdo_int[5] ,
+    \bist_sdo_int[4] ,
+    \bist_sdo_int[3] ,
+    \bist_sdo_int[2] ,
+    \bist_sdo_int[1] ,
+    \bist_sdo_int[0] }),
     .bist_shift({\bist_shift[7] ,
     \bist_shift[6] ,
     \bist_shift[5] ,
@@ -2045,6 +2158,232 @@ module user_project_wrapper (user_clock2,
     \cfg_clk_ctrl1[6] ,
     \cfg_clk_ctrl1[5] ,
     \cfg_clk_ctrl1[4] }),
+    .ch_clk_in({wbd_clk_int,
+    wbd_clk_int,
+    wbd_clk_int,
+    wbd_clk_int,
+    wbd_clk_int,
+    wbd_clk_int,
+    wbd_clk_int,
+    wbd_clk_int,
+    wbd_clk_int}),
+    .ch_clk_out({wbd_clk_mbist8_int,
+    wbd_clk_mbist7_int,
+    wbd_clk_mbist6_int,
+    wbd_clk_mbist5_int,
+    wbd_clk_mbist4_int,
+    wbd_clk_mbist3_int,
+    wbd_clk_mbist2_int,
+    wbd_clk_mbist1_int,
+    wbd_clk_glbl_int}),
+    .ch_data_in({\bist_error_cnt7[3] ,
+    \bist_error_cnt7[2] ,
+    \bist_error_cnt7[1] ,
+    \bist_error_cnt7[0] ,
+    \bist_correct[7] ,
+    \bist_error[7] ,
+    \bist_done[7] ,
+    \bist_sdo[7] ,
+    \bist_sdi[7] ,
+    \bist_load[7] ,
+    \bist_shift[7] ,
+    \bist_run[7] ,
+    \bist_en[7] ,
+    \bist_error_cnt6[3] ,
+    \bist_error_cnt6[2] ,
+    \bist_error_cnt6[1] ,
+    \bist_error_cnt6[0] ,
+    \bist_correct[6] ,
+    \bist_error[6] ,
+    \bist_done[6] ,
+    \bist_sdo[6] ,
+    \bist_sdi[6] ,
+    \bist_load[6] ,
+    \bist_shift[6] ,
+    \bist_run[6] ,
+    \bist_en[6] ,
+    \bist_error_cnt5[3] ,
+    \bist_error_cnt5[2] ,
+    \bist_error_cnt5[1] ,
+    \bist_error_cnt5[0] ,
+    \bist_correct[5] ,
+    \bist_error[5] ,
+    \bist_done[5] ,
+    \bist_sdo[5] ,
+    \bist_sdi[5] ,
+    \bist_load[5] ,
+    \bist_shift[5] ,
+    \bist_run[5] ,
+    \bist_en[5] ,
+    \bist_error_cnt4[3] ,
+    \bist_error_cnt4[2] ,
+    \bist_error_cnt4[1] ,
+    \bist_error_cnt4[0] ,
+    \bist_correct[4] ,
+    \bist_error[4] ,
+    \bist_done[4] ,
+    \bist_sdo[4] ,
+    \bist_sdi[4] ,
+    \bist_load[4] ,
+    \bist_shift[4] ,
+    \bist_run[4] ,
+    \bist_en[4] ,
+    \bist_error_cnt3[3] ,
+    \bist_error_cnt3[2] ,
+    \bist_error_cnt3[1] ,
+    \bist_error_cnt3[0] ,
+    \bist_correct[3] ,
+    \bist_error[3] ,
+    \bist_done[3] ,
+    \bist_sdo[3] ,
+    \bist_sdi[3] ,
+    \bist_load[3] ,
+    \bist_shift[3] ,
+    \bist_run[3] ,
+    \bist_en[3] ,
+    \bist_error_cnt2[3] ,
+    \bist_error_cnt2[2] ,
+    \bist_error_cnt2[1] ,
+    \bist_error_cnt2[0] ,
+    \bist_correct[2] ,
+    \bist_error[2] ,
+    \bist_done[2] ,
+    \bist_sdo[2] ,
+    \bist_sdi[2] ,
+    \bist_load[2] ,
+    \bist_shift[2] ,
+    \bist_run[2] ,
+    \bist_en[2] ,
+    \bist_error_cnt1[3] ,
+    \bist_error_cnt1[2] ,
+    \bist_error_cnt1[1] ,
+    \bist_error_cnt1[0] ,
+    \bist_correct[1] ,
+    \bist_error[1] ,
+    \bist_done[1] ,
+    \bist_sdo[1] ,
+    \bist_sdi[1] ,
+    \bist_load[1] ,
+    \bist_shift[1] ,
+    \bist_run[1] ,
+    \bist_en[1] ,
+    \bist_error_cnt0[3] ,
+    \bist_error_cnt0[2] ,
+    \bist_error_cnt0[1] ,
+    \bist_error_cnt0[0] ,
+    \bist_correct[0] ,
+    \bist_error[0] ,
+    \bist_done[0] ,
+    \bist_sdo[0] ,
+    \bist_sdi[0] ,
+    \bist_load[0] ,
+    \bist_shift[0] ,
+    \bist_run[0] ,
+    \bist_en[0] }),
+    .ch_data_out({\bist_error_cnt7_int[3] ,
+    \bist_error_cnt7_int[2] ,
+    \bist_error_cnt7_int[1] ,
+    \bist_error_cnt7_int[0] ,
+    \bist_correct_int[7] ,
+    \bist_error_int[7] ,
+    \bist_done_int[7] ,
+    \bist_sdo_int[7] ,
+    \bist_sdi_int[7] ,
+    \bist_load_int[7] ,
+    \bist_shift_int[7] ,
+    \bist_run_int[7] ,
+    \bist_en_int[7] ,
+    \bist_error_cnt6_int[3] ,
+    \bist_error_cnt6_int[2] ,
+    \bist_error_cnt6_int[1] ,
+    \bist_error_cnt6_int[0] ,
+    \bist_correct_int[6] ,
+    \bist_error_int[6] ,
+    \bist_done_int[6] ,
+    \bist_sdo_int[6] ,
+    \bist_sdi_int[6] ,
+    \bist_load_int[6] ,
+    \bist_shift_int[6] ,
+    \bist_run_int[6] ,
+    \bist_en_int[6] ,
+    \bist_error_cnt5_int[3] ,
+    \bist_error_cnt5_int[2] ,
+    \bist_error_cnt5_int[1] ,
+    \bist_error_cnt5_int[0] ,
+    \bist_correct_int[5] ,
+    \bist_error_int[5] ,
+    \bist_done_int[5] ,
+    \bist_sdo_int[5] ,
+    \bist_sdi_int[5] ,
+    \bist_load_int[5] ,
+    \bist_shift_int[5] ,
+    \bist_run_int[5] ,
+    \bist_en_int[5] ,
+    \bist_error_cnt4_int[3] ,
+    \bist_error_cnt4_int[2] ,
+    \bist_error_cnt4_int[1] ,
+    \bist_error_cnt4_int[0] ,
+    \bist_correct_int[4] ,
+    \bist_error_int[4] ,
+    \bist_done_int[4] ,
+    \bist_sdo_int[4] ,
+    \bist_sdi_int[4] ,
+    \bist_load_int[4] ,
+    \bist_shift_int[4] ,
+    \bist_run_int[4] ,
+    \bist_en_int[4] ,
+    \bist_error_cnt3_int[3] ,
+    \bist_error_cnt3_int[2] ,
+    \bist_error_cnt3_int[1] ,
+    \bist_error_cnt3_int[0] ,
+    \bist_correct_int[3] ,
+    \bist_error_int[3] ,
+    \bist_done_int[3] ,
+    \bist_sdo_int[3] ,
+    \bist_sdi_int[3] ,
+    \bist_load_int[3] ,
+    \bist_shift_int[3] ,
+    \bist_run_int[3] ,
+    \bist_en_int[3] ,
+    \bist_error_cnt2_int[3] ,
+    \bist_error_cnt2_int[2] ,
+    \bist_error_cnt2_int[1] ,
+    \bist_error_cnt2_int[0] ,
+    \bist_correct_int[2] ,
+    \bist_error_int[2] ,
+    \bist_done_int[2] ,
+    \bist_sdo_int[2] ,
+    \bist_sdi_int[2] ,
+    \bist_load_int[2] ,
+    \bist_shift_int[2] ,
+    \bist_run_int[2] ,
+    \bist_en_int[2] ,
+    \bist_error_cnt1_int[3] ,
+    \bist_error_cnt1_int[2] ,
+    \bist_error_cnt1_int[1] ,
+    \bist_error_cnt1_int[0] ,
+    \bist_correct_int[1] ,
+    \bist_error_int[1] ,
+    \bist_done_int[1] ,
+    \bist_sdo_int[1] ,
+    \bist_sdi_int[1] ,
+    \bist_load_int[1] ,
+    \bist_shift_int[1] ,
+    \bist_run_int[1] ,
+    \bist_en_int[1] ,
+    \bist_error_cnt0_int[3] ,
+    \bist_error_cnt0_int[2] ,
+    \bist_error_cnt0_int[1] ,
+    \bist_error_cnt0_int[0] ,
+    \bist_correct_int[0] ,
+    \bist_error_int[0] ,
+    \bist_done_int[0] ,
+    \bist_sdo_int[0] ,
+    \bist_sdi_int[0] ,
+    \bist_load_int[0] ,
+    \bist_shift_int[0] ,
+    \bist_run_int[0] ,
+    \bist_en_int[0] }),
     .m0_wbd_adr_i({\wbd_int_adr_i[31] ,
     \wbd_int_adr_i[30] ,
     \wbd_int_adr_i[29] ,
@@ -2851,13 +3190,13 @@ module user_project_wrapper (user_clock2,
     \wbd_mbist8_sel_o[0] }));
  mbist_top1 u_mbist1 (.bist_correct(\bist_correct[0] ),
     .bist_done(\bist_done[0] ),
-    .bist_en(\bist_en[0] ),
+    .bist_en(\bist_en_int[0] ),
     .bist_error(\bist_error[0] ),
-    .bist_load(\bist_load[0] ),
-    .bist_run(\bist_run[0] ),
-    .bist_sdi(\bist_sdi[0] ),
+    .bist_load(\bist_load_int[0] ),
+    .bist_run(\bist_run_int[0] ),
+    .bist_sdi(\bist_sdi_int[0] ),
     .bist_sdo(\bist_sdo[0] ),
-    .bist_shift(\bist_shift[0] ),
+    .bist_shift(\bist_shift_int[0] ),
     .mem_cen_a(mem1_cen_a),
     .mem_cen_b(mem1_cen_b),
     .mem_clk_a(mem1_clk_a),
@@ -2871,7 +3210,7 @@ module user_project_wrapper (user_clock2,
     .wb_cyc_i(wbd_mbist1_cyc_o),
     .wb_stb_i(wbd_mbist1_stb_o),
     .wb_we_i(wbd_mbist1_we_o),
-    .wbd_clk_int(wbd_clk_int),
+    .wbd_clk_int(wbd_clk_mbist1_int),
     .wbd_clk_mbist(wbd_clk_mbist1),
     .bist_error_cnt({\bist_error_cnt0[3] ,
     \bist_error_cnt0[2] ,
@@ -3046,13 +3385,13 @@ module user_project_wrapper (user_clock2,
     \wbd_mbist1_sel_o[0] }));
  mbist_top1 u_mbist2 (.bist_correct(\bist_correct[1] ),
     .bist_done(\bist_done[1] ),
-    .bist_en(\bist_en[1] ),
+    .bist_en(\bist_en_int[1] ),
     .bist_error(\bist_error[1] ),
-    .bist_load(\bist_load[1] ),
-    .bist_run(\bist_run[1] ),
-    .bist_sdi(\bist_sdi[1] ),
+    .bist_load(\bist_load_int[1] ),
+    .bist_run(\bist_run_int[1] ),
+    .bist_sdi(\bist_sdi_int[1] ),
     .bist_sdo(\bist_sdo[1] ),
-    .bist_shift(\bist_shift[1] ),
+    .bist_shift(\bist_shift_int[1] ),
     .mem_cen_a(mem2_cen_a),
     .mem_cen_b(mem2_cen_b),
     .mem_clk_a(mem2_clk_a),
@@ -3066,7 +3405,7 @@ module user_project_wrapper (user_clock2,
     .wb_cyc_i(wbd_mbist2_cyc_o),
     .wb_stb_i(wbd_mbist2_stb_o),
     .wb_we_i(wbd_mbist2_we_o),
-    .wbd_clk_int(wbd_clk_int),
+    .wbd_clk_int(wbd_clk_mbist2_int),
     .wbd_clk_mbist(wbd_clk_mbist2),
     .bist_error_cnt({\bist_error_cnt1[3] ,
     \bist_error_cnt1[2] ,
@@ -3241,13 +3580,13 @@ module user_project_wrapper (user_clock2,
     \wbd_mbist2_sel_o[0] }));
  mbist_top1 u_mbist3 (.bist_correct(\bist_correct[2] ),
     .bist_done(\bist_done[2] ),
-    .bist_en(\bist_en[2] ),
+    .bist_en(\bist_en_int[2] ),
     .bist_error(\bist_error[2] ),
-    .bist_load(\bist_load[2] ),
-    .bist_run(\bist_run[2] ),
-    .bist_sdi(\bist_sdi[2] ),
+    .bist_load(\bist_load_int[2] ),
+    .bist_run(\bist_run_int[2] ),
+    .bist_sdi(\bist_sdi_int[2] ),
     .bist_sdo(\bist_sdo[2] ),
-    .bist_shift(\bist_shift[2] ),
+    .bist_shift(\bist_shift_int[2] ),
     .mem_cen_a(mem3_cen_a),
     .mem_cen_b(mem3_cen_b),
     .mem_clk_a(mem3_clk_a),
@@ -3261,7 +3600,7 @@ module user_project_wrapper (user_clock2,
     .wb_cyc_i(wbd_mbist3_cyc_o),
     .wb_stb_i(wbd_mbist3_stb_o),
     .wb_we_i(wbd_mbist3_we_o),
-    .wbd_clk_int(wbd_clk_int),
+    .wbd_clk_int(wbd_clk_mbist3_int),
     .wbd_clk_mbist(wbd_clk_mbist3),
     .bist_error_cnt({\bist_error_cnt2[3] ,
     \bist_error_cnt2[2] ,
@@ -3436,13 +3775,13 @@ module user_project_wrapper (user_clock2,
     \wbd_mbist3_sel_o[0] }));
  mbist_top1 u_mbist4 (.bist_correct(\bist_correct[3] ),
     .bist_done(\bist_done[3] ),
-    .bist_en(\bist_en[3] ),
+    .bist_en(\bist_en_int[3] ),
     .bist_error(\bist_error[3] ),
-    .bist_load(\bist_load[3] ),
-    .bist_run(\bist_run[3] ),
-    .bist_sdi(\bist_sdi[3] ),
+    .bist_load(\bist_load_int[3] ),
+    .bist_run(\bist_run_int[3] ),
+    .bist_sdi(\bist_sdi_int[3] ),
     .bist_sdo(\bist_sdo[3] ),
-    .bist_shift(\bist_shift[3] ),
+    .bist_shift(\bist_shift_int[3] ),
     .mem_cen_a(mem4_cen_a),
     .mem_cen_b(mem4_cen_b),
     .mem_clk_a(mem4_clk_a),
@@ -3456,7 +3795,7 @@ module user_project_wrapper (user_clock2,
     .wb_cyc_i(wbd_mbist4_cyc_o),
     .wb_stb_i(wbd_mbist4_stb_o),
     .wb_we_i(wbd_mbist4_we_o),
-    .wbd_clk_int(wbd_clk_int),
+    .wbd_clk_int(wbd_clk_mbist4_int),
     .wbd_clk_mbist(wbd_clk_mbist4),
     .bist_error_cnt({\bist_error_cnt3[3] ,
     \bist_error_cnt3[2] ,
@@ -3631,13 +3970,13 @@ module user_project_wrapper (user_clock2,
     \wbd_mbist4_sel_o[0] }));
  mbist_top2 u_mbist5 (.bist_correct(\bist_correct[4] ),
     .bist_done(\bist_done[4] ),
-    .bist_en(\bist_en[4] ),
+    .bist_en(\bist_en_int[4] ),
     .bist_error(\bist_error[4] ),
-    .bist_load(\bist_load[4] ),
-    .bist_run(\bist_run[4] ),
-    .bist_sdi(\bist_sdi[4] ),
+    .bist_load(\bist_load_int[4] ),
+    .bist_run(\bist_run_int[4] ),
+    .bist_sdi(\bist_sdi_int[4] ),
     .bist_sdo(\bist_sdo[4] ),
-    .bist_shift(\bist_shift[4] ),
+    .bist_shift(\bist_shift_int[4] ),
     .mem_cen_a(mem5_cen_a),
     .mem_cen_b(mem5_cen_b),
     .mem_clk_a(mem5_clk_a),
@@ -3651,7 +3990,7 @@ module user_project_wrapper (user_clock2,
     .wb_cyc_i(wbd_mbist5_cyc_o),
     .wb_stb_i(wbd_mbist5_stb_o),
     .wb_we_i(wbd_mbist5_we_o),
-    .wbd_clk_int(wbd_clk_int),
+    .wbd_clk_int(wbd_clk_mbist5_int),
     .wbd_clk_mbist(wbd_clk_mbist5),
     .bist_error_cnt({\bist_error_cnt4[3] ,
     \bist_error_cnt4[2] ,
@@ -3823,13 +4162,13 @@ module user_project_wrapper (user_clock2,
     \wbd_mbist5_sel_o[0] }));
  mbist_top2 u_mbist6 (.bist_correct(\bist_correct[5] ),
     .bist_done(\bist_done[5] ),
-    .bist_en(\bist_en[5] ),
+    .bist_en(\bist_en_int[5] ),
     .bist_error(\bist_error[5] ),
-    .bist_load(\bist_load[5] ),
-    .bist_run(\bist_run[5] ),
-    .bist_sdi(\bist_sdi[5] ),
+    .bist_load(\bist_load_int[5] ),
+    .bist_run(\bist_run_int[5] ),
+    .bist_sdi(\bist_sdi_int[5] ),
     .bist_sdo(\bist_sdo[5] ),
-    .bist_shift(\bist_shift[5] ),
+    .bist_shift(\bist_shift_int[5] ),
     .mem_cen_a(mem6_cen_a),
     .mem_cen_b(mem6_cen_b),
     .mem_clk_a(mem6_clk_a),
@@ -3843,7 +4182,7 @@ module user_project_wrapper (user_clock2,
     .wb_cyc_i(wbd_mbist6_cyc_o),
     .wb_stb_i(wbd_mbist6_stb_o),
     .wb_we_i(wbd_mbist6_we_o),
-    .wbd_clk_int(wbd_clk_int),
+    .wbd_clk_int(wbd_clk_mbist6_int),
     .wbd_clk_mbist(wbd_clk_mbist6),
     .bist_error_cnt({\bist_error_cnt5[3] ,
     \bist_error_cnt5[2] ,
@@ -4015,13 +4354,13 @@ module user_project_wrapper (user_clock2,
     \wbd_mbist6_sel_o[0] }));
  mbist_top2 u_mbist7 (.bist_correct(\bist_correct[6] ),
     .bist_done(\bist_done[6] ),
-    .bist_en(\bist_en[6] ),
+    .bist_en(\bist_en_int[6] ),
     .bist_error(\bist_error[6] ),
-    .bist_load(\bist_load[6] ),
-    .bist_run(\bist_run[6] ),
-    .bist_sdi(\bist_sdi[6] ),
+    .bist_load(\bist_load_int[6] ),
+    .bist_run(\bist_run_int[6] ),
+    .bist_sdi(\bist_sdi_int[6] ),
     .bist_sdo(\bist_sdo[6] ),
-    .bist_shift(\bist_shift[6] ),
+    .bist_shift(\bist_shift_int[6] ),
     .mem_cen_a(mem7_cen_a),
     .mem_cen_b(mem7_cen_b),
     .mem_clk_a(mem7_clk_a),
@@ -4035,7 +4374,7 @@ module user_project_wrapper (user_clock2,
     .wb_cyc_i(wbd_mbist7_cyc_o),
     .wb_stb_i(wbd_mbist7_stb_o),
     .wb_we_i(wbd_mbist7_we_o),
-    .wbd_clk_int(wbd_clk_int),
+    .wbd_clk_int(wbd_clk_mbist7_int),
     .wbd_clk_mbist(wbd_clk_mbist7),
     .bist_error_cnt({\bist_error_cnt6[3] ,
     \bist_error_cnt6[2] ,
@@ -4207,13 +4546,13 @@ module user_project_wrapper (user_clock2,
     \wbd_mbist7_sel_o[0] }));
  mbist_top2 u_mbist8 (.bist_correct(\bist_correct[7] ),
     .bist_done(\bist_done[7] ),
-    .bist_en(\bist_en[7] ),
+    .bist_en(\bist_en_int[7] ),
     .bist_error(\bist_error[7] ),
-    .bist_load(\bist_load[7] ),
-    .bist_run(\bist_run[7] ),
-    .bist_sdi(\bist_sdi[7] ),
+    .bist_load(\bist_load_int[7] ),
+    .bist_run(\bist_run_int[7] ),
+    .bist_sdi(\bist_sdi_int[7] ),
     .bist_sdo(\bist_sdo[7] ),
-    .bist_shift(\bist_shift[7] ),
+    .bist_shift(\bist_shift_int[7] ),
     .mem_cen_a(mem8_cen_a),
     .mem_cen_b(mem8_cen_b),
     .mem_clk_a(mem8_clk_a),
@@ -4227,7 +4566,7 @@ module user_project_wrapper (user_clock2,
     .wb_cyc_i(wbd_mbist8_cyc_o),
     .wb_stb_i(wbd_mbist8_stb_o),
     .wb_we_i(wbd_mbist8_we_o),
-    .wbd_clk_int(wbd_clk_int),
+    .wbd_clk_int(wbd_clk_mbist8_int),
     .wbd_clk_mbist(wbd_clk_mbist8),
     .bist_error_cnt({\bist_error_cnt7[3] ,
     \bist_error_cnt7[2] ,
