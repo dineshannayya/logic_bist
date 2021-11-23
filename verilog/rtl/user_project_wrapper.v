@@ -49,6 +49,8 @@
 ////          Following  are integrated                           ////
 ////          4x SRAM 2KB, 4x SRAM 1KB, 8 MBIST ,                 ////
 ////          1 Wishbone Interconnect, 1 Global register          ////
+////    0.4 - 23 Nov 2021, Dinesh A                               ////
+////          Three Software Register added for signature at glbl ////
 //////////////////////////////////////////////////////////////////////
 `default_nettype none
 

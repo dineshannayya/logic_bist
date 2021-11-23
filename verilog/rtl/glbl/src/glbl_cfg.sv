@@ -133,6 +133,9 @@ logic [31:0]    cfg_bist_ctrl_2;    // BIST control
 logic [31:0]    cfg_bist_status_1;  // BIST Status
 logic [31:0]    cfg_bist_status_2;  // BIST Status
 logic [31:0]    serail_dout;      // BIST Serial Signature
+logic [31:0]    reg_9;            // Software_Reg 9
+logic [31:0]    reg_10;           // Software Reg 10
+logic [31:0]    reg_11;           // Software Reg 11
 
 logic [31:0]    reg_out;
 
@@ -179,7 +182,10 @@ wire   sw_wr_en_6 = sw_wr_en & (sw_addr == 4'h6);
 wire   sw_rd_en_6 = sw_rd_en & (sw_addr == 4'h6);
 wire   sw_wr_en_7 = sw_wr_en & (sw_addr == 4'h7);
 wire   sw_rd_en_7 = sw_rd_en & (sw_addr == 4'h7);
-
+wire   sw_wr_en_8 = sw_wr_en & (sw_addr == 4'h8);
+wire   sw_wr_en_9 = sw_wr_en & (sw_addr == 4'h9);
+wire   sw_wr_en_10 = sw_wr_en & (sw_addr == 4'hA);
+wire   sw_wr_en_11 = sw_wr_en & (sw_addr == 4'hB);
 
 logic wb_req;
 logic wb_req_d;
@@ -235,6 +241,9 @@ begin
     4'b0110 :   reg_out [31:0] = 'h0; // Serial Write Data
     4'b0111 :   reg_out [31:0] = serail_dout; // This is with  Shift
     4'b1000 :   reg_out [31:0] = serail_dout; // This is previous Shift 
+    4'b1001 :   reg_out [31:0] = reg_9; // Software Reg1
+    4'b1010 :   reg_out [31:0] = reg_10; // Software Reg2
+    4'b1011 :   reg_out [31:0] = reg_11; // Software Reg3
     default : reg_out [31:0] = 'h0;
   endcase
 end
@@ -504,5 +513,49 @@ ser_inf_32b u_ser_intf
     );
 
 
+//-----------------------------------------
+// Software Reg-1 : ASCI Representation of BIST = 32'h6673_8354
+// ----------------------------------------
+gen_32b_reg  #(32'h6673_8354) u_reg_9	(
+	      //List of Inputs
+	      .reset_n    (reset_n       ),
+	      .clk        (mclk          ),
+	      .cs         (sw_wr_en_9    ),
+	      .we         (wr_be         ),		 
+	      .data_in    (sw_reg_wdata  ),
+	      
+	      //List of Outs
+	      .data_out   (reg_9       )
+	      );
+
+//-----------------------------------------
+// Software Reg-2, Release date: <DAY><MONTH><YEAR>
+// ----------------------------------------
+gen_32b_reg  #(32'h2311_2021) u_reg_101	(
+	      //List of Inputs
+	      .reset_n    (reset_n       ),
+	      .clk        (mclk          ),
+	      .cs         (sw_wr_en_10   ),
+	      .we         (wr_be         ),		 
+	      .data_in    (sw_reg_wdata  ),
+	      
+	      //List of Outs
+	      .data_out   (reg_10       )
+	      );
+
+//-----------------------------------------
+// Software Reg-3: Poject Revison 0.4 = 0000400
+// ----------------------------------------
+gen_32b_reg  #(32'h0000_4000) u_reg_11	(
+	      //List of Inputs
+	      .reset_n    (reset_n       ),
+	      .clk        (mclk          ),
+	      .cs         (sw_wr_en_11   ),
+	      .we         (wr_be         ),		 
+	      .data_in    (sw_reg_wdata  ),
+	      
+	      //List of Outs
+	      .data_out   (reg_11       )
+	      );
 
 endmodule
