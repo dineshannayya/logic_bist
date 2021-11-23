@@ -169,6 +169,10 @@ assign bist_rd = (cmd_phase && op_read);
 assign compare    = (cmp_phase && op_read);
 assign bist_wdata = (op_invert) ? ~pat_data : pat_data;
 
+// Clock Tree branching to avoid clock latency towards SRAM path
+wire wb_clk_b1,wb_clk_b2;
+sky130_fd_sc_hd__clkbuf_8 u_cts_wb_clk_b1 (.A (wb_clk_i), . X(wb_clk_b1));
+sky130_fd_sc_hd__clkbuf_8 u_cts_wb_clk_b2 (.A (wb_clk_i), . X(wb_clk_b2));
 
 // wb_host clock skew control
 clk_skew_adjust u_skew_mbist
@@ -184,7 +188,7 @@ clk_skew_adjust u_skew_mbist
 
 reset_sync   u_reset_sync (
 	      .scan_mode  (1'b0      ),
-              .dclk       (wb_clk_i  ), // Destination clock domain
+              .dclk       (wb_clk_b1 ), // Destination clock domain
 	      .arst_n     (rst_n     ), // active low async reset
               .srst_n     (srst_n    )
           );
@@ -214,7 +218,7 @@ mbist_fsm
 	            .bist_done          (bist_done          ),
 
 
-	            .clk                (wb_clk_i           ),
+	            .clk                (wb_clk_b1          ),
 	            .rst_n              (srst_n             ),
 	            .bist_run           (bist_run           ),
 	            .last_op            (last_op            ),
@@ -242,7 +246,7 @@ mbist_addr_gen
                     .bist_addr          (bist_addr          ),   
                     .sdo                (bist_addr_sdo      ),         
 
-                    .clk                (wb_clk_i           ),         
+                    .clk                (wb_clk_b1          ),         
                     .rst_n              (srst_n             ),       
                     .run                (run_addr           ),         
                     .updown             (op_updown          ),      
@@ -270,7 +274,7 @@ mbist_sti_sel
 	            .last_stimulus      (last_sti           ),  
                     .stimulus           (stimulus           ),
 
-	            .clk                (wb_clk_i           ),  
+	            .clk                (wb_clk_b1          ),  
 	            .rst_n              (srst_n             ),  
 	            .scan_shift         (bist_shift         ),  
 	            .sdi                (bist_addr_sdo      ),  
@@ -301,7 +305,7 @@ mbist_op_sel
 	            .sdo                (bist_op_sdo        ),
 	            .last_op            (last_op            ),
 
-	            .clk                (wb_clk_i           ),
+	            .clk                (wb_clk_b1          ),
 	            .rst_n              (srst_n             ),
 	            .scan_shift         (bist_shift         ),
 	            .sdi                (bist_sti_sdo       ),
@@ -327,7 +331,7 @@ mbist_pat_sel
                     .pat_last           (last_pat           ),
                     .pat_data           (pat_data           ),
                     .sdo                (bist_pat_sdo       ),
-                    .clk                (wb_clk_i           ),
+                    .clk                (wb_clk_b1          ),
                     .rst_n              (srst_n             ),
                     .run                (run_pat            ),
                     .scan_shift         (bist_shift         ),
@@ -354,7 +358,7 @@ mbist_data_cmp
 		    .correct            (                   ), // same signal available at bist mux
 		    .error_addr         (bist_error_addr    ),
 		    .error_cnt          (bist_error_cnt     ),
-                    .clk                (wb_clk_i           ),
+                    .clk                (wb_clk_b1          ),
                     .rst_n              (srst_n             ),
 		    .addr_inc_phase     (run_addr           ),
                     .compare            (compare            ), 
@@ -372,7 +376,7 @@ mbist_mem_wrapper #(
           ) u_mem_wrapper(
 	            .rst_n           (srst_n           ),
                // WB I/F
-                    .wb_clk_i        (wb_clk_i         ),  // System clock
+                    .wb_clk_i        (wb_clk_b2        ),  // System clock
                     .wb_cyc_i        (wb_cyc_i         ),  // strobe/request
                     .wb_stb_i        (wb_stb_i         ),  // strobe/request
                     .wb_adr_i        (wb_adr_i         ),  // address
@@ -415,7 +419,7 @@ mbist_mux
                     .bist_en              (bist_en       ),
                     .bist_addr            (bist_addr     ),
                     .bist_wdata           (bist_wdata    ),
-                    .bist_clk             (wb_clk_i      ),
+                    .bist_clk             (wb_clk_b2     ),
                     .bist_wr              (bist_wr       ),
                     .bist_rd              (bist_rd       ),
                     .bist_error           (bist_error_correct),

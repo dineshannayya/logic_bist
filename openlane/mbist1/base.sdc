@@ -104,6 +104,13 @@ set_output_delay -min -0.5 -clock [get_clocks {bist_mem_clk_b}] -add_delay [get_
 set_output_delay -min -0.5 -clock [get_clocks {bist_mem_clk_b}] -add_delay [get_ports {mem_web_b}]
 set_output_delay -min -0.5 -clock [get_clocks {bist_mem_clk_b}] -add_delay [get_ports {mem_addr_b[*]}]
 
+
+# Set max delay for clock skew
+
+set_max_delay   3.5 -from [get_ports {wbd_clk_int}]
+set_max_delay   2 -to   [get_ports {wbd_clk_mbist}]
+set_max_delay 3.5 -from wbd_clk_int -to wbd_clk_mbist
+
 ###############################################################################
 # Environment
 ###############################################################################

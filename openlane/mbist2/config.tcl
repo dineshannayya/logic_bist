@@ -26,7 +26,7 @@ set ::env(DESIGN_IS_CORE) "0"
 
 # Timing configuration
 set ::env(CLOCK_PERIOD) "8"
-set ::env(CLOCK_PORT) "wb_clk_i u_mem_sel.u_cts_mem_clk_a/X u_mem_sel.u_cts_mem_clk_a/X"
+set ::env(CLOCK_PORT) "u_cts_wb_clk_b1/X  u_cts_wb_clk_b2/X u_mem_sel.u_cts_mem_clk_a/X u_mem_sel.u_cts_mem_clk_a/X"
 
 set ::env(SYNTH_MAX_FANOUT) 4
 
@@ -107,6 +107,6 @@ set ::env(DIODE_INSERTION_STRATEGY) 4
 
 
 set ::env(QUIT_ON_TIMING_VIOLATIONS) "0"
-set ::env(QUIT_ON_MAGIC_DRC) "0"
+set ::env(QUIT_ON_MAGIC_DRC) "1"
 set ::env(QUIT_ON_LVS_ERROR) "0"
 set ::env(QUIT_ON_SLEW_VIOLATIONS) "0"

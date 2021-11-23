@@ -8,6 +8,7 @@ current_design wb_host
 ###############################################################################
 create_clock -name wbm_clk_i -period 10.0000 [get_ports {wbm_clk_i}]
 create_clock -name mem_clk -period 10.0000 [get_ports {mem_clk}]
+
 set_clock_uncertainty -rise_from [get_clocks {wbm_clk_i}] -rise_to [get_clocks {wbm_clk_i}]  -hold 0.1500
 set_clock_uncertainty -rise_from [get_clocks {wbm_clk_i}] -rise_to [get_clocks {wbm_clk_i}]  -setup 0.2000
 set_clock_uncertainty -rise_from [get_clocks {wbm_clk_i}] -fall_to [get_clocks {wbm_clk_i}]  -hold 0.1500
@@ -27,151 +28,44 @@ set_clock_uncertainty -fall_from [get_clocks {mem_clk}] -fall_to [get_clocks {me
 set_clock_groups -name async_clock -asynchronous \
  -group [get_clocks {mem_clk}]\
  -group [get_clocks {wbm_clk_i}] -comment {Async Clock group}
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[0]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[10]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[11]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[12]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[13]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[14]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[15]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[16]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[17]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[18]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[19]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[1]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[20]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[21]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[22]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[23]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[24]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[25]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[26]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[27]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[28]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[29]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[2]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[30]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[31]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[3]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[4]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[5]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[6]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[7]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[8]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_adr_i[9]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_cyc_i}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[0]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[10]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[11]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[12]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[13]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[14]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[15]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[16]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[17]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[18]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[19]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[1]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[20]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[21]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[22]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[23]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[24]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[25]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[26]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[27]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[28]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[29]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[2]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[30]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[31]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[3]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[4]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[5]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[6]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[7]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[8]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_i[9]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_rst_i}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_sel_i[0]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_sel_i[1]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_sel_i[2]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_sel_i[3]}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_stb_i}]
-set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_we_i}]
 
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[0]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[10]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[11]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[12]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[13]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[14]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[15]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[16]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[17]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[18]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[19]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[1]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[20]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[21]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[22]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[23]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[24]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[25]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[26]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[27]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[28]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[29]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[2]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[30]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[31]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[3]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[4]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[5]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[6]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[7]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[8]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_adr_i[9]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_cyc_i}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[0]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[10]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[11]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[12]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[13]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[14]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[15]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[16]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[17]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[18]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[19]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[1]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[20]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[21]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[22]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[23]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[24]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[25]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[26]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[27]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[28]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[29]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[2]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[30]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[31]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[3]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[4]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[5]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[6]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[7]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[8]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_dat_i[9]}]
+set_case_analysis 0 [get_ports {cfg_cska_wh[0]}]
+set_case_analysis 0 [get_ports {cfg_cska_wh[1]}]
+set_case_analysis 0 [get_ports {cfg_cska_wh[2]}]
+set_case_analysis 0 [get_ports {cfg_cska_wh[3]}]
+
+#disable clock gating check at static clock select pins
+set_false_path -through [get_pins u_wbs_clk_sel.u_mux/S]
+
+#Static Signal Clock Skew adjustment
+set_false_path -from [get_ports {cfg_cska_wh[0]}]
+set_false_path -from [get_ports {cfg_cska_wh[1]}]
+set_false_path -from [get_ports {cfg_cska_wh[2]}]
+set_false_path -from [get_ports {cfg_cska_wh[3]}]
+set_max_delay   3.5 -from [get_ports {wbd_clk_int}]
+set_max_delay   2 -to   [get_ports {wbd_clk_wh}]
+set_max_delay 3.5 -from wbd_clk_int -to wbd_clk_mbist
+
+#Strobe is registered inside the wb_host before generating chip select
+# So wbm_adr_i  wbm_we_i wbm_sel_i wbm_dat_i are having 2 cycle setup
+set_multicycle_path -setup  -from [get_ports {wbm_adr_i[*]}] 2
+set_multicycle_path -setup  -from [get_ports {wbm_cyc_i}]  2
+set_multicycle_path -setup  -from [get_ports {wbm_dat_i[*]}] 2
+set_multicycle_path -setup  -from [get_ports {wbm_sel_i[*]}] 2
+set_multicycle_path -setup  -from [get_ports {wbm_we_i}] 2
+
+set_multicycle_path -hold  -from [get_ports {wbm_adr_i[*]}] 2
+set_multicycle_path -hold  -from [get_ports {wbm_cyc_i}]  2
+set_multicycle_path -hold  -from [get_ports {wbm_dat_i[*]}] 2
+set_multicycle_path -hold  -from [get_ports {wbm_sel_i[*]}] 2
+set_multicycle_path -hold  -from [get_ports {wbm_we_i}] 2
+
+#
+set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_rst_i}]
+set_input_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_stb_i}]
+
 set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_rst_i}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_sel_i[0]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_sel_i[1]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_sel_i[2]}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_sel_i[3]}]
 set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_stb_i}]
-set_input_delay 1.0000 -clock [get_clocks {wbm_clk_i}] -min -add_delay [get_ports {wbm_we_i}]
 
 set_output_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_ack_o}]
 set_output_delay 5.0000 -clock [get_clocks {wbm_clk_i}] -max -add_delay [get_ports {wbm_dat_o[0]}]
@@ -352,6 +246,7 @@ set_output_delay -min -1.0 -clock [get_clocks {wbm_clk_i}] -add_delay  [get_port
 set_output_delay -min -1.0 -clock [get_clocks {wbm_clk_i}] -add_delay  [get_ports {func_mask_b[2]}]
 set_output_delay -min -1.0 -clock [get_clocks {wbm_clk_i}] -add_delay  [get_ports {func_mask_b[1]}]
 set_output_delay -min -1.0 -clock [get_clocks {wbm_clk_i}] -add_delay  [get_ports {func_mask_b[0]}]
+
 ###############################################################################
 # Environment
 ###############################################################################
@@ -780,3 +675,5 @@ set_driving_cell -lib_cell sky130_fd_sc_hd__inv_8 -pin {Y} -input_transition_ris
 ###############################################################################
 # Design Rules
 ###############################################################################
+
+

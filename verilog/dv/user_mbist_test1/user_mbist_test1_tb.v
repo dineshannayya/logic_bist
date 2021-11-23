@@ -471,7 +471,31 @@ user_project_wrapper u_top(
 	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VGND =VSS;
 	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VNB = VSS;
 
+	force u_top.u_wb_host.u_delay1_stb0.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_delay1_stb0.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_delay1_stb0.VGND =VSS;
+	force u_top.u_wb_host.u_delay1_stb0.VNB = VSS;
+	
+	force u_top.u_wb_host.u_delay2_stb1.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_delay2_stb1.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_delay2_stb1.VGND =VSS;
+	force u_top.u_wb_host.u_delay2_stb1.VNB = VSS;
+
+	force u_top.u_wb_host.u_delay2_stb2.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_delay2_stb2.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_delay2_stb2.VGND =VSS;
+	force u_top.u_wb_host.u_delay2_stb2.VNB = VSS;
 	// MBIST1
+	force u_top.u_mbist1.u_cts_wb_clk_b1.VPWR =USER_VDD1V8;
+	force u_top.u_mbist1.u_cts_wb_clk_b1.VPB  =USER_VDD1V8;
+	force u_top.u_mbist1.u_cts_wb_clk_b1.VGND =VSS;
+	force u_top.u_mbist1.u_cts_wb_clk_b1.VNB = VSS;
+
+	force u_top.u_mbist1.u_cts_wb_clk_b2.VPWR =USER_VDD1V8;
+	force u_top.u_mbist1.u_cts_wb_clk_b2.VPB  =USER_VDD1V8;
+	force u_top.u_mbist1.u_cts_wb_clk_b2.VGND =VSS;
+	force u_top.u_mbist1.u_cts_wb_clk_b2.VNB = VSS;
+
 	force u_top.u_mbist1.u_mem_sel.u_mem_clk_a_sel.u_mux.VPWR =USER_VDD1V8;
 	force u_top.u_mbist1.u_mem_sel.u_mem_clk_a_sel.u_mux.VPB  =USER_VDD1V8;
 	force u_top.u_mbist1.u_mem_sel.u_mem_clk_a_sel.u_mux.VGND =VSS;
@@ -493,6 +517,16 @@ user_project_wrapper u_top(
 	force u_top.u_mbist1.u_mem_sel.u_cts_mem_clk_b.VNB = VSS;
 
 	// MBIST2
+	force u_top.u_mbist2.u_cts_wb_clk_b1.VPWR =USER_VDD1V8;
+	force u_top.u_mbist2.u_cts_wb_clk_b1.VPB  =USER_VDD1V8;
+	force u_top.u_mbist2.u_cts_wb_clk_b1.VGND =VSS;
+	force u_top.u_mbist2.u_cts_wb_clk_b1.VNB = VSS;
+
+	force u_top.u_mbist2.u_cts_wb_clk_b2.VPWR =USER_VDD1V8;
+	force u_top.u_mbist2.u_cts_wb_clk_b2.VPB  =USER_VDD1V8;
+	force u_top.u_mbist2.u_cts_wb_clk_b2.VGND =VSS;
+	force u_top.u_mbist2.u_cts_wb_clk_b2.VNB = VSS;
+
 	force u_top.u_mbist2.u_mem_sel.u_mem_clk_a_sel.u_mux.VPWR =USER_VDD1V8;
 	force u_top.u_mbist2.u_mem_sel.u_mem_clk_a_sel.u_mux.VPB  =USER_VDD1V8;
 	force u_top.u_mbist2.u_mem_sel.u_mem_clk_a_sel.u_mux.VGND =VSS;
@@ -514,6 +548,16 @@ user_project_wrapper u_top(
 	force u_top.u_mbist2.u_mem_sel.u_cts_mem_clk_b.VNB = VSS;
 
 	// MBIST3
+	force u_top.u_mbist3.u_cts_wb_clk_b1.VPWR =USER_VDD1V8;
+	force u_top.u_mbist3.u_cts_wb_clk_b1.VPB  =USER_VDD1V8;
+	force u_top.u_mbist3.u_cts_wb_clk_b1.VGND =VSS;
+	force u_top.u_mbist3.u_cts_wb_clk_b1.VNB = VSS;
+
+	force u_top.u_mbist3.u_cts_wb_clk_b2.VPWR =USER_VDD1V8;
+	force u_top.u_mbist3.u_cts_wb_clk_b2.VPB  =USER_VDD1V8;
+	force u_top.u_mbist3.u_cts_wb_clk_b2.VGND =VSS;
+	force u_top.u_mbist3.u_cts_wb_clk_b2.VNB = VSS;
+
 	force u_top.u_mbist3.u_mem_sel.u_mem_clk_a_sel.u_mux.VPWR =USER_VDD1V8;
 	force u_top.u_mbist3.u_mem_sel.u_mem_clk_a_sel.u_mux.VPB  =USER_VDD1V8;
 	force u_top.u_mbist3.u_mem_sel.u_mem_clk_a_sel.u_mux.VGND =VSS;
@@ -535,6 +579,16 @@ user_project_wrapper u_top(
 	force u_top.u_mbist3.u_mem_sel.u_cts_mem_clk_b.VNB = VSS;
 
 	// MBIST4
+	force u_top.u_mbist4.u_cts_wb_clk_b1.VPWR =USER_VDD1V8;
+	force u_top.u_mbist4.u_cts_wb_clk_b1.VPB  =USER_VDD1V8;
+	force u_top.u_mbist4.u_cts_wb_clk_b1.VGND =VSS;
+	force u_top.u_mbist4.u_cts_wb_clk_b1.VNB = VSS;
+
+	force u_top.u_mbist4.u_cts_wb_clk_b2.VPWR =USER_VDD1V8;
+	force u_top.u_mbist4.u_cts_wb_clk_b2.VPB  =USER_VDD1V8;
+	force u_top.u_mbist4.u_cts_wb_clk_b2.VGND =VSS;
+	force u_top.u_mbist4.u_cts_wb_clk_b2.VNB = VSS;
+
 	force u_top.u_mbist4.u_mem_sel.u_mem_clk_a_sel.u_mux.VPWR =USER_VDD1V8;
 	force u_top.u_mbist4.u_mem_sel.u_mem_clk_a_sel.u_mux.VPB  =USER_VDD1V8;
 	force u_top.u_mbist4.u_mem_sel.u_mem_clk_a_sel.u_mux.VGND =VSS;
@@ -556,6 +610,16 @@ user_project_wrapper u_top(
 	force u_top.u_mbist4.u_mem_sel.u_cts_mem_clk_b.VNB = VSS;
 
 	// MBIST5
+	force u_top.u_mbist5.u_cts_wb_clk_b1.VPWR =USER_VDD1V8;
+	force u_top.u_mbist5.u_cts_wb_clk_b1.VPB  =USER_VDD1V8;
+	force u_top.u_mbist5.u_cts_wb_clk_b1.VGND =VSS;
+	force u_top.u_mbist5.u_cts_wb_clk_b1.VNB = VSS;
+
+	force u_top.u_mbist5.u_cts_wb_clk_b2.VPWR =USER_VDD1V8;
+	force u_top.u_mbist5.u_cts_wb_clk_b2.VPB  =USER_VDD1V8;
+	force u_top.u_mbist5.u_cts_wb_clk_b2.VGND =VSS;
+	force u_top.u_mbist5.u_cts_wb_clk_b2.VNB = VSS;
+
 	force u_top.u_mbist5.u_mem_sel.u_mem_clk_a_sel.u_mux.VPWR =USER_VDD1V8;
 	force u_top.u_mbist5.u_mem_sel.u_mem_clk_a_sel.u_mux.VPB  =USER_VDD1V8;
 	force u_top.u_mbist5.u_mem_sel.u_mem_clk_a_sel.u_mux.VGND =VSS;
@@ -577,6 +641,16 @@ user_project_wrapper u_top(
 	force u_top.u_mbist5.u_mem_sel.u_cts_mem_clk_b.VNB = VSS;
 
 	// MBIST6
+	force u_top.u_mbist6.u_cts_wb_clk_b1.VPWR =USER_VDD1V8;
+	force u_top.u_mbist6.u_cts_wb_clk_b1.VPB  =USER_VDD1V8;
+	force u_top.u_mbist6.u_cts_wb_clk_b1.VGND =VSS;
+	force u_top.u_mbist6.u_cts_wb_clk_b1.VNB = VSS;
+
+	force u_top.u_mbist6.u_cts_wb_clk_b2.VPWR =USER_VDD1V8;
+	force u_top.u_mbist6.u_cts_wb_clk_b2.VPB  =USER_VDD1V8;
+	force u_top.u_mbist6.u_cts_wb_clk_b2.VGND =VSS;
+	force u_top.u_mbist6.u_cts_wb_clk_b2.VNB = VSS;
+
 	force u_top.u_mbist6.u_mem_sel.u_mem_clk_a_sel.u_mux.VPWR =USER_VDD1V8;
 	force u_top.u_mbist6.u_mem_sel.u_mem_clk_a_sel.u_mux.VPB  =USER_VDD1V8;
 	force u_top.u_mbist6.u_mem_sel.u_mem_clk_a_sel.u_mux.VGND =VSS;
@@ -598,6 +672,16 @@ user_project_wrapper u_top(
 	force u_top.u_mbist6.u_mem_sel.u_cts_mem_clk_b.VNB = VSS;
 
 	// MBIST7
+	force u_top.u_mbist7.u_cts_wb_clk_b1.VPWR =USER_VDD1V8;
+	force u_top.u_mbist7.u_cts_wb_clk_b1.VPB  =USER_VDD1V8;
+	force u_top.u_mbist7.u_cts_wb_clk_b1.VGND =VSS;
+	force u_top.u_mbist7.u_cts_wb_clk_b1.VNB = VSS;
+
+	force u_top.u_mbist7.u_cts_wb_clk_b2.VPWR =USER_VDD1V8;
+	force u_top.u_mbist7.u_cts_wb_clk_b2.VPB  =USER_VDD1V8;
+	force u_top.u_mbist7.u_cts_wb_clk_b2.VGND =VSS;
+	force u_top.u_mbist7.u_cts_wb_clk_b2.VNB = VSS;
+
 	force u_top.u_mbist7.u_mem_sel.u_mem_clk_a_sel.u_mux.VPWR =USER_VDD1V8;
 	force u_top.u_mbist7.u_mem_sel.u_mem_clk_a_sel.u_mux.VPB  =USER_VDD1V8;
 	force u_top.u_mbist7.u_mem_sel.u_mem_clk_a_sel.u_mux.VGND =VSS;
@@ -619,6 +703,16 @@ user_project_wrapper u_top(
 	force u_top.u_mbist7.u_mem_sel.u_cts_mem_clk_b.VNB = VSS;
 
 	// MBIST8
+	force u_top.u_mbist8.u_cts_wb_clk_b1.VPWR =USER_VDD1V8;
+	force u_top.u_mbist8.u_cts_wb_clk_b1.VPB  =USER_VDD1V8;
+	force u_top.u_mbist8.u_cts_wb_clk_b1.VGND =VSS;
+	force u_top.u_mbist8.u_cts_wb_clk_b1.VNB = VSS;
+
+	force u_top.u_mbist8.u_cts_wb_clk_b2.VPWR =USER_VDD1V8;
+	force u_top.u_mbist8.u_cts_wb_clk_b2.VPB  =USER_VDD1V8;
+	force u_top.u_mbist8.u_cts_wb_clk_b2.VGND =VSS;
+	force u_top.u_mbist8.u_cts_wb_clk_b2.VNB = VSS;
+
 	force u_top.u_mbist8.u_mem_sel.u_mem_clk_a_sel.u_mux.VPWR =USER_VDD1V8;
 	force u_top.u_mbist8.u_mem_sel.u_mem_clk_a_sel.u_mux.VPB  =USER_VDD1V8;
 	force u_top.u_mbist8.u_mem_sel.u_mem_clk_a_sel.u_mux.VGND =VSS;
