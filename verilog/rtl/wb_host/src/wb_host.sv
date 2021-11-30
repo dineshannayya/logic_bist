@@ -66,7 +66,9 @@
 ////                                                              ////
 //////////////////////////////////////////////////////////////////////
 
-module wb_host (
+module wb_host 
+   #(parameter SCW = 8   // SCAN CHAIN WIDTH
+     ) (
 
 `ifdef USE_POWER_PINS
     inout vccd1,	// User area 1 1.8V supply
@@ -117,7 +119,15 @@ module wb_host (
 
 	output   logic  [37:0]      io_out,
 	output   logic  [37:0]      io_oeb,
-        output   logic  [127:0]     la_data_out
+        output   logic  [127:0]     la_data_out,
+
+	// Scan Control Signal
+	output logic           scan_clk,
+	output logic           scan_rst_n,
+	output logic           scan_mode,
+	output logic           scan_en,
+	output logic [SCW-1:0] scan_in,
+	input  logic [SCW-1:0] scan_out
 
     );
 
@@ -132,13 +142,19 @@ logic [31:0]        wbm_dat_int; // data input
 logic               wbm_ack_int; // acknowlegement
 logic               wbm_err_int; // error
 
-logic               reg_sel    ;
+logic               wb_reg_sel    ; // Local Register Select
+logic [31:0]        wb_reg_rdata  ;
+logic [31:0]        wb_reg_out    ;
+logic               wb_reg_ack    ;
+
+logic               lbist_reg_sel    ;   // LBIST Register Select
+logic [31:0]        lbist_reg_rdata  ;
+logic               lbist_reg_ack    ;
+logic               lbist_reg_err    ;
+
 logic [1:0]         sw_addr    ;
 logic               sw_rd_en   ;
 logic               sw_wr_en   ;
-logic [31:0]        reg_rdata  ;
-logic [31:0]        reg_out    ;
-logic               reg_ack    ;
 logic               sw_wr_en_0;
 logic               sw_wr_en_1;
 logic               sw_wr_en_2;
@@ -152,7 +168,10 @@ logic [31:0]        reg_0;  // Software_Reg_0
 logic [31:0]        reg_1;  // Software_Reg_0
 
 logic  [3:0]        cfg_wb_clk_ctrl;
+logic  [3:0]        cfg_lbist_clk_ctrl;
 logic  [7:0]        cfg_glb_ctrl;
+
+logic               lbist_clk   ;  // LBIST clock
 
 assign io_out = 'h0;
 assign io_oeb  = 'h0;
@@ -162,8 +181,8 @@ assign user_irq  = 'h0;
 assign wbm_rst_n = !wbm_rst_i;
 assign wbs_rst_n = !wbm_rst_i;
 
-sky130_fd_sc_hd__bufbuf_16 u_buf_wb_rst     (.A(cfg_glb_ctrl[0]),.X(wbd_int_rst_n));
-sky130_fd_sc_hd__bufbuf_16 u_buf_bist_rst   (.A(cfg_glb_ctrl[1]),.X(bist_rst_n));
+ctech_mux2x1 u_wb_rst_scan_sel   (.A0 (cfg_glb_ctrl[0]), .A1 (scan_rst_n), .S  (scan_mode), .X  (wbd_int_rst_n));
+ctech_mux2x1 u_bist_rst_scan_sel (.A0 (cfg_glb_ctrl[1]), .A1 (scan_rst_n), .S  (scan_mode), .X  (bist_rst_n));
 
 // wb_host clock skew control
 clk_skew_adjust u_skew_wh
@@ -179,9 +198,9 @@ clk_skew_adjust u_skew_wh
 
 // To reduce the load/Timing Wishbone I/F, Strobe is register to create
 // multi-cycle
-wire [31:0]  wbm_dat_o1   = (reg_sel) ? reg_rdata : wbm_dat_int;  // data input
-wire         wbm_ack_o1   = (reg_sel) ? reg_ack   : wbm_ack_int; // acknowlegement
-wire         wbm_err_o1   = (reg_sel) ? 1'b0      : wbm_err_int;  // error
+wire [31:0]  wbm_dat_o1   = (wb_reg_sel) ? wb_reg_rdata : (lbist_reg_sel) ? lbist_reg_rdata : wbm_dat_int;  // data input
+wire         wbm_ack_o1   = (wb_reg_sel) ? wb_reg_ack   : (lbist_reg_sel) ? lbist_reg_ack   : wbm_ack_int; // acknowlegement
+wire         wbm_err_o1   = (wb_reg_sel) ? 1'b0         : (lbist_reg_sel) ? lbist_reg_err   : wbm_err_int;  // error
 
 logic wb_req;
 // Hold fix for STROBE
@@ -189,6 +208,7 @@ wire  wbm_stb_d1,wbm_stb_d2,wbm_stb_d3;
 sky130_fd_sc_hd__dlygate4sd3_1 u_delay1_stb0 (.X(wbm_stb_d1),.A(wbm_stb_i));
 sky130_fd_sc_hd__dlygate4sd3_1 u_delay2_stb1 (.X(wbm_stb_d2),.A(wbm_stb_d1));
 sky130_fd_sc_hd__dlygate4sd3_1 u_delay2_stb2 (.X(wbm_stb_d3),.A(wbm_stb_d2));
+
 always_ff @(negedge wbm_rst_n or posedge wbm_clk_i) begin
     if ( wbm_rst_n == 1'b0 ) begin
         wb_req    <= '0;
@@ -197,9 +217,9 @@ always_ff @(negedge wbm_rst_n or posedge wbm_clk_i) begin
 	wbm_err_o <= '0;
    end else begin
        wb_req    <= wbm_stb_d3 && ((wbm_ack_o == 0) && (wbm_ack_o1 == 0)) ;
-       wbm_dat_o <= wbm_dat_o1;
        wbm_ack_o <= wbm_ack_o1;
-       wbm_err_o <= wbm_err_o1;
+       wbm_dat_o <= (wbm_ack_o1) ? wbm_dat_o1 : wbm_dat_o;
+       wbm_err_o <= (wbm_ack_o1) ? wbm_err_o1 : wbm_err_o;
    end
 end
 
@@ -213,13 +233,15 @@ end
 // caravel user space is 0x3000_0000 to 0x30FF_FFFF
 // So we have allocated 
 // 0x3000_0000 - 0x307F_7FFF - To SRAM Address Space
-// 0x3080_0000 - 0x3080_00FF - Assigned to WB Host Address Space
+// 0x3080_0000 - 0x30B0_00FF - Assigned to WB Host Address Space
+// 0x30C0_0000 - 0x30FF_00FF - Assigned to Logic Bist Address Space
 // ---------------------------------------------------------------------
-assign reg_sel       = wb_req & (wbm_adr_i[23] == 1'b1);
+assign wb_reg_sel       = wb_req & (wbm_adr_i[23:22] == 2'b10);
+assign lbist_reg_sel    = wb_req & (wbm_adr_i[23:22] == 2'b11);
 
 assign sw_addr       = wbm_adr_i [3:2];
-assign sw_rd_en      = reg_sel & !wbm_we_i;
-assign sw_wr_en      = reg_sel & wbm_we_i;
+assign sw_rd_en      = wb_reg_sel & !wbm_we_i;
+assign sw_wr_en      = wb_reg_sel & wbm_we_i;
 
 assign  sw_wr_en_0 = sw_wr_en && (sw_addr==0);
 assign  sw_wr_en_1 = sw_wr_en && (sw_addr==1);
@@ -230,19 +252,19 @@ always @ (posedge wbm_clk_i or negedge wbm_rst_n)
 begin : preg_out_Seq
    if (wbm_rst_n == 1'b0)
    begin
-      reg_rdata  <= 'h0;
-      reg_ack    <= 1'b0;
+      wb_reg_rdata  <= 'h0;
+      wb_reg_ack    <= 1'b0;
    end
-   else if (sw_rd_en && !reg_ack) 
+   else if (sw_rd_en && !wb_reg_ack) 
    begin
-      reg_rdata <= reg_out ;
-      reg_ack   <= 1'b1;
+      wb_reg_rdata <= wb_reg_out ;
+      wb_reg_ack   <= 1'b1;
    end
-   else if (sw_wr_en && !reg_ack) 
-      reg_ack          <= 1'b1;
+   else if (sw_wr_en && !wb_reg_ack) 
+      wb_reg_ack          <= 1'b1;
    else
    begin
-      reg_ack        <= 1'b0;
+      wb_reg_ack        <= 1'b0;
    end
 end
 
@@ -252,32 +274,35 @@ end
 // -------------------------------------
 assign cfg_glb_ctrl         = reg_0[7:0];
 assign cfg_wb_clk_ctrl      = reg_0[11:8];
+assign cfg_lbist_clk_ctrl   = reg_0[15:12];
 
 
 always @( *)
 begin 
-  reg_out [31:0] = 32'h0;
+  wb_reg_out [31:0] = 32'h0;
 
   case (sw_addr [1:0])
-    2'b00 :   reg_out [31:0] = reg_0;
-    2'b01 :   reg_out [31:0] = {24'h0,cfg_bank_sel [7:0]};     
-    2'b10 :   reg_out [31:0] = cfg_clk_ctrl1 [31:0];    
-    2'b11 :   reg_out [31:0] = cfg_clk_ctrl2 [31:0];     
-    default : reg_out [31:0] = 'h0;
+    2'b00 :   wb_reg_out [31:0] = reg_0;
+    2'b01 :   wb_reg_out [31:0] = {24'h0,cfg_bank_sel [7:0]};     
+    2'b10 :   wb_reg_out [31:0] = cfg_clk_ctrl1 [31:0];    
+    2'b11 :   wb_reg_out [31:0] = cfg_clk_ctrl2 [31:0];     
+    default : wb_reg_out [31:0] = 'h0;
   endcase
 end
 
 
-
-generic_register #(32,0  ) u_glb_ctrl (
-	      .we            ({32{sw_wr_en_0}}   ),		 
-	      .data_in       (wbm_dat_i[31:0]    ),
-	      .reset_n       (wbm_rst_n         ),
-	      .clk           (wbm_clk_i         ),
+gen_32b_reg  #(32'h00) u_glb_ctrl	(
+	      //List of Inputs
+	      .reset_n    (wbm_rst_n     ),
+	      .clk        (wbm_clk_i     ),
+	      .cs         (sw_wr_en_0    ),
+	      .we         (wbm_sel_i     ),		 
+	      .data_in    (wbm_dat_i  ),
 	      
 	      //List of Outs
-	      .data_out      (reg_0[31:0])
-          );
+	      .data_out   (reg_0       )
+	      );
+
 
 generic_register #(8,8'h00 ) u_bank_sel (
 	      .we            ({8{sw_wr_en_1}}   ),		 
@@ -311,11 +336,26 @@ generic_register #(32,0  ) u_clk_ctrl2 (
           );
 
 
-assign wbm_stb_int = wb_req & !reg_sel;
+assign wbm_stb_int = wb_req & (!wb_reg_sel & !lbist_reg_sel);
 
 // Since design need more than 16MB address space, we have implemented
 // indirect access
 assign wbm_adr_int = {4'b0000,cfg_bank_sel[7:0],wbm_adr_i[19:0]};  
+
+// During scan mode, feedback the input back for better scan coverage
+logic               wbs_cyc_o1       ;  // strobe/request
+logic               wbs_stb_o1       ;  // strobe/request
+logic [31:0]        wbs_adr_o1       ;  // address
+logic               wbs_we_o1        ;  // write
+logic [31:0]        wbs_dat_o1       ;  // data output
+logic [3:0]         wbs_sel_o1       ;  // byte enable
+
+assign wbs_cyc_o     = (scan_mode) ? wbs_ack_i      : wbs_cyc_o1;
+assign wbs_stb_o     = (scan_mode) ? wbs_ack_i      : wbs_stb_o1;
+assign wbs_adr_o     = (scan_mode) ? wbs_dat_i      : wbs_adr_o1;
+assign wbs_we_o      = (scan_mode) ? wbs_ack_i      : wbs_we_o1;
+assign wbs_dat_o     = (scan_mode) ? wbs_dat_i      : wbs_dat_o1;
+assign wbs_sel_o     = (scan_mode) ? wbs_dat_i[3:0] : wbs_sel_o1;
 
 async_wb u_async_wb(
 // Master Port
@@ -334,12 +374,12 @@ async_wb u_async_wb(
 // Slave Port
        .wbs_rst_n   (wbs_rst_n     ),  
        .wbs_clk_i   (wbs_clk_i     ),  
-       .wbs_cyc_o   (wbs_cyc_o     ),  
-       .wbs_stb_o   (wbs_stb_o     ),  
-       .wbs_adr_o   (wbs_adr_o     ),  
-       .wbs_we_o    (wbs_we_o      ),  
-       .wbs_dat_o   (wbs_dat_o     ),  
-       .wbs_sel_o   (wbs_sel_o     ),  
+       .wbs_cyc_o   (wbs_cyc_o1    ),  
+       .wbs_stb_o   (wbs_stb_o1    ),  
+       .wbs_adr_o   (wbs_adr_o1    ),  
+       .wbs_we_o    (wbs_we_o1     ),  
+       .wbs_dat_o   (wbs_dat_o1    ),  
+       .wbs_sel_o   (wbs_sel_o1    ),  
        .wbs_dat_i   (wbs_dat_i     ),  
        .wbs_ack_i   (wbs_ack_i     ),  
        .wbs_err_i   (wbs_err_i     )
@@ -347,10 +387,45 @@ async_wb u_async_wb(
     );
 
 
+//--------------------------------
+// LBIST TOP
+// -------------------------------
+
+lbist_top 
+   #(.SCW(SCW)   // SCAN CHAIN WIDTH
+     ) u_lbist (
+	// Wishbone Reg I/F
+	.wb_clk              (wbm_clk_i),
+	.wb_rst_n            (wbm_rst_n),
+	.wb_cs               (lbist_reg_sel),
+	.wb_addr             (sw_addr),
+	.wb_wr               (wbm_we_i),
+	.wb_wdata            (wbm_dat_i),
+	.wb_be               (wbm_sel_i),
+
+	.wb_rdata            (lbist_reg_rdata),
+	.wb_ack              (lbist_reg_ack),
+	.wb_err              (lbist_reg_err),
+
+	// LBIST I/F
+	.lbist_clk           (lbist_clk),
+
+
+	// Scan Control Signal
+	.scan_clk            (scan_clk),
+	.scan_rst_n          (scan_rst_n),
+	.scan_mode           (scan_mode),
+	.scan_en             (scan_en),
+	.scan_in             (scan_in),
+	.scan_out            (scan_out)
+);
+
+
 //----------------------------------
 // Generate Internal WishBone Clock
 //----------------------------------
 logic       wb_clk_div;
+logic       wbs_clk;
 logic       cfg_wb_clk_div;
 logic [2:0] cfg_wb_clk_ratio;
 
@@ -359,7 +434,9 @@ assign    cfg_wb_clk_div   =  cfg_wb_clk_ctrl[3];
 
 
 //assign wbs_clk_out  = (cfg_wb_clk_div)  ? wb_clk_div : wbm_clk_i;
-ctech_mux2x1 u_wbs_clk_sel (.A0 (wbm_clk_i), .A1 (wb_clk_div), .S  (cfg_wb_clk_div), .X  (wbs_clk_out));
+
+ctech_mux2x1 u_wbs_clk_sel (.A0 (wbm_clk_i), .A1 (wb_clk_div), .S  (cfg_wb_clk_div), .X  (wbs_clk));
+ctech_mux2x1 u_wbs_clk_scan_sel (.A0 (wbs_clk), .A1 (scan_clk), .S  (scan_mode), .X  (wbs_clk_out));
 
 
 clk_ctl #(2) u_wbclk (
@@ -369,6 +446,30 @@ clk_ctl #(2) u_wbclk (
        .mclk          (wbm_clk_i       ),
        .reset_n       (wbm_rst_n        ), 
        .clk_div_ratio (cfg_wb_clk_ratio )
+   );
+
+//----------------------------------
+// Generate Internal WishBone Clock
+//----------------------------------
+logic       lbist_clk_div;
+logic       cfg_lbist_clk_div;
+logic [2:0] cfg_lbist_clk_ratio;
+
+assign    cfg_lbist_clk_ratio =  cfg_lbist_clk_ctrl[2:0];
+assign    cfg_lbist_clk_div   =  cfg_lbist_clk_ctrl[3];
+
+
+//assign wbs_clk_out  = (cfg_wb_clk_div)  ? wb_clk_div : wbm_clk_i;
+ctech_mux2x1 u_lbist_clk_sel (.A0 (wbm_clk_i), .A1 (lbist_clk_div), .S  (cfg_lbist_clk_div), .X  (lbist_clk));
+
+
+clk_ctl #(2) u_lbist_clk (
+   // Outputs
+       .clk_o         (lbist_clk_div      ),
+   // Inputs
+       .mclk          (wbm_clk_i       ),
+       .reset_n       (wbm_rst_n        ), 
+       .clk_div_ratio (cfg_lbist_clk_ratio )
    );
 
 

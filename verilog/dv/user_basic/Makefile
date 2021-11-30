@@ -66,10 +66,17 @@ ifeq ($(SIM),RTL)
 	$< -o $@
    endif 
 else  
-	iverilog $(SIM_DEFINES) -DGL -I $(PDK_PATH) \
+   ifeq ($(DUMP),OFF)
+	iverilog -g2005-sv $(SIM_DEFINES) -DFUNCTIONAL -DGL -I $(PDK_PATH) \
 	-I $(CARAVEL_BEHAVIOURAL_MODELS) -I $(CARAVEL_RTL_PATH) -I $(CARAVEL_VERILOG_PATH) \
 	-I $(UPRJ_BEHAVIOURAL_MODELS) -I$(UPRJ_RTL_PATH)   -I $(UPRJ_VERILOG_PATH) \
 	$< -o $@ 
+    else 
+	iverilog -g2005-sv $(SIM_DEFINES) -DFUNCTIONAL -DWFDUMP -DGL -I $(PDK_PATH) \
+	-I $(CARAVEL_BEHAVIOURAL_MODELS) -I $(CARAVEL_RTL_PATH) -I $(CARAVEL_VERILOG_PATH) \
+	-I $(UPRJ_BEHAVIOURAL_MODELS) -I$(UPRJ_RTL_PATH)   -I $(UPRJ_VERILOG_PATH) \
+	$< -o $@ 
+   endif 
 endif
 
 %.vcd: %.vvp

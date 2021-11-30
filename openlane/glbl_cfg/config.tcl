@@ -52,6 +52,7 @@ set ::env(VDD_PIN) [list {vccd1}]
 set ::env(GND_PIN) [list {vssd1}]
 
 
+set ::env(SCAN_TOTAL_CHAINS) 8
 
 # Floorplanning
 # -------------

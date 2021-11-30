@@ -19,7 +19,7 @@
 .SUFFIXES:
 .SILENT: clean all
 
-PATTERNS = wb_port user_mbist_test1 user_basic
+PATTERNS = wb_port user_mbist_test1 user_basic user_lbist
 
 all:  ${PATTERNS}
 	for i in ${PATTERNS}; do \

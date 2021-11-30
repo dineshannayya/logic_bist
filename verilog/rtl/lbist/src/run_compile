@@ -1,0 +1,2 @@
+iverilog lbist_top.sv ../../lib/crc_32.sv ../../lib/clk_gate.sv lbist_core.sv lbist_reg.sv ../../lib/registers.v  ../../lib/async_reg_bus.sv ../../lib/reset_sync.sv -g2005-sv
+verilator -cc lbist_top.sv ../../lib/crc_32.sv ../../lib/clk_gate.sv lbist_core.sv lbist_reg.sv ../../lib/registers.v  ../../lib/async_reg_bus.sv ../../lib/reset_sync.sv  --top-module lbist_top

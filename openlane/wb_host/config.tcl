@@ -26,7 +26,7 @@ set ::env(DESIGN_IS_CORE) "0"
 
 # Timing configuration
 set ::env(CLOCK_PERIOD) "10"
-set ::env(CLOCK_PORT) "wbm_clk_i wbs_clk_i"
+set ::env(CLOCK_PORT) "wbm_clk_i wbs_clk_i u_lbist_clk_sel.u_mux/X"
 
 set ::env(SYNTH_MAX_FANOUT) 4
 
@@ -41,8 +41,16 @@ set ::env(VERILOG_FILES) "\
      $script_dir/../../verilog/rtl/lib/async_wb.sv        \
      $script_dir/../../verilog/rtl/lib/clk_ctl.v          \
      $script_dir/../../verilog/rtl/lib/ctech_cells.sv     \
-     $script_dir/../../verilog/rtl/lib/registers.v"
+     $script_dir/../../verilog/rtl/lib/registers.v        \
+     $script_dir/../../verilog/rtl/lib/async_reg_bus.sv   \
+     $script_dir/../../verilog/rtl/lib/clk_gate.sv        \
+     $script_dir/../../verilog/rtl/lib/crc_32.sv          \
+     $script_dir/../../verilog/rtl/lib/reset_sync.sv      \
+     $script_dir/../../verilog/rtl/lbist/src/lbist_top.sv \
+     $script_dir/../../verilog/rtl/lbist/src/lbist_core.sv \
+     $script_dir/../../verilog/rtl/lbist/src/lbist_reg.sv"
 
+set ::env(SYNTH_DEFINES) [list SYNTHESIS ]
 set ::env(SYNTH_READ_BLACKBOX_LIB) 1
 set ::env(SDC_FILE) "$script_dir/base.sdc"
 set ::env(BASE_SDC_FILE) "$script_dir/base.sdc"
@@ -59,7 +67,7 @@ set ::env(GND_PIN) [list {vssd1}]
 set ::env(FP_PIN_ORDER_CFG) $::env(DESIGN_DIR)/pin_order.cfg
 
 set ::env(FP_SIZING) absolute
-set ::env(DIE_AREA) "0 0 400 300"
+set ::env(DIE_AREA) "0 0 450 300"
 
 
 # If you're going to use multiple power domains, then keep this disabled.
@@ -69,7 +77,7 @@ set ::env(RUN_CVC) 1
 
 
 set ::env(PL_TIME_DRIVEN) 1
-set ::env(PL_TARGET_DENSITY) "0.30"
+set ::env(PL_TARGET_DENSITY) "0.45"
 
 
 

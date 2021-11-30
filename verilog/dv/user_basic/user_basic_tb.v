@@ -171,7 +171,7 @@ integer i,j;
 	`ifdef WFDUMP
 	   initial begin
 	   	$dumpfile("risc_boot.vcd");
-	   	$dumpvars(3, user_basic_tb);
+	   	$dumpvars(0, user_basic_tb.u_top.u_wb_host);
 	   end
        `endif
 
@@ -195,51 +195,52 @@ begin
 	  // Default Value Check
 	  // assign cfg_glb_ctrl         = reg_0[7:0];
           // assign cfg_wb_clk_ctrl      = reg_0[11:8];
+	  // assign cfg_lbist_clk_ctrl   = reg_0[15:12];
 
-	  $display("Step-1, WBS CLK: CLOCK1");
+	  $display("Step-1, WBS CLK: CLOCK1  LBIST CLK: CLOCK1");
 	  test_step = 1;
-          wb_user_core_write('h3080_0000,{20'h0,4'h0,8'h00});
-	  clock_monitor(CLK1_PERIOD);
+          wb_user_core_write('h3080_0000,{16'h0,4'h0,4'h0,8'h00});
+	  clock_monitor(CLK1_PERIOD,CLK1_PERIOD);
 
-	  $display("Step-2, WBS CLK: CLOCK1/2");
+	  $display("Step-2, WBS CLK: CLOCK1/2,LBIST CLK: CLOCK1/2 ");
 	  test_step = 2;
-          wb_user_core_write('h3080_0000,{20'h0,4'h8,8'h00});
-	  clock_monitor(2*CLK1_PERIOD);
+          wb_user_core_write('h3080_0000,{16'h0,4'h8,4'h8,8'h00});
+	  clock_monitor(2*CLK1_PERIOD,2*CLK1_PERIOD);
 
-	  $display("Step-3, WBS CLK: CLOCK1/(2+1)");
+	  $display("Step-3, WBS CLK: CLOCK1/(2+1), LBIST CLK: CLOCK1/(2+1)");
 	  test_step = 3;
-          wb_user_core_write('h3080_0000,{20'h0,4'h9,8'h00});
-	  clock_monitor(3*CLK1_PERIOD);
+          wb_user_core_write('h3080_0000,{16'h0,4'h9,4'h9,8'h00});
+	  clock_monitor(3*CLK1_PERIOD,3*CLK1_PERIOD);
 
-	  $display("Step-4, WBS CLK: CLOCK1/(2+2)");
+	  $display("Step-4, WBS CLK: CLOCK1/(2+2), LBIST CLK: CLOCK1/(2+2) ");
 	  test_step = 4;
-          wb_user_core_write('h3080_0000,{20'h0,4'hA,8'h00});
-	  clock_monitor(4*CLK1_PERIOD);
+          wb_user_core_write('h3080_0000,{16'h0,4'hA,4'hA,8'h00});
+	  clock_monitor(4*CLK1_PERIOD,4*CLK1_PERIOD);
 
-	  $display("Step-5, WBS CLK: CLOCK1/(2+3)");
+	  $display("Step-5, WBS CLK: CLOCK1/(2+3), LBIST CLK: CLOCK1/(2+3)");
 	  test_step = 5;
-          wb_user_core_write('h3080_0000,{20'h0,4'hB,8'h00});
-	  clock_monitor(5*CLK1_PERIOD);
+          wb_user_core_write('h3080_0000,{16'h0,4'hB,4'hB,8'h00});
+	  clock_monitor(5*CLK1_PERIOD,5*CLK1_PERIOD);
 
-	  $display("Step-6, WBS CLK: CLOCK1/(2+4)");
+	  $display("Step-6, WBS CLK: CLOCK1/(2+4),LBIST CLK: CLOCK1/(2+4)");
 	  test_step = 6;
-          wb_user_core_write('h3080_0000,{20'h0,4'hC,8'h00});
-	  clock_monitor(6*CLK1_PERIOD);
+          wb_user_core_write('h3080_0000,{16'h0,4'hC,4'hC,8'h00});
+	  clock_monitor(6*CLK1_PERIOD,6*CLK1_PERIOD);
 
-	  $display("Step-7, WBS CLK: CLOCK2/(2+5)");
+	  $display("Step-7, WBS CLK: CLOCK2/(2+5),LBIST CLK: CLOCK2/(2+5)");
 	  test_step = 6;
-          wb_user_core_write('h3080_0000,{20'h0,4'hD,8'h00});
-	  clock_monitor(7*CLK1_PERIOD);
+          wb_user_core_write('h3080_0000,{16'h0,4'hD,4'hD,8'h00});
+	  clock_monitor(7*CLK1_PERIOD,7*CLK1_PERIOD);
 
-	  $display("Step-8, WBS CLK: CLOCK2/(2+6)");
+	  $display("Step-8, WBS CLK: CLOCK2/(2+6),LBIST CLK: CLOCK2/(2+6)");
 	  test_step = 8;
-          wb_user_core_write('h3080_0000,{20'h0,4'hE,8'h00});
-	  clock_monitor(8*CLK1_PERIOD);
+          wb_user_core_write('h3080_0000,{16'h0,4'hE,4'hE,8'h00});
+	  clock_monitor(8*CLK1_PERIOD,8*CLK1_PERIOD);
 
-	  $display("Step-9, WBS CLK: CLOCK2/(2+7)");
+	  $display("Step-9, WBS CLK: CLOCK2/(2+7),LBIST CLK: CLOCK2/(2+7)");
 	  test_step = 9;
-          wb_user_core_write('h3080_0000,{20'h0,4'hF,8'h00});
-	  clock_monitor(9*CLK1_PERIOD);
+          wb_user_core_write('h3080_0000,{16'h0,4'hF,4'hF,8'h00});
+	  clock_monitor(9*CLK1_PERIOD,9*CLK1_PERIOD);
          
 	 $display("###################################################");
          $display("Monitor: Checking the chip signature :");
@@ -248,7 +249,7 @@ begin
          // Remove Wb/PinMux Reset
          wb_user_core_write(`WB_GLBL_CTRL,'h1);
 
-	 wb_user_core_read_check(`GLBL_BIST_SOFT1,read_data,32'h6673_8354);
+	 wb_user_core_read_check(`GLBL_BIST_SOFT1,read_data,32'h4C66_8354);
 	 wb_user_core_read_check(`GLBL_BIST_SOFT2,read_data,32'h2311_2021);
 	 wb_user_core_read_check(`GLBL_BIST_SOFT3,read_data,32'h0000_4000);
       end
@@ -325,20 +326,30 @@ user_project_wrapper u_top(
     // All standard cell need power hook-up for functionality work
     initial begin
 
-	force u_top.u_wb_host.u_buf_wb_rst.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_buf_wb_rst.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_buf_wb_rst.VGND =VSS;
-	force u_top.u_wb_host.u_buf_wb_rst.VNB = VSS;
+	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VGND =VSS;
+	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VNB = VSS;
 
-	force u_top.u_wb_host.u_buf_bist_rst.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_buf_bist_rst.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_buf_bist_rst.VGND =VSS;
-	force u_top.u_wb_host.u_buf_bist_rst.VNB = VSS;
+	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VGND =VSS;
+	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VNB = VSS;
 
 	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VPWR =USER_VDD1V8;
 	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VPB  =USER_VDD1V8;
 	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VGND =VSS;
 	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VNB = VSS;
+
+	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VGND =VSS;
+	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VNB = VSS;
+
+	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VGND =VSS;
+	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VNB = VSS;
 
 	force u_top.u_wb_host.u_delay1_stb0.VPWR =USER_VDD1V8;
 	force u_top.u_wb_host.u_delay1_stb0.VPB  =USER_VDD1V8;
@@ -362,9 +373,13 @@ user_project_wrapper u_top(
 
 task clock_monitor;
 input [15:0] exp_wbs_period;
+input [15:0] exp_lbist_period;
 begin
    force clock_mon = u_top.u_wb_host.wbs_clk_out;
    check_clock_period("WBS Clock",exp_wbs_period);
+   release clock_mon;
+   force clock_mon = u_top.u_wb_host.lbist_clk;
+   check_clock_period("LBIST Clock",exp_lbist_period);
    release clock_mon;
 
 end
@@ -489,52 +504,5 @@ begin
 end
 endtask
 
-`ifdef GL
-
-wire        wbd_spi_stb_i   = u_top.u_spi_master.wbd_stb_i;
-wire        wbd_spi_ack_o   = u_top.u_spi_master.wbd_ack_o;
-wire        wbd_spi_we_i    = u_top.u_spi_master.wbd_we_i;
-wire [31:0] wbd_spi_adr_i   = u_top.u_spi_master.wbd_adr_i;
-wire [31:0] wbd_spi_dat_i   = u_top.u_spi_master.wbd_dat_i;
-wire [31:0] wbd_spi_dat_o   = u_top.u_spi_master.wbd_dat_o;
-wire [3:0]  wbd_spi_sel_i   = u_top.u_spi_master.wbd_sel_i;
-
-wire        wbd_sdram_stb_i = u_top.u_sdram_ctrl.wb_stb_i;
-wire        wbd_sdram_ack_o = u_top.u_sdram_ctrl.wb_ack_o;
-wire        wbd_sdram_we_i  = u_top.u_sdram_ctrl.wb_we_i;
-wire [31:0] wbd_sdram_adr_i = u_top.u_sdram_ctrl.wb_addr_i;
-wire [31:0] wbd_sdram_dat_i = u_top.u_sdram_ctrl.wb_dat_i;
-wire [31:0] wbd_sdram_dat_o = u_top.u_sdram_ctrl.wb_dat_o;
-wire [3:0]  wbd_sdram_sel_i = u_top.u_sdram_ctrl.wb_sel_i;
-
-wire        wbd_uart_stb_i  = u_top.u_uart_i2c_usb.reg_cs;
-wire        wbd_uart_ack_o  = u_top.u_uart_i2c_usb.reg_ack;
-wire        wbd_uart_we_i   = u_top.u_uart_i2c_usb.reg_wr;
-wire [7:0]  wbd_uart_adr_i  = u_top.u_uart_i2c_usb.reg_addr;
-wire [7:0]  wbd_uart_dat_i  = u_top.u_uart_i2c_usb.reg_wdata;
-wire [7:0]  wbd_uart_dat_o  = u_top.u_uart_i2c_usb.reg_rdata;
-wire        wbd_uart_sel_i  = u_top.u_uart_i2c_usb.reg_be;
-
-`endif
-
-/**
-`ifdef GL
-//-----------------------------------------------------------------------------
-// RISC IMEM amd DMEM Monitoring TASK
-//-----------------------------------------------------------------------------
-
-`define RISC_CORE  user_uart_tb.u_top.u_core.u_riscv_top
-
-always@(posedge `RISC_CORE.wb_clk) begin
-    if(`RISC_CORE.wbd_imem_ack_i)
-          $display("RISCV-DEBUG => IMEM ADDRESS: %x Read Data : %x", `RISC_CORE.wbd_imem_adr_o,`RISC_CORE.wbd_imem_dat_i);
-    if(`RISC_CORE.wbd_dmem_ack_i && `RISC_CORE.wbd_dmem_we_o)
-          $display("RISCV-DEBUG => DMEM ADDRESS: %x Write Data: %x Resonse: %x", `RISC_CORE.wbd_dmem_adr_o,`RISC_CORE.wbd_dmem_dat_o);
-    if(`RISC_CORE.wbd_dmem_ack_i && !`RISC_CORE.wbd_dmem_we_o)
-          $display("RISCV-DEBUG => DMEM ADDRESS: %x READ Data : %x Resonse: %x", `RISC_CORE.wbd_dmem_adr_o,`RISC_CORE.wbd_dmem_dat_i);
-end
-
-`endif
-**/
 endmodule
 `default_nettype wire

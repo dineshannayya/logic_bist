@@ -21,8 +21,19 @@
 `ifdef GL
     // Assume default net type to be wire because GL netlists don't have the wire definitions
     `default_nettype wire
+    `include "libs.ref/sky130_fd_sc_hd/verilog/primitives.v"
+    `include "libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v"
+    `include "libs.ref/sky130_fd_sc_hvl/verilog/primitives.v"
+    `include "libs.ref/sky130_fd_sc_hvl/verilog/sky130_fd_sc_hvl.v"
     `include "gl/user_project_wrapper.v"
-    `include "gl/user_proj_example.v"
+    `include "gl/glbl_cfg.v"
+    `include "gl/mbist1.v"
+    `include "gl/mbist2.v"
+    `include "gl/wb_host.v"
+    `include "gl/wb_interconnect.v"
+    `include "sram_macros/sky130_sram_2kbyte_1rw1r_32x512_8.v"
+    `include "sram_macros/sky130_sram_1kbyte_1rw1r_32x256_8.v"
+
 `else
      `include "libs.ref/sky130_fd_sc_hd/verilog/primitives.v"
      `include "libs.ref/sky130_fd_sc_hd/verilog/sky130_fd_sc_hd.v"
@@ -53,10 +64,16 @@
     `include "lib/reset_sync.sv"
     `include "lib/ser_inf_32b.sv"
     `include "lib/ctech_cells.sv"
+    `include "lib/async_reg_bus.sv"
+    `include "lib/clk_gate.sv"
+    `include "lib/crc_32.sv"
      
     `include "lib/wb_stagging.sv"
     `include "wb_interconnect/src/wb_interconnect.sv"
     `include "glbl/src/glbl_cfg.sv"
+    `include "lbist/src/lbist_top.sv"
+    `include "lbist/src/lbist_core.sv"
+    `include "lbist/src/lbist_reg.sv"
 
     `include "clk_skew_adjust/src/clk_skew_adjust.v"
     `include "sram_macros/sky130_sram_2kbyte_1rw1r_32x512_8.v"

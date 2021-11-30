@@ -108,6 +108,7 @@ parameter BIST2_ADDR_WD = 10; // 256x32 SRAM
 parameter BIST_DATA_WD = 32;
 parameter WB_WIDTH = 32; // WB ADDRESS/DARA WIDTH
 
+parameter SCW = 8;   // SCAN CHAIN WIDTH
 //---------------------------------------------------------------------
 // WB HOST Interface
 //---------------------------------------------------------------------
@@ -428,6 +429,14 @@ wire                          wbd_clk_mbist8     ; // clock for global reg
 
 wire [31:0]                   cfg_clk_ctrl1      ;
 wire [31:0]                   cfg_clk_ctrl2      ;
+
+// Scan Control Signal
+wire                          scan_clk           ;
+wire                          scan_rst_n         ;
+wire                          scan_mode          ;
+wire                          scan_en            ;
+wire [SCW-1:0]                scan_in            ;
+wire [SCW-1:0]                scan_out           ;
 /////////////////////////////////////////////////////////
 // Clock Skew Ctrl
 ////////////////////////////////////////////////////////
@@ -445,7 +454,13 @@ wire [3:0] cfg_cska_mbist6   = cfg_clk_ctrl2[23:20];
 wire [3:0] cfg_cska_mbist7   = cfg_clk_ctrl2[27:24];
 wire [3:0] cfg_cska_mbist8   = cfg_clk_ctrl2[31:28];
 
-wb_host u_wb_host(
+wb_host 
+   #(
+     `ifndef SYNTHESIS
+        .SCW(SCW)   // SCAN CHAIN WIDTH
+     `endif
+     ) 
+  u_wb_host(
 `ifdef USE_POWER_PINS
          .vccd1         (vccd1                 ),// User area 1 1.8V supply
          .vssd1         (vssd1                 ),// User area 1 digital ground
@@ -493,7 +508,16 @@ wb_host u_wb_host(
 
         .io_out               (io_out           ),
         .io_oeb               (io_oeb           ),
-        .la_data_out          (la_data_out      )
+        .la_data_out          (la_data_out      ),
+
+
+	// Scan Control Signal
+	.scan_clk            (scan_clk          ),
+	.scan_rst_n          (scan_rst_n        ),
+	.scan_mode           (scan_mode         ),
+	.scan_en             (scan_en           ),
+	.scan_in             (scan_in           ),
+	.scan_out            (scan_out          )
 
     );
 
@@ -828,11 +852,22 @@ wb_interconnect  #(
 	);
 
 
-glbl_cfg u_glbl(
+glbl_cfg #(
+     `ifndef SYNTHESIS
+        .SCW(SCW)   // SCAN CHAIN WIDTH
+     `endif
+     ) u_glbl(
 `ifdef USE_POWER_PINS
        .vccd1                  (vccd1                     ),// User area 1 1.8V supply
        .vssd1                  (vssd1                     ),// User area 1 digital ground
 `endif
+       // SCAN I/F
+       .scan_en                (scan_en                   ),
+       .scan_mode              (scan_mode                 ),
+       .scan_si                (scan_in                   ),
+       .scan_so                (scan_out                  ),
+
+
        .wbd_clk_int            (wbd_clk_glbl_int          ), 
        .cfg_cska_glbl          (cfg_cska_glbl             ), 
        .wbd_clk_glbl           (wbd_clk_glbl              ), 

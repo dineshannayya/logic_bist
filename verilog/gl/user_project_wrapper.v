@@ -1046,6 +1046,26 @@ module user_project_wrapper (user_clock2,
  wire \mem8_mask_b[2] ;
  wire \mem8_mask_b[3] ;
  wire mem8_web_b;
+ wire scan_clk;
+ wire scan_en;
+ wire \scan_in[0] ;
+ wire \scan_in[1] ;
+ wire \scan_in[2] ;
+ wire \scan_in[3] ;
+ wire \scan_in[4] ;
+ wire \scan_in[5] ;
+ wire \scan_in[6] ;
+ wire \scan_in[7] ;
+ wire scan_mode;
+ wire \scan_out[0] ;
+ wire \scan_out[1] ;
+ wire \scan_out[2] ;
+ wire \scan_out[3] ;
+ wire \scan_out[4] ;
+ wire \scan_out[5] ;
+ wire \scan_out[6] ;
+ wire \scan_out[7] ;
+ wire scan_rst_n;
  wire wbd_clk_glbl;
  wire wbd_clk_glbl_int;
  wire wbd_clk_int;
@@ -1919,6 +1939,8 @@ module user_project_wrapper (user_clock2,
     .reg_cs(wbd_glbl_stb_o),
     .reg_wr(wbd_glbl_we_o),
     .reset_n(wbd_int_rst_n),
+    .scan_en(scan_en),
+    .scan_mode(scan_mode),
     .vccd1(vccd1),
     .vssd1(vssd1),
     .wbd_clk_glbl(wbd_clk_glbl),
@@ -2106,7 +2128,23 @@ module user_project_wrapper (user_clock2,
     \wbd_glbl_dat_o[3] ,
     \wbd_glbl_dat_o[2] ,
     \wbd_glbl_dat_o[1] ,
-    \wbd_glbl_dat_o[0] }));
+    \wbd_glbl_dat_o[0] }),
+    .scan_si({\scan_in[7] ,
+    \scan_in[6] ,
+    \scan_in[5] ,
+    \scan_in[4] ,
+    \scan_in[3] ,
+    \scan_in[2] ,
+    \scan_in[1] ,
+    \scan_in[0] }),
+    .scan_so({\scan_out[7] ,
+    \scan_out[6] ,
+    \scan_out[5] ,
+    \scan_out[4] ,
+    \scan_out[3] ,
+    \scan_out[2] ,
+    \scan_out[1] ,
+    \scan_out[0] }));
  wb_interconnect u_intercon (.clk_i(wbd_clk_wi),
     .m0_wbd_ack_o(wbd_int_ack_o),
     .m0_wbd_cyc_i(wbd_int_cyc_i),
@@ -5729,6 +5767,10 @@ module user_project_wrapper (user_clock2,
     \mem8_mask_b[1] ,
     \mem8_mask_b[0] }));
  wb_host u_wb_host (.bist_rst_n(bist_rst_n),
+    .scan_clk(scan_clk),
+    .scan_en(scan_en),
+    .scan_mode(scan_mode),
+    .scan_rst_n(scan_rst_n),
     .user_clock1(wb_clk_i),
     .user_clock2(user_clock2),
     .vccd1(vccd1),
@@ -6021,6 +6063,22 @@ module user_project_wrapper (user_clock2,
     la_data_out[2],
     la_data_out[1],
     la_data_out[0]}),
+    .scan_in({\scan_in[7] ,
+    \scan_in[6] ,
+    \scan_in[5] ,
+    \scan_in[4] ,
+    \scan_in[3] ,
+    \scan_in[2] ,
+    \scan_in[1] ,
+    \scan_in[0] }),
+    .scan_out({\scan_out[7] ,
+    \scan_out[6] ,
+    \scan_out[5] ,
+    \scan_out[4] ,
+    \scan_out[3] ,
+    \scan_out[2] ,
+    \scan_out[1] ,
+    \scan_out[0] }),
     .user_irq({user_irq[2],
     user_irq[1],
     user_irq[0]}),

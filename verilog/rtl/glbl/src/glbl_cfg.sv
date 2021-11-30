@@ -34,6 +34,8 @@
 ////  Revision :                                                  ////
 ////    0.1 - 18 Nov 2021  Dinesh A                               ////
 ////          Initial version                                     ////
+////   0.2  - 27 Nov 2021, Dinesh A                               ////
+////          Scan Ports added & Chip ID change to LBST           ////
 ////                                                              ////
 //////////////////////////////////////////////////////////////////////
 ////                                                              ////
@@ -62,7 +64,8 @@
 ////                                                              ////
 //////////////////////////////////////////////////////////////////////
 
-module glbl_cfg (
+module glbl_cfg #(parameter SCW = 8   // SCAN CHAIN WIDTH
+     ) (
 
 `ifdef USE_POWER_PINS
     inout vccd1,	// User area 1 1.8V supply
@@ -71,6 +74,11 @@ module glbl_cfg (
 
        input logic             mclk,
        input logic             reset_n,
+
+       input logic             scan_en,
+       input logic             scan_mode,
+       input logic [SCW-1:0]   scan_si,
+       output logic [SCW-1:0]  scan_so,
 
 	// Clock Skew Adjust
        input   logic           wbd_clk_int      , 
@@ -514,9 +522,9 @@ ser_inf_32b u_ser_intf
 
 
 //-----------------------------------------
-// Software Reg-1 : ASCI Representation of BIST = 32'h6673_8354
+// Software Reg-1 : ASCI Representation of LBST = 32'h4C66_8354
 // ----------------------------------------
-gen_32b_reg  #(32'h6673_8354) u_reg_9	(
+gen_32b_reg  #(32'h4C66_8354) u_reg_9	(
 	      //List of Inputs
 	      .reset_n    (reset_n       ),
 	      .clk        (mclk          ),

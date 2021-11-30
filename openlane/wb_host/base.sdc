@@ -8,25 +8,19 @@ current_design wb_host
 ###############################################################################
 create_clock -name wbm_clk_i -period 10.0000 [get_ports {wbm_clk_i}]
 create_clock -name wbs_clk_i -period 10.0000 [get_ports {wbs_clk_i}]
-set_clock_uncertainty -rise_from [get_clocks {wbm_clk_i}] -rise_to [get_clocks {wbm_clk_i}]  -hold  0.2000
-set_clock_uncertainty -rise_from [get_clocks {wbm_clk_i}] -rise_to [get_clocks {wbm_clk_i}]  -setup 0.4000
-set_clock_uncertainty -rise_from [get_clocks {wbm_clk_i}] -fall_to [get_clocks {wbm_clk_i}]  -hold  0.2000
-set_clock_uncertainty -rise_from [get_clocks {wbm_clk_i}] -fall_to [get_clocks {wbm_clk_i}]  -setup 0.4000
-set_clock_uncertainty -fall_from [get_clocks {wbm_clk_i}] -rise_to [get_clocks {wbm_clk_i}]  -hold  0.2000
-set_clock_uncertainty -fall_from [get_clocks {wbm_clk_i}] -rise_to [get_clocks {wbm_clk_i}]  -setup 0.4000
-set_clock_uncertainty -fall_from [get_clocks {wbm_clk_i}] -fall_to [get_clocks {wbm_clk_i}]  -hold  0.2000
-set_clock_uncertainty -fall_from [get_clocks {wbm_clk_i}] -fall_to [get_clocks {wbm_clk_i}]  -setup 0.4000
-set_clock_uncertainty -rise_from [get_clocks {wbs_clk_i}] -rise_to [get_clocks {wbs_clk_i}]  -hold  0.2000
-set_clock_uncertainty -rise_from [get_clocks {wbs_clk_i}] -rise_to [get_clocks {wbs_clk_i}]  -setup 0.4000
-set_clock_uncertainty -rise_from [get_clocks {wbs_clk_i}] -fall_to [get_clocks {wbs_clk_i}]  -hold  0.2000
-set_clock_uncertainty -rise_from [get_clocks {wbs_clk_i}] -fall_to [get_clocks {wbs_clk_i}]  -setup 0.4000
-set_clock_uncertainty -fall_from [get_clocks {wbs_clk_i}] -rise_to [get_clocks {wbs_clk_i}]  -hold  0.2000
-set_clock_uncertainty -fall_from [get_clocks {wbs_clk_i}] -rise_to [get_clocks {wbs_clk_i}]  -setup 0.4000
-set_clock_uncertainty -fall_from [get_clocks {wbs_clk_i}] -fall_to [get_clocks {wbs_clk_i}]  -hold  0.2000
-set_clock_uncertainty -fall_from [get_clocks {wbs_clk_i}] -fall_to [get_clocks {wbs_clk_i}]  -setup 0.4000
+create_clock -name lbist_clk -period 10.0000 [get_pins {u_lbist_clk_sel.u_mux/X}]
+set_clock_uncertainty -from wbm_clk_i -to wbm_clk_i  -setup 0.200
+set_clock_uncertainty -from wbm_clk_i -to wbm_clk_i  -hold  0.100
+set_clock_uncertainty -from wbs_clk_i -to wbs_clk_i  -setup 0.200
+set_clock_uncertainty -from wbs_clk_i -to wbs_clk_i  -hold  0.100
+set_clock_uncertainty -from lbist_clk -to lbist_clk  -setup 0.200
+set_clock_uncertainty -from lbist_clk -to lbist_clk  -hold  0.100
+
 set_clock_groups -name async_clock -asynchronous \
  -group [get_clocks {wbs_clk_i}]\
- -group [get_clocks {wbm_clk_i}] -comment {Async Clock group}
+ -group [get_clocks {wbm_clk_i}]\
+ -group [get_clocks {lbist_clk}]\
+  -comment {Async Clock group}
 
 set_case_analysis 0 [get_ports {cfg_cska_wh[0]}]
 set_case_analysis 0 [get_ports {cfg_cska_wh[1]}]

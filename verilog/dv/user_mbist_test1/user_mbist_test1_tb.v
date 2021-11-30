@@ -456,20 +456,31 @@ user_project_wrapper u_top(
 `ifndef GL // Drive Power for Hold Fix Buf
     // All standard cell need power hook-up for functionality work
     initial begin
-	force u_top.u_wb_host.u_buf_wb_rst.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_buf_wb_rst.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_buf_wb_rst.VGND =VSS;
-	force u_top.u_wb_host.u_buf_wb_rst.VNB = VSS;
 
-	force u_top.u_wb_host.u_buf_bist_rst.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_buf_bist_rst.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_buf_bist_rst.VGND =VSS;
-	force u_top.u_wb_host.u_buf_bist_rst.VNB = VSS;
+	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VGND =VSS;
+	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VNB = VSS;
+
+	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VGND =VSS;
+	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VNB = VSS;
 
 	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VPWR =USER_VDD1V8;
 	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VPB  =USER_VDD1V8;
 	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VGND =VSS;
 	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VNB = VSS;
+
+	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VGND =VSS;
+	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VNB = VSS;
+
+	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VPWR =USER_VDD1V8;
+	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VPB  =USER_VDD1V8;
+	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VGND =VSS;
+	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VNB = VSS;
 
 	force u_top.u_wb_host.u_delay1_stb0.VPWR =USER_VDD1V8;
 	force u_top.u_wb_host.u_delay1_stb0.VPB  =USER_VDD1V8;
