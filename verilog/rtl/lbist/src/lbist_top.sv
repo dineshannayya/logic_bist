@@ -17,6 +17,7 @@ module lbist_top
 
 	// LBIST I/F
 	input  logic           lbist_clk,
+	input  logic           lbist_clk_skew, // bist clock with additional clock skew
 
 
 	// Scan Control Signal
@@ -58,7 +59,7 @@ logic [31:0]    lbist_sig          ;
 
 reset_sync  u_lbist_reset (
 	      .scan_mode  (1'b0         ),
-              .dclk       (lbist_clk    ), // Destination clock domain
+              .dclk       (lbist_clk_skew), // Destination clock domain
 	      .arst_n     (wb_rst_n     ), // active low async reset
               .srst_n     (lbist_rst_n  )
           );
@@ -85,7 +86,7 @@ async_reg_bus #(.AW(2)) u_async_reg (
           .in_reg_be             (wb_be),
 
     // Target Declaration
-          .out_clk               (lbist_clk),
+          .out_clk               (lbist_clk_skew),
           .out_reset_n           (lbist_rst_n),
       // Reg Bus Slave
           // output
@@ -105,7 +106,7 @@ async_reg_bus #(.AW(2)) u_async_reg (
 // ----------------------------
 
 lbist_reg u_reg (
-       .mclk             (lbist_clk        ),
+       .mclk             (lbist_clk_skew   ),
        .reset_n          (lbist_rst_n      ),
 
 
@@ -144,6 +145,7 @@ lbist_core
     u_lbist_core (
 
 	.mclk            (lbist_clk         ),
+	.mclk_skew       (lbist_clk_skew    ),
 	.rst_n           (lbist_rst_n       ),
 	.srst            (cfg_lbist_srst    ), // software reset
 

@@ -74,7 +74,7 @@ logic         scan_shift_d;
 logic         shift_pos_edge;
 
 logic [BIST_RAD_WD_I-1:0] RepairMem [0:BIST_ERR_LIMIT-1];
-
+integer i;
 
 
 always@(posedge clk or negedge rst_n)
@@ -82,6 +82,10 @@ begin
    if(!rst_n) begin
      ErrorCnt    <= '0;
      Correct <= '0;
+     // Initialize the Repair RAM for SCAN purpose
+     for(i =0; i < BIST_ERR_LIMIT; i = i+1) begin
+        RepairMem[i] = 'h0;
+     end
    end else if(Error) begin
       if(ErrorCnt <= BIST_ERR_LIMIT) begin
           ErrorCnt            <= ErrorCnt+1;

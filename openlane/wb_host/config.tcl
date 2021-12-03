@@ -26,7 +26,7 @@ set ::env(DESIGN_IS_CORE) "0"
 
 # Timing configuration
 set ::env(CLOCK_PERIOD) "10"
-set ::env(CLOCK_PORT) "wbm_clk_i wbs_clk_i u_lbist_clk_sel.u_mux/X"
+set ::env(CLOCK_PORT) "wbm_clk_i wbs_clk_i lbist_clk_int"
 
 set ::env(SYNTH_MAX_FANOUT) 4
 
@@ -77,7 +77,7 @@ set ::env(RUN_CVC) 1
 
 
 set ::env(PL_TIME_DRIVEN) 1
-set ::env(PL_TARGET_DENSITY) "0.45"
+set ::env(PL_TARGET_DENSITY) "0.40"
 
 
 
@@ -102,3 +102,4 @@ set ::env(QUIT_ON_TIMING_VIOLATIONS) "0"
 set ::env(QUIT_ON_MAGIC_DRC) "1"
 set ::env(QUIT_ON_LVS_ERROR) "0"
 set ::env(QUIT_ON_SLEW_VIOLATIONS) "0"
+set ::env(QUIT_ON_SETUP_VIOLATIONS) "0"

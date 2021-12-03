@@ -326,6 +326,7 @@ module user_project_wrapper (user_clock2,
  wire \cfg_clk_ctrl2[7] ;
  wire \cfg_clk_ctrl2[8] ;
  wire \cfg_clk_ctrl2[9] ;
+ wire lbist_clk;
  wire \mem1_addr_a[10] ;
  wire \mem1_addr_a[2] ;
  wire \mem1_addr_a[3] ;
@@ -1048,6 +1049,16 @@ module user_project_wrapper (user_clock2,
  wire mem8_web_b;
  wire scan_clk;
  wire scan_en;
+ wire scan_en_glbl;
+ wire scan_en_mbist1;
+ wire scan_en_mbist2;
+ wire scan_en_mbist3;
+ wire scan_en_mbist4;
+ wire scan_en_mbist5;
+ wire scan_en_mbist6;
+ wire scan_en_mbist7;
+ wire scan_en_mbist8;
+ wire scan_en_wbi;
  wire \scan_in[0] ;
  wire \scan_in[1] ;
  wire \scan_in[2] ;
@@ -1057,14 +1068,96 @@ module user_project_wrapper (user_clock2,
  wire \scan_in[6] ;
  wire \scan_in[7] ;
  wire scan_mode;
- wire \scan_out[0] ;
- wire \scan_out[1] ;
- wire \scan_out[2] ;
- wire \scan_out[3] ;
- wire \scan_out[4] ;
- wire \scan_out[5] ;
- wire \scan_out[6] ;
- wire \scan_out[7] ;
+ wire scan_mode_glbl;
+ wire scan_mode_mbist1;
+ wire scan_mode_mbist2;
+ wire scan_mode_mbist3;
+ wire scan_mode_mbist4;
+ wire scan_mode_mbist5;
+ wire scan_mode_mbist6;
+ wire scan_mode_mbist7;
+ wire scan_mode_mbist8;
+ wire scan_mode_wbi;
+ wire \scan_out_glbl[0] ;
+ wire \scan_out_glbl[1] ;
+ wire \scan_out_glbl[2] ;
+ wire \scan_out_glbl[3] ;
+ wire \scan_out_glbl[4] ;
+ wire \scan_out_glbl[5] ;
+ wire \scan_out_glbl[6] ;
+ wire \scan_out_glbl[7] ;
+ wire \scan_out_mbist1[0] ;
+ wire \scan_out_mbist1[1] ;
+ wire \scan_out_mbist1[2] ;
+ wire \scan_out_mbist1[3] ;
+ wire \scan_out_mbist1[4] ;
+ wire \scan_out_mbist1[5] ;
+ wire \scan_out_mbist1[6] ;
+ wire \scan_out_mbist1[7] ;
+ wire \scan_out_mbist2[0] ;
+ wire \scan_out_mbist2[1] ;
+ wire \scan_out_mbist2[2] ;
+ wire \scan_out_mbist2[3] ;
+ wire \scan_out_mbist2[4] ;
+ wire \scan_out_mbist2[5] ;
+ wire \scan_out_mbist2[6] ;
+ wire \scan_out_mbist2[7] ;
+ wire \scan_out_mbist3[0] ;
+ wire \scan_out_mbist3[1] ;
+ wire \scan_out_mbist3[2] ;
+ wire \scan_out_mbist3[3] ;
+ wire \scan_out_mbist3[4] ;
+ wire \scan_out_mbist3[5] ;
+ wire \scan_out_mbist3[6] ;
+ wire \scan_out_mbist3[7] ;
+ wire \scan_out_mbist4[0] ;
+ wire \scan_out_mbist4[1] ;
+ wire \scan_out_mbist4[2] ;
+ wire \scan_out_mbist4[3] ;
+ wire \scan_out_mbist4[4] ;
+ wire \scan_out_mbist4[5] ;
+ wire \scan_out_mbist4[6] ;
+ wire \scan_out_mbist4[7] ;
+ wire \scan_out_mbist5[0] ;
+ wire \scan_out_mbist5[1] ;
+ wire \scan_out_mbist5[2] ;
+ wire \scan_out_mbist5[3] ;
+ wire \scan_out_mbist5[4] ;
+ wire \scan_out_mbist5[5] ;
+ wire \scan_out_mbist5[6] ;
+ wire \scan_out_mbist5[7] ;
+ wire \scan_out_mbist6[0] ;
+ wire \scan_out_mbist6[1] ;
+ wire \scan_out_mbist6[2] ;
+ wire \scan_out_mbist6[3] ;
+ wire \scan_out_mbist6[4] ;
+ wire \scan_out_mbist6[5] ;
+ wire \scan_out_mbist6[6] ;
+ wire \scan_out_mbist6[7] ;
+ wire \scan_out_mbist7[0] ;
+ wire \scan_out_mbist7[1] ;
+ wire \scan_out_mbist7[2] ;
+ wire \scan_out_mbist7[3] ;
+ wire \scan_out_mbist7[4] ;
+ wire \scan_out_mbist7[5] ;
+ wire \scan_out_mbist7[6] ;
+ wire \scan_out_mbist7[7] ;
+ wire \scan_out_mbist8[0] ;
+ wire \scan_out_mbist8[1] ;
+ wire \scan_out_mbist8[2] ;
+ wire \scan_out_mbist8[3] ;
+ wire \scan_out_mbist8[4] ;
+ wire \scan_out_mbist8[5] ;
+ wire \scan_out_mbist8[6] ;
+ wire \scan_out_mbist8[7] ;
+ wire \scan_out_wbi[0] ;
+ wire \scan_out_wbi[1] ;
+ wire \scan_out_wbi[2] ;
+ wire \scan_out_wbi[3] ;
+ wire \scan_out_wbi[4] ;
+ wire \scan_out_wbi[5] ;
+ wire \scan_out_wbi[6] ;
+ wire \scan_out_wbi[7] ;
  wire scan_rst_n;
  wire wbd_clk_glbl;
  wire wbd_clk_glbl_int;
@@ -1940,7 +2033,9 @@ module user_project_wrapper (user_clock2,
     .reg_wr(wbd_glbl_we_o),
     .reset_n(wbd_int_rst_n),
     .scan_en(scan_en),
+    .scan_en_o(scan_en_glbl),
     .scan_mode(scan_mode),
+    .scan_mode_o(scan_mode_glbl),
     .vccd1(vccd1),
     .vssd1(vssd1),
     .wbd_clk_glbl(wbd_clk_glbl),
@@ -2137,14 +2232,14 @@ module user_project_wrapper (user_clock2,
     \scan_in[2] ,
     \scan_in[1] ,
     \scan_in[0] }),
-    .scan_so({\scan_out[7] ,
-    \scan_out[6] ,
-    \scan_out[5] ,
-    \scan_out[4] ,
-    \scan_out[3] ,
-    \scan_out[2] ,
-    \scan_out[1] ,
-    \scan_out[0] }));
+    .scan_so({\scan_out_glbl[7] ,
+    \scan_out_glbl[6] ,
+    \scan_out_glbl[5] ,
+    \scan_out_glbl[4] ,
+    \scan_out_glbl[3] ,
+    \scan_out_glbl[2] ,
+    \scan_out_glbl[1] ,
+    \scan_out_glbl[0] }));
  wb_interconnect u_intercon (.clk_i(wbd_clk_wi),
     .m0_wbd_ack_o(wbd_int_ack_o),
     .m0_wbd_cyc_i(wbd_int_cyc_i),
@@ -2188,6 +2283,10 @@ module user_project_wrapper (user_clock2,
     .s8_wbd_cyc_o(wbd_mbist8_cyc_o),
     .s8_wbd_stb_o(wbd_mbist8_stb_o),
     .s8_wbd_we_o(wbd_mbist8_we_o),
+    .scan_en(scan_en_mbist8),
+    .scan_en_o(scan_en_wbi),
+    .scan_mode(scan_mode_mbist8),
+    .scan_mode_o(scan_mode_wbi),
     .vccd1(vccd1),
     .vssd1(vssd1),
     .wbd_clk_int(wbd_clk_int),
@@ -3225,7 +3324,23 @@ module user_project_wrapper (user_clock2,
     .s8_wbd_sel_o({\wbd_mbist8_sel_o[3] ,
     \wbd_mbist8_sel_o[2] ,
     \wbd_mbist8_sel_o[1] ,
-    \wbd_mbist8_sel_o[0] }));
+    \wbd_mbist8_sel_o[0] }),
+    .scan_si({\scan_out_mbist8[7] ,
+    \scan_out_mbist8[6] ,
+    \scan_out_mbist8[5] ,
+    \scan_out_mbist8[4] ,
+    \scan_out_mbist8[3] ,
+    \scan_out_mbist8[2] ,
+    \scan_out_mbist8[1] ,
+    \scan_out_mbist8[0] }),
+    .scan_so({\scan_out_wbi[7] ,
+    \scan_out_wbi[6] ,
+    \scan_out_wbi[5] ,
+    \scan_out_wbi[4] ,
+    \scan_out_wbi[3] ,
+    \scan_out_wbi[2] ,
+    \scan_out_wbi[1] ,
+    \scan_out_wbi[0] }));
  mbist_top1 u_mbist1 (.bist_correct(\bist_correct[0] ),
     .bist_done(\bist_done[0] ),
     .bist_en(\bist_en_int[0] ),
@@ -3241,6 +3356,10 @@ module user_project_wrapper (user_clock2,
     .mem_clk_b(mem1_clk_b),
     .mem_web_b(mem1_web_b),
     .rst_n(bist_rst_n),
+    .scan_en(scan_en_mbist2),
+    .scan_en_o(scan_en_mbist1),
+    .scan_mode(scan_mode_mbist2),
+    .scan_mode_o(scan_mode_mbist1),
     .vccd1(vccd1),
     .vssd1(vssd1),
     .wb_ack_o(wbd_mbist1_ack_i),
@@ -3344,6 +3463,22 @@ module user_project_wrapper (user_clock2,
     \mem1_mask_b[2] ,
     \mem1_mask_b[1] ,
     \mem1_mask_b[0] }),
+    .scan_si({\scan_out_mbist2[7] ,
+    \scan_out_mbist2[6] ,
+    \scan_out_mbist2[5] ,
+    \scan_out_mbist2[4] ,
+    \scan_out_mbist2[3] ,
+    \scan_out_mbist2[2] ,
+    \scan_out_mbist2[1] ,
+    \scan_out_mbist2[0] }),
+    .scan_so({\scan_out_mbist1[7] ,
+    \scan_out_mbist1[6] ,
+    \scan_out_mbist1[5] ,
+    \scan_out_mbist1[4] ,
+    \scan_out_mbist1[3] ,
+    \scan_out_mbist1[2] ,
+    \scan_out_mbist1[1] ,
+    \scan_out_mbist1[0] }),
     .wb_adr_i({\wbd_mbist1_adr_o[10] ,
     \wbd_mbist1_adr_o[9] ,
     \wbd_mbist1_adr_o[8] ,
@@ -3436,6 +3571,10 @@ module user_project_wrapper (user_clock2,
     .mem_clk_b(mem2_clk_b),
     .mem_web_b(mem2_web_b),
     .rst_n(bist_rst_n),
+    .scan_en(scan_en_mbist3),
+    .scan_en_o(scan_en_mbist2),
+    .scan_mode(scan_mode_mbist3),
+    .scan_mode_o(scan_mode_mbist2),
     .vccd1(vccd1),
     .vssd1(vssd1),
     .wb_ack_o(wbd_mbist2_ack_i),
@@ -3539,6 +3678,22 @@ module user_project_wrapper (user_clock2,
     \mem2_mask_b[2] ,
     \mem2_mask_b[1] ,
     \mem2_mask_b[0] }),
+    .scan_si({\scan_out_mbist3[7] ,
+    \scan_out_mbist3[6] ,
+    \scan_out_mbist3[5] ,
+    \scan_out_mbist3[4] ,
+    \scan_out_mbist3[3] ,
+    \scan_out_mbist3[2] ,
+    \scan_out_mbist3[1] ,
+    \scan_out_mbist3[0] }),
+    .scan_so({\scan_out_mbist2[7] ,
+    \scan_out_mbist2[6] ,
+    \scan_out_mbist2[5] ,
+    \scan_out_mbist2[4] ,
+    \scan_out_mbist2[3] ,
+    \scan_out_mbist2[2] ,
+    \scan_out_mbist2[1] ,
+    \scan_out_mbist2[0] }),
     .wb_adr_i({\wbd_mbist2_adr_o[10] ,
     \wbd_mbist2_adr_o[9] ,
     \wbd_mbist2_adr_o[8] ,
@@ -3631,6 +3786,10 @@ module user_project_wrapper (user_clock2,
     .mem_clk_b(mem3_clk_b),
     .mem_web_b(mem3_web_b),
     .rst_n(bist_rst_n),
+    .scan_en(scan_en_mbist4),
+    .scan_en_o(scan_en_mbist3),
+    .scan_mode(scan_mode_mbist4),
+    .scan_mode_o(scan_mode_mbist3),
     .vccd1(vccd1),
     .vssd1(vssd1),
     .wb_ack_o(wbd_mbist3_ack_i),
@@ -3734,6 +3893,22 @@ module user_project_wrapper (user_clock2,
     \mem3_mask_b[2] ,
     \mem3_mask_b[1] ,
     \mem3_mask_b[0] }),
+    .scan_si({\scan_out_mbist4[7] ,
+    \scan_out_mbist4[6] ,
+    \scan_out_mbist4[5] ,
+    \scan_out_mbist4[4] ,
+    \scan_out_mbist4[3] ,
+    \scan_out_mbist4[2] ,
+    \scan_out_mbist4[1] ,
+    \scan_out_mbist4[0] }),
+    .scan_so({\scan_out_mbist3[7] ,
+    \scan_out_mbist3[6] ,
+    \scan_out_mbist3[5] ,
+    \scan_out_mbist3[4] ,
+    \scan_out_mbist3[3] ,
+    \scan_out_mbist3[2] ,
+    \scan_out_mbist3[1] ,
+    \scan_out_mbist3[0] }),
     .wb_adr_i({\wbd_mbist3_adr_o[10] ,
     \wbd_mbist3_adr_o[9] ,
     \wbd_mbist3_adr_o[8] ,
@@ -3826,6 +4001,10 @@ module user_project_wrapper (user_clock2,
     .mem_clk_b(mem4_clk_b),
     .mem_web_b(mem4_web_b),
     .rst_n(bist_rst_n),
+    .scan_en(scan_en_wbi),
+    .scan_en_o(scan_en_mbist4),
+    .scan_mode(scan_mode_wbi),
+    .scan_mode_o(scan_mode_mbist4),
     .vccd1(vccd1),
     .vssd1(vssd1),
     .wb_ack_o(wbd_mbist4_ack_i),
@@ -3929,6 +4108,22 @@ module user_project_wrapper (user_clock2,
     \mem4_mask_b[2] ,
     \mem4_mask_b[1] ,
     \mem4_mask_b[0] }),
+    .scan_si({\scan_out_wbi[7] ,
+    \scan_out_wbi[6] ,
+    \scan_out_wbi[5] ,
+    \scan_out_wbi[4] ,
+    \scan_out_wbi[3] ,
+    \scan_out_wbi[2] ,
+    \scan_out_wbi[1] ,
+    \scan_out_wbi[0] }),
+    .scan_so({\scan_out_mbist4[7] ,
+    \scan_out_mbist4[6] ,
+    \scan_out_mbist4[5] ,
+    \scan_out_mbist4[4] ,
+    \scan_out_mbist4[3] ,
+    \scan_out_mbist4[2] ,
+    \scan_out_mbist4[1] ,
+    \scan_out_mbist4[0] }),
     .wb_adr_i({\wbd_mbist4_adr_o[10] ,
     \wbd_mbist4_adr_o[9] ,
     \wbd_mbist4_adr_o[8] ,
@@ -4021,6 +4216,10 @@ module user_project_wrapper (user_clock2,
     .mem_clk_b(mem5_clk_b),
     .mem_web_b(mem5_web_b),
     .rst_n(bist_rst_n),
+    .scan_en(scan_en_glbl),
+    .scan_en_o(scan_en_mbist5),
+    .scan_mode(scan_mode_glbl),
+    .scan_mode_o(scan_mode_mbist5),
     .vccd1(vccd1),
     .vssd1(vssd1),
     .wb_ack_o(wbd_mbist5_ack_i),
@@ -4122,6 +4321,22 @@ module user_project_wrapper (user_clock2,
     \mem5_mask_b[2] ,
     \mem5_mask_b[1] ,
     \mem5_mask_b[0] }),
+    .scan_si({\scan_out_glbl[7] ,
+    \scan_out_glbl[6] ,
+    \scan_out_glbl[5] ,
+    \scan_out_glbl[4] ,
+    \scan_out_glbl[3] ,
+    \scan_out_glbl[2] ,
+    \scan_out_glbl[1] ,
+    \scan_out_glbl[0] }),
+    .scan_so({\scan_out_mbist5[7] ,
+    \scan_out_mbist5[6] ,
+    \scan_out_mbist5[5] ,
+    \scan_out_mbist5[4] ,
+    \scan_out_mbist5[3] ,
+    \scan_out_mbist5[2] ,
+    \scan_out_mbist5[1] ,
+    \scan_out_mbist5[0] }),
     .wb_adr_i({\wbd_mbist5_adr_o[9] ,
     \wbd_mbist5_adr_o[8] ,
     \wbd_mbist5_adr_o[7] ,
@@ -4213,6 +4428,10 @@ module user_project_wrapper (user_clock2,
     .mem_clk_b(mem6_clk_b),
     .mem_web_b(mem6_web_b),
     .rst_n(bist_rst_n),
+    .scan_en(scan_en_mbist5),
+    .scan_en_o(scan_en_mbist6),
+    .scan_mode(scan_mode_mbist5),
+    .scan_mode_o(scan_mode_mbist6),
     .vccd1(vccd1),
     .vssd1(vssd1),
     .wb_ack_o(wbd_mbist6_ack_i),
@@ -4314,6 +4533,22 @@ module user_project_wrapper (user_clock2,
     \mem6_mask_b[2] ,
     \mem6_mask_b[1] ,
     \mem6_mask_b[0] }),
+    .scan_si({\scan_out_mbist5[7] ,
+    \scan_out_mbist5[6] ,
+    \scan_out_mbist5[5] ,
+    \scan_out_mbist5[4] ,
+    \scan_out_mbist5[3] ,
+    \scan_out_mbist5[2] ,
+    \scan_out_mbist5[1] ,
+    \scan_out_mbist5[0] }),
+    .scan_so({\scan_out_mbist6[7] ,
+    \scan_out_mbist6[6] ,
+    \scan_out_mbist6[5] ,
+    \scan_out_mbist6[4] ,
+    \scan_out_mbist6[3] ,
+    \scan_out_mbist6[2] ,
+    \scan_out_mbist6[1] ,
+    \scan_out_mbist6[0] }),
     .wb_adr_i({\wbd_mbist6_adr_o[9] ,
     \wbd_mbist6_adr_o[8] ,
     \wbd_mbist6_adr_o[7] ,
@@ -4405,6 +4640,10 @@ module user_project_wrapper (user_clock2,
     .mem_clk_b(mem7_clk_b),
     .mem_web_b(mem7_web_b),
     .rst_n(bist_rst_n),
+    .scan_en(scan_en_mbist6),
+    .scan_en_o(scan_en_mbist7),
+    .scan_mode(scan_mode_mbist6),
+    .scan_mode_o(scan_mode_mbist7),
     .vccd1(vccd1),
     .vssd1(vssd1),
     .wb_ack_o(wbd_mbist7_ack_i),
@@ -4506,6 +4745,22 @@ module user_project_wrapper (user_clock2,
     \mem7_mask_b[2] ,
     \mem7_mask_b[1] ,
     \mem7_mask_b[0] }),
+    .scan_si({\scan_out_mbist6[7] ,
+    \scan_out_mbist6[6] ,
+    \scan_out_mbist6[5] ,
+    \scan_out_mbist6[4] ,
+    \scan_out_mbist6[3] ,
+    \scan_out_mbist6[2] ,
+    \scan_out_mbist6[1] ,
+    \scan_out_mbist6[0] }),
+    .scan_so({\scan_out_mbist7[7] ,
+    \scan_out_mbist7[6] ,
+    \scan_out_mbist7[5] ,
+    \scan_out_mbist7[4] ,
+    \scan_out_mbist7[3] ,
+    \scan_out_mbist7[2] ,
+    \scan_out_mbist7[1] ,
+    \scan_out_mbist7[0] }),
     .wb_adr_i({\wbd_mbist7_adr_o[9] ,
     \wbd_mbist7_adr_o[8] ,
     \wbd_mbist7_adr_o[7] ,
@@ -4597,6 +4852,10 @@ module user_project_wrapper (user_clock2,
     .mem_clk_b(mem8_clk_b),
     .mem_web_b(mem8_web_b),
     .rst_n(bist_rst_n),
+    .scan_en(scan_en_mbist7),
+    .scan_en_o(scan_en_mbist8),
+    .scan_mode(scan_mode_mbist7),
+    .scan_mode_o(scan_mode_mbist8),
     .vccd1(vccd1),
     .vssd1(vssd1),
     .wb_ack_o(wbd_mbist8_ack_i),
@@ -4698,6 +4957,22 @@ module user_project_wrapper (user_clock2,
     \mem8_mask_b[2] ,
     \mem8_mask_b[1] ,
     \mem8_mask_b[0] }),
+    .scan_si({\scan_out_mbist7[7] ,
+    \scan_out_mbist7[6] ,
+    \scan_out_mbist7[5] ,
+    \scan_out_mbist7[4] ,
+    \scan_out_mbist7[3] ,
+    \scan_out_mbist7[2] ,
+    \scan_out_mbist7[1] ,
+    \scan_out_mbist7[0] }),
+    .scan_so({\scan_out_mbist8[7] ,
+    \scan_out_mbist8[6] ,
+    \scan_out_mbist8[5] ,
+    \scan_out_mbist8[4] ,
+    \scan_out_mbist8[3] ,
+    \scan_out_mbist8[2] ,
+    \scan_out_mbist8[1] ,
+    \scan_out_mbist8[0] }),
     .wb_adr_i({\wbd_mbist8_adr_o[9] ,
     \wbd_mbist8_adr_o[8] ,
     \wbd_mbist8_adr_o[7] ,
@@ -5767,6 +6042,8 @@ module user_project_wrapper (user_clock2,
     \mem8_mask_b[1] ,
     \mem8_mask_b[0] }));
  wb_host u_wb_host (.bist_rst_n(bist_rst_n),
+    .lbist_clk_int(lbist_clk),
+    .lbist_clk_out(lbist_clk),
     .scan_clk(scan_clk),
     .scan_en(scan_en),
     .scan_mode(scan_mode),
@@ -5855,6 +6132,10 @@ module user_project_wrapper (user_clock2,
     \cfg_clk_ctrl2[2] ,
     \cfg_clk_ctrl2[1] ,
     \cfg_clk_ctrl2[0] }),
+    .cfg_cska_lbist({\cfg_clk_ctrl1[15] ,
+    \cfg_clk_ctrl1[14] ,
+    \cfg_clk_ctrl1[13] ,
+    \cfg_clk_ctrl1[12] }),
     .cfg_cska_wh({\cfg_clk_ctrl1[3] ,
     \cfg_clk_ctrl1[2] ,
     \cfg_clk_ctrl1[1] ,
@@ -6071,14 +6352,14 @@ module user_project_wrapper (user_clock2,
     \scan_in[2] ,
     \scan_in[1] ,
     \scan_in[0] }),
-    .scan_out({\scan_out[7] ,
-    \scan_out[6] ,
-    \scan_out[5] ,
-    \scan_out[4] ,
-    \scan_out[3] ,
-    \scan_out[2] ,
-    \scan_out[1] ,
-    \scan_out[0] }),
+    .scan_out({\scan_out_mbist1[7] ,
+    \scan_out_mbist1[6] ,
+    \scan_out_mbist1[5] ,
+    \scan_out_mbist1[4] ,
+    \scan_out_mbist1[3] ,
+    \scan_out_mbist1[2] ,
+    \scan_out_mbist1[1] ,
+    \scan_out_mbist1[0] }),
     .user_irq({user_irq[2],
     user_irq[1],
     user_irq[0]}),

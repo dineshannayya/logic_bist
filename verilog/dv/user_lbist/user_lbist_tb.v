@@ -177,8 +177,10 @@ integer i,j;
 	`ifdef WFDUMP
 	   initial begin
 	   	$dumpfile("simx.vcd");
+	   	$dumpvars(1, user_lbist_tb.u_top);
 	   	$dumpvars(0, user_lbist_tb.u_top.u_wb_host);
 	   	$dumpvars(0, user_lbist_tb.u_top.u_glbl);
+	   	$dumpvars(0, user_lbist_tb.u_top.u_mbist5);
 	   end
        `endif
 
@@ -297,47 +299,6 @@ user_project_wrapper u_top(
 `ifndef GL // Drive Power for Hold Fix Buf
     // All standard cell need power hook-up for functionality work
     initial begin
-
-	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VGND =VSS;
-	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VNB = VSS;
-
-	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VGND =VSS;
-	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VNB = VSS;
-
-	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VGND =VSS;
-	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VNB = VSS;
-
-	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VGND =VSS;
-	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VNB = VSS;
-
-	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VGND =VSS;
-	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VNB = VSS;
-
-	force u_top.u_wb_host.u_delay1_stb0.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_delay1_stb0.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_delay1_stb0.VGND =VSS;
-	force u_top.u_wb_host.u_delay1_stb0.VNB = VSS;
-	
-	force u_top.u_wb_host.u_delay2_stb1.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_delay2_stb1.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_delay2_stb1.VGND =VSS;
-	force u_top.u_wb_host.u_delay2_stb1.VNB = VSS;
-
-	force u_top.u_wb_host.u_delay2_stb2.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_delay2_stb2.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_delay2_stb2.VGND =VSS;
-	force u_top.u_wb_host.u_delay2_stb2.VNB = VSS;
-
 
     end
 `endif    

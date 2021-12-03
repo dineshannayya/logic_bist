@@ -53,7 +53,8 @@ set ::env(VERILOG_FILES) "\
 set ::env(VERILOG_INCLUDE_DIRS) [glob $script_dir/../../verilog/rtl/mbist/include ]
 
 
-set ::env(SYNTH_PARAMS) "BIST_ADDR_WD 8,\
+set ::env(SYNTH_PARAMS) "SCW 8, \
+                         BIST_ADDR_WD 8,\
 	                 BIST_DATA_WD 32,\
 		         BIST_ADDR_START 8'h000,\
 			 BIST_ADDR_END 8'h0FB,\
@@ -71,6 +72,7 @@ set ::env(LEC_ENABLE) 0
 set ::env(VDD_PIN) [list {vccd1}]
 set ::env(GND_PIN) [list {vssd1}]
 
+set ::env(SCAN_TOTAL_CHAINS) 8
 
 # Floorplanning
 # -------------

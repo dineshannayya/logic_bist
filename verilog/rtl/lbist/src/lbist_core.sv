@@ -69,6 +69,7 @@ module lbist_core
     (
 
 	input logic            mclk,
+	input logic            mclk_skew,
 	input logic            rst_n,
 	input logic            srst, // software reset
 
@@ -121,7 +122,7 @@ logic       next_lbist_done;
 logic       lbist_start_d;
 logic       next_scan_mode;
 
-always_ff @(negedge rst_n or posedge mclk)
+always_ff @(negedge rst_n or posedge mclk_skew)
 begin
    if(rst_n == 1'b0) begin
       state        <= FSM_IDLE;
@@ -283,7 +284,7 @@ crc_32 u_tx_crc(
        .run      (crc_run),   // when asserted, crc is generated
        .clear    (crc_clear), // When asserted crc is re-initialized
        .data_in  (8'h0),
-       .mclk     (mclk),
+       .mclk     (mclk_skew),
        .reset_n (rst_n)
                 );
 
@@ -295,7 +296,7 @@ crc_32 u_rx_crc(
        .run      (crc_run),   // when asserted, crc is generated
        .clear    (crc_clear), // When asserted crc is re-initialized
        .data_in  (scan_out),
-       .mclk     (mclk),
+       .mclk     (mclk_skew),
        .reset_n (rst_n)
                 );
 

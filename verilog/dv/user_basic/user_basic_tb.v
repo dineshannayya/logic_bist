@@ -250,8 +250,8 @@ begin
          wb_user_core_write(`WB_GLBL_CTRL,'h1);
 
 	 wb_user_core_read_check(`GLBL_BIST_SOFT1,read_data,32'h4C66_8354);
-	 wb_user_core_read_check(`GLBL_BIST_SOFT2,read_data,32'h2311_2021);
-	 wb_user_core_read_check(`GLBL_BIST_SOFT3,read_data,32'h0000_4000);
+	 wb_user_core_read_check(`GLBL_BIST_SOFT2,read_data,32'h0312_2021);
+	 wb_user_core_read_check(`GLBL_BIST_SOFT3,read_data,32'h0001_1000);
       end
    
       begin
@@ -326,46 +326,6 @@ user_project_wrapper u_top(
     // All standard cell need power hook-up for functionality work
     initial begin
 
-	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VGND =VSS;
-	force u_top.u_wb_host.u_wb_rst_scan_sel.u_mux.VNB = VSS;
-
-	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VGND =VSS;
-	force u_top.u_wb_host.u_bist_rst_scan_sel.u_mux.VNB = VSS;
-
-	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VGND =VSS;
-	force u_top.u_wb_host.u_wbs_clk_sel.u_mux.VNB = VSS;
-
-	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VGND =VSS;
-	force u_top.u_wb_host.u_wbs_clk_scan_sel.u_mux.VNB = VSS;
-
-	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VGND =VSS;
-	force u_top.u_wb_host.u_lbist_clk_sel.u_mux.VNB = VSS;
-
-	force u_top.u_wb_host.u_delay1_stb0.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_delay1_stb0.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_delay1_stb0.VGND =VSS;
-	force u_top.u_wb_host.u_delay1_stb0.VNB = VSS;
-	
-	force u_top.u_wb_host.u_delay2_stb1.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_delay2_stb1.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_delay2_stb1.VGND =VSS;
-	force u_top.u_wb_host.u_delay2_stb1.VNB = VSS;
-
-	force u_top.u_wb_host.u_delay2_stb2.VPWR =USER_VDD1V8;
-	force u_top.u_wb_host.u_delay2_stb2.VPB  =USER_VDD1V8;
-	force u_top.u_wb_host.u_delay2_stb2.VGND =VSS;
-	force u_top.u_wb_host.u_delay2_stb2.VNB = VSS;
-
 
     end
 `endif    
@@ -378,7 +338,7 @@ begin
    force clock_mon = u_top.u_wb_host.wbs_clk_out;
    check_clock_period("WBS Clock",exp_wbs_period);
    release clock_mon;
-   force clock_mon = u_top.u_wb_host.lbist_clk;
+   force clock_mon = u_top.u_wb_host.lbist_clk_int;
    check_clock_period("LBIST Clock",exp_lbist_period);
    release clock_mon;
 

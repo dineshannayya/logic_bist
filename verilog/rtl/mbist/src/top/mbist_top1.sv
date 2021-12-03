@@ -43,7 +43,8 @@
 
 `include "mbist_def.svh"
 module mbist_top1 
-     #(  parameter BIST_ADDR_WD           = 9,
+     #(  parameter SCW = 8,   // SCAN CHAIN WIDTH
+	 parameter BIST_ADDR_WD           = 9,
 	 parameter BIST_DATA_WD           = 32,
 	 parameter BIST_ADDR_START        = 9'h000,
 	 parameter BIST_ADDR_END          = 9'h1FB,
@@ -55,6 +56,14 @@ module mbist_top1
     inout vccd1,	// User area 1 1.8V supply
     inout vssd1,	// User area 1 digital ground
 `endif
+
+       // Scan I/F
+       input logic             scan_en,
+       input logic             scan_mode,
+       input logic [SCW-1:0]   scan_si,
+       output logic [SCW-1:0]  scan_so,
+       output logic            scan_en_o,
+       output logic            scan_mode_o,
 	
     // Clock Skew Adjust
        input   logic                        wbd_clk_int, 
@@ -163,6 +172,9 @@ logic [BIST_DATA_WD-1:0] bist_wdata      ; // bist write data
 logic                    bist_wr         ;
 logic                    bist_rd         ;
 
+assign scan_en_o = scan_en;
+assign scan_mode_o = scan_mode;
+
 assign bist_wr = (cmd_phase && op_write);
 assign bist_rd = (cmd_phase && op_read);
 
@@ -171,8 +183,8 @@ assign bist_wdata = (op_invert) ? ~pat_data : pat_data;
 
 // Clock Tree branching to avoid clock latency towards SRAM path
 wire wb_clk_b1,wb_clk_b2;
-sky130_fd_sc_hd__clkbuf_8 u_cts_wb_clk_b1 (.A (wb_clk_i), . X(wb_clk_b1));
-sky130_fd_sc_hd__clkbuf_8 u_cts_wb_clk_b2 (.A (wb_clk_i), . X(wb_clk_b2));
+ctech_clk_buf u_cts_wb_clk_b1 (.A (wb_clk_i), . X(wb_clk_b1));
+ctech_clk_buf u_cts_wb_clk_b2 (.A (wb_clk_i), . X(wb_clk_b2));
 
 // wb_host clock skew control
 clk_skew_adjust u_skew_mbist
@@ -187,7 +199,7 @@ clk_skew_adjust u_skew_mbist
        );
 
 reset_sync   u_reset_sync (
-	      .scan_mode  (1'b0      ),
+	      .scan_mode  (scan_mode ),
               .dclk       (wb_clk_b1 ), // Destination clock domain
 	      .arst_n     (rst_n     ), // active low async reset
               .srst_n     (srst_n    )
@@ -413,6 +425,8 @@ mbist_mux
 	 .BIST_RAD_WD_O          (BIST_RAD_WD_O          )
           )
        u_mem_sel (
+
+	            .scan_mode            (scan_mode     ),
 
                     .rst_n                (srst_n        ),
                     // MBIST CTRL SIGNAL

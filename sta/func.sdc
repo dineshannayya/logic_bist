@@ -868,6 +868,10 @@ set_case_analysis 1 [get_pins {u_wb_host/cfg_cska_wh[1]}]
 set_case_analysis 1 [get_pins {u_wb_host/cfg_cska_wh[2]}]
 set_case_analysis 0 [get_pins {u_wb_host/cfg_cska_wh[3]}]
 
+set_case_analysis 0 [get_pins {u_wb_host/cfg_cska_lbist[0]}]
+set_case_analysis 1 [get_pins {u_wb_host/cfg_cska_lbist[1]}]
+set_case_analysis 1 [get_pins {u_wb_host/cfg_cska_lbist[2]}]
+set_case_analysis 0 [get_pins {u_wb_host/cfg_cska_lbist[3]}]
 
 
 #disable clock gating check at static clock select pins

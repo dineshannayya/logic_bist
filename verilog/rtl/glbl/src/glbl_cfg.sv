@@ -75,10 +75,13 @@ module glbl_cfg #(parameter SCW = 8   // SCAN CHAIN WIDTH
        input logic             mclk,
        input logic             reset_n,
 
+       // Scan I/F
        input logic             scan_en,
        input logic             scan_mode,
        input logic [SCW-1:0]   scan_si,
        output logic [SCW-1:0]  scan_so,
+       output logic            scan_en_o,
+       output logic            scan_mode_o,
 
 	// Clock Skew Adjust
        input   logic           wbd_clk_int      , 
@@ -150,6 +153,10 @@ logic [31:0]    reg_out;
 //-----------------------------------------------------------------------
 // Main code starts here
 //-----------------------------------------------------------------------
+
+
+assign scan_en_o = scan_en;
+assign scan_mode_o = scan_mode;
 
 // wb_host clock skew control
 clk_skew_adjust u_skew_glbl
@@ -539,7 +546,7 @@ gen_32b_reg  #(32'h4C66_8354) u_reg_9	(
 //-----------------------------------------
 // Software Reg-2, Release date: <DAY><MONTH><YEAR>
 // ----------------------------------------
-gen_32b_reg  #(32'h2311_2021) u_reg_101	(
+gen_32b_reg  #(32'h0312_2021) u_reg_101	(
 	      //List of Inputs
 	      .reset_n    (reset_n       ),
 	      .clk        (mclk          ),
@@ -552,9 +559,9 @@ gen_32b_reg  #(32'h2311_2021) u_reg_101	(
 	      );
 
 //-----------------------------------------
-// Software Reg-3: Poject Revison 0.4 = 0000400
+// Software Reg-3: Poject Revison 0.4 = 0001100
 // ----------------------------------------
-gen_32b_reg  #(32'h0000_4000) u_reg_11	(
+gen_32b_reg  #(32'h0001_1000) u_reg_11	(
 	      //List of Inputs
 	      .reset_n    (reset_n       ),
 	      .clk        (mclk          ),

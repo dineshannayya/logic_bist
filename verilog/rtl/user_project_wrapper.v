@@ -51,6 +51,14 @@
 ////          1 Wishbone Interconnect, 1 Global register          ////
 ////    0.4 - 23 Nov 2021, Dinesh A                               ////
 ////          Three Software Register added for signature at glbl ////
+////    1.0 - 01 Dec 2021, Dinesh A -MPW-4                        ////
+////          A. Logic Bist Integrated inside the Wb_host         ////
+////          B. Below Scan chain created                         ////
+////     WB_HOST(LBIST) => GLBL => MBIST5 => MBIST6 => MBIST7     ////
+////     => MBIST8 => WB_INTERCONNECT => MBIST4 => MBIST3 =>      ////
+////     MBIST2 => MBIST1 => WB_HOST(LBIST)                       ////
+////    1.1 - 03 Dec 2021, Dinesh A                               ////
+////         Timing closure clean-up                              ////
 //////////////////////////////////////////////////////////////////////
 `default_nettype none
 
@@ -405,6 +413,7 @@ wire [BIST_DATA_WD/8-1:0]      mem8_mask_b;
 wire [BIST2_ADDR_WD-1:2]       mem8_addr_b;
 wire [BIST_DATA_WD-1:0]        mem8_dout_a;
 
+wire                          lbist_clk          ;
 wire                          wbd_clk_wh         ;
 wire                          wbd_clk_int        ;
 wire                          wbd_clk_glbl_int   ;
@@ -433,10 +442,60 @@ wire [31:0]                   cfg_clk_ctrl2      ;
 // Scan Control Signal
 wire                          scan_clk           ;
 wire                          scan_rst_n         ;
+
 wire                          scan_mode          ;
 wire                          scan_en            ;
 wire [SCW-1:0]                scan_in            ;
 wire [SCW-1:0]                scan_out           ;
+
+wire                          scan_mode_glbl     ;
+wire                          scan_en_glbl       ;
+wire [SCW-1:0]                scan_out_glbl      ;
+
+wire                          scan_mode_wbi     ;
+wire                          scan_en_wbi       ;
+wire [SCW-1:0]                scan_out_wbi      ;
+
+wire                          scan_mode_mbist1  ;
+wire                          scan_en_mbist1    ;
+wire [SCW-1:0]                scan_out_mbist1   ;
+
+wire                          scan_mode_mbist2  ;
+wire                          scan_en_mbist2    ;
+wire [SCW-1:0]                scan_out_mbist2   ;
+
+wire                          scan_mode_mbist3  ;
+wire                          scan_en_mbist3    ;
+wire [SCW-1:0]                scan_out_mbist3   ;
+
+wire                          scan_mode_mbist4  ;
+wire                          scan_en_mbist4    ;
+wire [SCW-1:0]                scan_out_mbist4   ;
+
+wire                          scan_mode_mbist5  ;
+wire                          scan_en_mbist5    ;
+wire [SCW-1:0]                scan_out_mbist5   ;
+
+wire                          scan_mode_mbist6  ;
+wire                          scan_en_mbist6    ;
+wire [SCW-1:0]                scan_out_mbist6   ;
+
+wire                          scan_mode_mbist7  ;
+wire                          scan_en_mbist7    ;
+wire [SCW-1:0]                scan_out_mbist7   ;
+
+wire                          scan_mode_mbist8  ;
+wire                          scan_en_mbist8    ;
+wire [SCW-1:0]                scan_out_mbist8   ;
+
+////////////////////////////////////////////////////////////
+//  Scan Tree Map
+///////////////////////////////////////////////////////////
+
+// WB_HOST(LBIST) => GLBL => MBIST5 => MBIST6 => MBIST7 
+// => MBIST8 => WB_INTERCONNECT => MBIST4 => MBIST3 
+// => MBIST2 => MBIST1 => WB_HOST(LBIST) 
+
 /////////////////////////////////////////////////////////
 // Clock Skew Ctrl
 ////////////////////////////////////////////////////////
@@ -444,6 +503,7 @@ wire [SCW-1:0]                scan_out           ;
 wire [3:0] cfg_cska_wh       = cfg_clk_ctrl1[3:0];
 wire [3:0] cfg_cska_wi       = cfg_clk_ctrl1[7:4];
 wire [3:0] cfg_cska_glbl     = cfg_clk_ctrl1[11:8];
+wire [3:0] cfg_cska_lbist    = cfg_clk_ctrl1[15:12];
 
 wire [3:0] cfg_cska_mbist1   = cfg_clk_ctrl2[3:0];
 wire [3:0] cfg_cska_mbist2   = cfg_clk_ctrl2[7:4];
@@ -487,6 +547,11 @@ wb_host
         .wbd_clk_wh           (wbd_clk_wh       ),  
         .cfg_cska_wh          (cfg_cska_wh      ),
 
+    // Clock Skeq Adjust
+        .lbist_clk_int        (lbist_clk        ),
+        .lbist_clk_out        (lbist_clk        ),  
+        .cfg_cska_lbist       (cfg_cska_lbist   ),
+
     // Slave Port
         .wbs_clk_out          (wbd_clk_int      ),
         .wbs_clk_i            (wbd_clk_wh       ),  
@@ -517,12 +582,13 @@ wb_host
 	.scan_mode           (scan_mode         ),
 	.scan_en             (scan_en           ),
 	.scan_in             (scan_in           ),
-	.scan_out            (scan_out          )
+	.scan_out            (scan_out_mbist1   )
 
     );
 
 wb_interconnect  #(
 	`ifndef SYNTHESIS
+                 .SCW(SCW),   // SCAN CHAIN WIDTH
 	        .CH_CLK_WD(9),
 	        .CH_DATA_WD(104)
         `endif
@@ -532,6 +598,14 @@ wb_interconnect  #(
          .vccd1         (vccd1                 ),// User area 1 1.8V supply
          .vssd1         (vssd1                 ),// User area 1 digital ground
 `endif
+       // SCAN I/F
+       .scan_en                (scan_en_mbist8   ),
+       .scan_mode              (scan_mode_mbist8 ),
+       .scan_si                (scan_out_mbist8   ),
+
+       .scan_en_o              (scan_en_wbi    ),
+       .scan_mode_o            (scan_mode_wbi  ),
+       .scan_so                (scan_out_wbi   ),
      // Clock Skew adjust
 	 .wbd_clk_int   (wbd_clk_int           ), 
 	 .cfg_cska_wi   (cfg_cska_wi           ), 
@@ -865,7 +939,10 @@ glbl_cfg #(
        .scan_en                (scan_en                   ),
        .scan_mode              (scan_mode                 ),
        .scan_si                (scan_in                   ),
-       .scan_so                (scan_out                  ),
+
+       .scan_en_o              (scan_en_glbl              ),
+       .scan_mode_o            (scan_mode_glbl            ),
+       .scan_so                (scan_out_glbl             ),
 
 
        .wbd_clk_int            (wbd_clk_glbl_int          ), 
@@ -916,6 +993,7 @@ glbl_cfg #(
 
 mbist_top1  #(
 	`ifndef SYNTHESIS
+        .SCW                    (SCW),   // SCAN CHAIN WIDTH
 	.BIST_ADDR_WD           (BIST1_ADDR_WD-2        ),
 	.BIST_DATA_WD           (BIST_DATA_WD           ),
 	.BIST_ADDR_START        (9'h000                 ),
@@ -931,6 +1009,14 @@ mbist_top1  #(
        .vccd1                  (vccd1                     ),// User area 1 1.8V supply
        .vssd1                  (vssd1                     ),// User area 1 digital ground
 `endif
+       // SCAN I/F
+       .scan_en                (scan_en_mbist2    ),
+       .scan_mode              (scan_mode_mbist2  ),
+       .scan_si                (scan_out_mbist2    ),
+
+       .scan_en_o              (scan_en_mbist1    ),
+       .scan_mode_o            (scan_mode_mbist1  ),
+       .scan_so                (scan_out_mbist1   ),
 
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist1_int), 
@@ -1005,6 +1091,7 @@ sky130_sram_2kbyte_1rw1r_32x512_8 u_sram1_2kb(
 
 mbist_top1  #(
 	`ifndef SYNTHESIS
+        .SCW                    (SCW),   // SCAN CHAIN WIDTH
 	.BIST_ADDR_WD           (BIST1_ADDR_WD-2        ),
 	.BIST_DATA_WD           (BIST_DATA_WD           ),
 	.BIST_ADDR_START        (9'h000                 ),
@@ -1019,6 +1106,14 @@ mbist_top1  #(
        .vccd1                  (vccd1                     ),// User area 1 1.8V supply
        .vssd1                  (vssd1                     ),// User area 1 digital ground
 `endif
+       // SCAN I/F
+       .scan_en                (scan_en_mbist3    ),
+       .scan_mode              (scan_mode_mbist3  ),
+       .scan_si                (scan_out_mbist3    ),
+
+       .scan_en_o              (scan_en_mbist2    ),
+       .scan_mode_o            (scan_mode_mbist2  ),
+       .scan_so                (scan_out_mbist2   ),
 
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist2_int), 
@@ -1093,6 +1188,7 @@ sky130_sram_2kbyte_1rw1r_32x512_8 u_sram2_2kb(
 
 mbist_top1  #(
 	`ifndef SYNTHESIS
+        .SCW                    (SCW),   // SCAN CHAIN WIDTH
 	.BIST_ADDR_WD           (BIST1_ADDR_WD-2        ),
 	.BIST_DATA_WD           (BIST_DATA_WD           ),
 	.BIST_ADDR_START        (9'h000                 ),
@@ -1108,6 +1204,14 @@ mbist_top1  #(
        .vccd1                  (vccd1                     ),// User area 1 1.8V supply
        .vssd1                  (vssd1                     ),// User area 1 digital ground
 `endif
+       // SCAN I/F
+       .scan_en                (scan_en_mbist4    ),
+       .scan_mode              (scan_mode_mbist4  ),
+       .scan_si                (scan_out_mbist4    ),
+
+       .scan_en_o              (scan_en_mbist3    ),
+       .scan_mode_o            (scan_mode_mbist3  ),
+       .scan_so                (scan_out_mbist3   ),
 
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist3_int      ), 
@@ -1182,6 +1286,7 @@ sky130_sram_2kbyte_1rw1r_32x512_8 u_sram3_2kb(
 
 mbist_top1  #(
 	`ifndef SYNTHESIS
+        .SCW                    (SCW),   // SCAN CHAIN WIDTH
 	.BIST_ADDR_WD           (BIST1_ADDR_WD-2        ),
 	.BIST_DATA_WD           (BIST_DATA_WD           ),
 	.BIST_ADDR_START        (9'h000                 ),
@@ -1196,6 +1301,14 @@ mbist_top1  #(
        .vccd1                  (vccd1                     ),// User area 1 1.8V supply
        .vssd1                  (vssd1                     ),// User area 1 digital ground
 `endif
+       // SCAN I/F
+       .scan_en                (scan_en_wbi       ),
+       .scan_mode              (scan_mode_wbi     ),
+       .scan_si                (scan_out_wbi       ),
+
+       .scan_en_o              (scan_en_mbist4    ),
+       .scan_mode_o            (scan_mode_mbist4  ),
+       .scan_so                (scan_out_mbist4   ),
 
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist4_int      ), 
@@ -1270,6 +1383,7 @@ sky130_sram_2kbyte_1rw1r_32x512_8 u_sram4_2kb(
 
 mbist_top2  #(
 	`ifndef SYNTHESIS
+        .SCW                    (SCW),   // SCAN CHAIN WIDTH
 	.BIST_ADDR_WD           (BIST2_ADDR_WD-2        ),
 	.BIST_DATA_WD           (BIST_DATA_WD           ),
 	.BIST_ADDR_START        (8'h00                  ),
@@ -1284,6 +1398,14 @@ mbist_top2  #(
        .vccd1                  (vccd1                     ),// User area 1 1.8V supply
        .vssd1                  (vssd1                     ),// User area 1 digital ground
 `endif
+       // SCAN I/F
+       .scan_en                (scan_en_glbl      ),
+       .scan_mode              (scan_mode_glbl    ),
+       .scan_si                (scan_out_glbl      ),
+
+       .scan_en_o              (scan_en_mbist5    ),
+       .scan_mode_o            (scan_mode_mbist5  ),
+       .scan_so                (scan_out_mbist5   ),
 
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist5_int      ), 
@@ -1359,6 +1481,7 @@ sky130_sram_1kbyte_1rw1r_32x256_8 u_sram5_1kb(
 
 mbist_top2  #(
 	`ifndef SYNTHESIS
+        .SCW                    (SCW),   // SCAN CHAIN WIDTH
 	.BIST_ADDR_WD           (BIST2_ADDR_WD-2        ),
 	.BIST_DATA_WD           (BIST_DATA_WD           ),
 	.BIST_ADDR_START        (8'h00                  ),
@@ -1373,6 +1496,14 @@ mbist_top2  #(
        .vccd1                  (vccd1                     ),// User area 1 1.8V supply
        .vssd1                  (vssd1                     ),// User area 1 digital ground
 `endif
+       // SCAN I/F
+       .scan_en                (scan_en_mbist5      ),
+       .scan_mode              (scan_mode_mbist5    ),
+       .scan_si                (scan_out_mbist5      ),
+
+       .scan_en_o              (scan_en_mbist6    ),
+       .scan_mode_o            (scan_mode_mbist6  ),
+       .scan_so                (scan_out_mbist6   ),
 
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist6_int      ), 
@@ -1446,6 +1577,7 @@ sky130_sram_1kbyte_1rw1r_32x256_8 u_sram6_1kb(
 
 mbist_top2  #(
 	`ifndef SYNTHESIS
+        .SCW                    (SCW),   // SCAN CHAIN WIDTH
 	.BIST_ADDR_WD           (BIST2_ADDR_WD-2        ),
 	.BIST_DATA_WD           (BIST_DATA_WD           ),
 	.BIST_ADDR_START        (8'h00                  ),
@@ -1460,6 +1592,14 @@ mbist_top2  #(
        .vccd1                  (vccd1                     ),// User area 1 1.8V supply
        .vssd1                  (vssd1                     ),// User area 1 digital ground
 `endif
+       // SCAN I/F
+       .scan_en                (scan_en_mbist6      ),
+       .scan_mode              (scan_mode_mbist6    ),
+       .scan_si                (scan_out_mbist6      ),
+
+       .scan_en_o              (scan_en_mbist7    ),
+       .scan_mode_o            (scan_mode_mbist7  ),
+       .scan_so                (scan_out_mbist7   ),
 
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist7_int      ), 
@@ -1535,6 +1675,7 @@ sky130_sram_1kbyte_1rw1r_32x256_8 u_sram7_1kb(
 
 mbist_top2  #(
 	`ifndef SYNTHESIS
+        .SCW                    (SCW),   // SCAN CHAIN WIDTH
 	.BIST_ADDR_WD           (BIST2_ADDR_WD-2        ),
 	.BIST_DATA_WD           (BIST_DATA_WD           ),
 	.BIST_ADDR_START        (8'h00                  ),
@@ -1549,6 +1690,15 @@ mbist_top2  #(
        .vccd1                  (vccd1                     ),// User area 1 1.8V supply
        .vssd1                  (vssd1                     ),// User area 1 digital ground
 `endif
+       // SCAN I/F
+       .scan_en                (scan_en_mbist7      ),
+       .scan_mode              (scan_mode_mbist7    ),
+       .scan_si                (scan_out_mbist7      ),
+
+       .scan_en_o              (scan_en_mbist8    ),
+       .scan_mode_o            (scan_mode_mbist8  ),
+       .scan_so                (scan_out_mbist8   ),
+
 
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist8_int), 

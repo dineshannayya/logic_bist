@@ -98,6 +98,11 @@ module wb_host
        input   logic               wbd_clk_int      , 
        output  logic               wbd_clk_wh       ,
        input   logic [3:0]         cfg_cska_wh      , // clock skew adjust for web host
+    
+   // lbist Clock Skew Adjust
+       input   logic               lbist_clk_int    , 
+       output  logic               lbist_clk_out    ,
+       input   logic [3:0]         cfg_cska_lbist   , // clock skew adjust for web host
 
     // Slave Port
        output  logic               wbs_clk_out      ,  // System clock
@@ -171,7 +176,8 @@ logic  [3:0]        cfg_wb_clk_ctrl;
 logic  [3:0]        cfg_lbist_clk_ctrl;
 logic  [7:0]        cfg_glb_ctrl;
 
-logic               lbist_clk   ;  // LBIST clock
+logic               lbist_clk_skew   ;  // LBIST clock
+logic               scan_mode_int    ;
 
 assign io_out = 'h0;
 assign io_oeb  = 'h0;
@@ -181,6 +187,8 @@ assign user_irq  = 'h0;
 assign wbm_rst_n = !wbm_rst_i;
 assign wbs_rst_n = !wbm_rst_i;
 
+ctech_buf  u_scan_buf (.A(scan_mode_int), .X(scan_mode));
+// Reset bypass for scan mode
 ctech_mux2x1 u_wb_rst_scan_sel   (.A0 (cfg_glb_ctrl[0]), .A1 (scan_rst_n), .S  (scan_mode), .X  (wbd_int_rst_n));
 ctech_mux2x1 u_bist_rst_scan_sel (.A0 (cfg_glb_ctrl[1]), .A1 (scan_rst_n), .S  (scan_mode), .X  (bist_rst_n));
 
@@ -205,9 +213,9 @@ wire         wbm_err_o1   = (wb_reg_sel) ? 1'b0         : (lbist_reg_sel) ? lbis
 logic wb_req;
 // Hold fix for STROBE
 wire  wbm_stb_d1,wbm_stb_d2,wbm_stb_d3;
-sky130_fd_sc_hd__dlygate4sd3_1 u_delay1_stb0 (.X(wbm_stb_d1),.A(wbm_stb_i));
-sky130_fd_sc_hd__dlygate4sd3_1 u_delay2_stb1 (.X(wbm_stb_d2),.A(wbm_stb_d1));
-sky130_fd_sc_hd__dlygate4sd3_1 u_delay2_stb2 (.X(wbm_stb_d3),.A(wbm_stb_d2));
+ctech_delay_buf u_delay1_stb0 (.X(wbm_stb_d1),.A(wbm_stb_i));
+ctech_delay_buf u_delay2_stb1 (.X(wbm_stb_d2),.A(wbm_stb_d1));
+ctech_delay_buf u_delay2_stb2 (.X(wbm_stb_d3),.A(wbm_stb_d2));
 
 always_ff @(negedge wbm_rst_n or posedge wbm_clk_i) begin
     if ( wbm_rst_n == 1'b0 ) begin
@@ -350,6 +358,7 @@ logic               wbs_we_o1        ;  // write
 logic [31:0]        wbs_dat_o1       ;  // data output
 logic [3:0]         wbs_sel_o1       ;  // byte enable
 
+
 assign wbs_cyc_o     = (scan_mode) ? wbs_ack_i      : wbs_cyc_o1;
 assign wbs_stb_o     = (scan_mode) ? wbs_ack_i      : wbs_stb_o1;
 assign wbs_adr_o     = (scan_mode) ? wbs_dat_i      : wbs_adr_o1;
@@ -409,12 +418,13 @@ lbist_top
 
 	// LBIST I/F
 	.lbist_clk           (lbist_clk),
+	.lbist_clk_skew      (lbist_clk_int),
 
 
 	// Scan Control Signal
 	.scan_clk            (scan_clk),
 	.scan_rst_n          (scan_rst_n),
-	.scan_mode           (scan_mode),
+	.scan_mode           (scan_mode_int),
 	.scan_en             (scan_en),
 	.scan_in             (scan_in),
 	.scan_out            (scan_out)
@@ -472,5 +482,16 @@ clk_ctl #(2) u_lbist_clk (
        .clk_div_ratio (cfg_lbist_clk_ratio )
    );
 
+// wb_host clock skew control
+clk_skew_adjust u_skew_lbist
+       (
+`ifdef USE_POWER_PINS
+               .vccd1      (vccd1                      ),// User area 1 1.8V supply
+               .vssd1      (vssd1                      ),// User area 1 digital ground
+`endif
+	       .clk_in     (lbist_clk                  ), 
+	       .sel        (cfg_cska_lbist             ), 
+	       .clk_out    (lbist_clk_out              ) 
+       );
 
 endmodule

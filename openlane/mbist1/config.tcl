@@ -53,7 +53,8 @@ set ::env(VERILOG_FILES) "\
 set ::env(VERILOG_INCLUDE_DIRS) [glob $script_dir/../../verilog/rtl/mbist/include ]
 
 
-set ::env(SYNTH_PARAMS) "BIST_ADDR_WD 9,\
+set ::env(SYNTH_PARAMS) "SCW  8, \  
+                         BIST_ADDR_WD 9,\
 	                 BIST_DATA_WD 32,\
 		         BIST_ADDR_START 9'h000,\
 			 BIST_ADDR_END 9'h1FB,\
@@ -71,6 +72,7 @@ set ::env(LEC_ENABLE) 0
 set ::env(VDD_PIN) [list {vccd1}]
 set ::env(GND_PIN) [list {vssd1}]
 
+set ::env(SCAN_TOTAL_CHAINS) 8
 
 # Floorplanning
 # -------------
@@ -78,7 +80,7 @@ set ::env(GND_PIN) [list {vssd1}]
 set ::env(FP_PIN_ORDER_CFG) $::env(DESIGN_DIR)/pin_order.cfg
 
 set ::env(FP_SIZING) absolute
-set ::env(DIE_AREA) "0 0 200 250"
+set ::env(DIE_AREA) "0 0 200 350"
 
 
 # If you're going to use multiple power domains, then keep this disabled.
@@ -88,7 +90,7 @@ set ::env(RUN_CVC) 1
 
 
 set ::env(PL_TIME_DRIVEN) 1
-set ::env(PL_TARGET_DENSITY) "0.40"
+set ::env(PL_TARGET_DENSITY) "0.35"
 
 
 

@@ -69,6 +69,7 @@
 
 
 module wb_interconnect #(
+	parameter SCW = 8,   // SCAN CHAIN WIDTH
 	parameter CH_CLK_WD = 9,
 	parameter CH_DATA_WD = 95
         ) (
@@ -76,6 +77,13 @@ module wb_interconnect #(
          input logic            vccd1,    // User area 1 1.8V supply
          input logic            vssd1,    // User area 1 digital ground
 `endif
+         input logic             scan_en,
+         input logic             scan_mode,
+         input logic [SCW-1:0]   scan_si,
+         output logic [SCW-1:0]  scan_so,
+         output logic            scan_en_o,
+         output logic            scan_mode_o,
+
          // Clock Skew Adjust
          input logic [3:0]      cfg_cska_wi,
          input logic            wbd_clk_int,
@@ -268,6 +276,8 @@ type_wb_rd_intf  s_bus_rd;  // Multiplexed Slave I/F
 assign ch_clk_out  = ch_clk_in;
 assign ch_data_out = ch_data_in;
 
+assign scan_en_o = scan_en;
+assign scan_mode_o = scan_mode;
 
 // Wishbone interconnect clock skew control
 clk_skew_adjust u_skew_wi

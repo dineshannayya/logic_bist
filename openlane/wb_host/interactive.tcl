@@ -18,6 +18,33 @@
 
 package require openlane;
 
+
+proc run_resizer_timing {args} {
+    if { $::env(PL_RESIZER_TIMING_OPTIMIZATIONS) == 1} {
+        puts_info "Running Resizer Timing Optimizations..."
+        TIMER::timer_start
+        set ::env(SAVE_DEF) [index_file $::env(resizer_tmp_file_tag)_timing.def 0]
+        set ::env(SAVE_SDC) [index_file $::env(resizer_tmp_file_tag)_timing.sdc 0]
+        try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/resizer_timing.tcl |& tee $::env(TERMINAL_OUTPUT) [index_file $::env(resizer_log_file_tag)_timing_optimization.log 0]
+        set_def $::env(SAVE_DEF)
+        set ::env(CURRENT_SDC) $::env(SAVE_SDC)
+
+        TIMER::timer_stop
+        exec echo "[TIMER::get_runtime]" >> [index_file $::env(resizer_log_file_tag)_timing_optimization_runtime.txt 0]
+
+        write_verilog $::env(resizer_result_file_tag)_optimized.v
+        set_netlist $::env(resizer_result_file_tag)_optimized.v
+
+        if { $::env(LEC_ENABLE) && [file exists $::env(PREV_NETLIST)] } {
+            logic_equiv_check -rhs $::env(PREV_NETLIST) -lhs $::env(CURRENT_NETLIST)
+        }
+
+    } else {
+        puts_info "Skipping Resizer Timing Optimizations."
+    }
+}
+
+
 proc run_placement_step {args} {
     # set pdndef_dirname [file dirname $::env(pdn_tmp_file_tag).def]
     # set pdndef [lindex [glob $pdndef_dirname/*pdn*] 0]

@@ -22,6 +22,7 @@ proc run_placement_step {args} {
     # set pdndef_dirname [file dirname $::env(pdn_tmp_file_tag).def]
     # set pdndef [lindex [glob $pdndef_dirname/*pdn*] 0]
     # set_def $pdndef
+    puts "\[INFO\]: Running Placement Step"
     if { ! [ info exists ::env(PLACEMENT_CURRENT_DEF) ] } {
         set ::env(PLACEMENT_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -33,6 +34,7 @@ proc run_placement_step {args} {
 
 proc run_cts_step {args} {
     # set_def $::env(opendp_result_file_tag).def
+    puts "\[INFO\]: Running CTS"
     if { ! [ info exists ::env(CTS_CURRENT_DEF) ] } {
         set ::env(CTS_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -47,6 +49,7 @@ proc run_routing_step {args} {
     # set resizerdef_dirname [file dirname $::env(resizer_tmp_file_tag)_timing.def]
     # set resizerdef [lindex [glob $resizerdef_dirname/*resizer*] 0]
     # set_def $resizerdef
+    puts "\[INFO\]: Running Routing"
     if { ! [ info exists ::env(ROUTING_CURRENT_DEF) ] } {
         set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -56,6 +59,7 @@ proc run_routing_step {args} {
 }
 
 proc run_diode_insertion_2_5_step {args} {
+    puts "\[INFO\]: Running Diode Insertion"
     # set_def $::env(tritonRoute_result_file_tag).def
     if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
         set ::env(DIODE_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
@@ -70,6 +74,7 @@ proc run_diode_insertion_2_5_step {args} {
 }
 
 proc run_power_pins_insertion_step {args} {
+    puts "\[INFO\]:Running Power Pin Insertion"
     # set_def $::env(tritonRoute_result_file_tag).def
     if { ! [ info exists ::env(POWER_PINS_INSERTION_CURRENT_DEF) ] } {
         set ::env(POWER_PINS_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
@@ -85,6 +90,7 @@ proc run_power_pins_insertion_step {args} {
 
 proc run_lvs_step {{ lvs_enabled 1 }} {
     # set_def $::env(tritonRoute_result_file_tag).def
+    puts "\[INFO\]:Running LVS Step"
     if { ! [ info exists ::env(LVS_CURRENT_DEF) ] } {
         set ::env(LVS_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -98,6 +104,7 @@ proc run_lvs_step {{ lvs_enabled 1 }} {
 }
 
 proc run_drc_step {{ drc_enabled 1 }} {
+    puts "\[INFO\]:Running DRC"
     if { ! [ info exists ::env(DRC_CURRENT_DEF) ] } {
         set ::env(DRC_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -110,6 +117,7 @@ proc run_drc_step {{ drc_enabled 1 }} {
 }
 
 proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
+    puts "\[INFO\]: Running Antenna checl"
     if { ! [ info exists ::env(ANTENNA_CHECK_CURRENT_DEF) ] } {
         set ::env(ANTENNA_CHECK_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {

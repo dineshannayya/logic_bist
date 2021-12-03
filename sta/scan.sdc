@@ -33,8 +33,8 @@ set ::env(BIST_CLOCK_NAME)   "bist_clk"
 ######################################
 create_clock -name user_clock2 -period 100.0000 [get_ports {user_clock2}]
 create_clock -name wbm_clk_i -period 10.0000 [get_ports {wb_clk_i}]
-create_clock -name wbs_clk_i -period 10.0000  [get_pins {u_wb_host/wbs_clk_out}]
-create_clock -name lbist_clk -period 10.0000 [get_pins {u_wb_host/u_lbist_clk_sel.u_mux/X}]
+create_clock -name wbs_clk_i -period 10.0000  [get_pins {u_wb_host/u_wbs_clk_scan_sel.u_mux/A0}]
+create_clock -name lbist_clk -period 20.0000 [get_pins {u_wb_host/u_lbist_clk_sel.u_mux/X}]
 
 set_clock_uncertainty -from [get_clocks {user_clock2}] -to [get_clocks {user_clock2}]  -hold 0.1000
 set_clock_uncertainty -from [get_clocks {user_clock2}] -to [get_clocks {user_clock2}]  -setup 0.2000
@@ -809,8 +809,8 @@ set_driving_cell -lib_cell sky130_fd_sc_hd__inv_8 -pin {Y} -input_transition_ris
 set_driving_cell -lib_cell sky130_fd_sc_hd__inv_8 -pin {Y} -input_transition_rise 0.0000 -input_transition_fall 0.0000 [get_ports {wbs_sel_i[0]}]
 
 ## Scan Mode
-set_case_analysis 0 [get_pins {u_wb_host/u_scan_buf.u_buf/X}]
-set_case_analysis 0 [get_pins {u_wb_host/scan_en}]
+set_case_analysis 1 [get_pins {u_wb_host/u_scan_buf.u_buf/X}]
+#set_case_analysis 0 [get_pins {u_wb_host/scan_en}]
 
 ## Case analysis
 set_case_analysis 0 [get_pins {u_intercon/cfg_cska_wi[0]}]
@@ -868,6 +868,10 @@ set_case_analysis 1 [get_pins {u_wb_host/cfg_cska_wh[1]}]
 set_case_analysis 1 [get_pins {u_wb_host/cfg_cska_wh[2]}]
 set_case_analysis 0 [get_pins {u_wb_host/cfg_cska_wh[3]}]
 
+set_case_analysis 1 [get_pins {u_wb_host/cfg_cska_lbist[0]}]
+set_case_analysis 0 [get_pins {u_wb_host/cfg_cska_lbist[1]}]
+set_case_analysis 1 [get_pins {u_wb_host/cfg_cska_lbist[2]}]
+set_case_analysis 1 [get_pins {u_wb_host/cfg_cska_lbist[3]}]
 
 
 #disable clock gating check at static clock select pins
@@ -887,3 +891,10 @@ set_multicycle_path -hold -from [get_ports {wbs_cyc_i}]  2
 set_multicycle_path -hold -from [get_ports {wbs_dat_i[*]}] 2
 set_multicycle_path -hold -from [get_ports {wbs_sel_i[*]}] 2
 set_multicycle_path -hold -from [get_ports {wbs_we_i}] 2
+
+set_multicycle_path -setup -through [get_pins {u_wb_host/scan_en}] 4
+set_multicycle_path -hold -through [get_pins {u_wb_host/scan_en}] 4
+
+# in Scan , all the reset recovery are false path
+set_false_path -through [get_pins u_wb_host/u_wb_rst_scan_sel.u_mux/X]
+set_false_path -through [get_pins u_wb_host/u_bist_rst_scan_sel.u_mux/X]

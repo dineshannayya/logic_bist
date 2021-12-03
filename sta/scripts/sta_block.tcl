@@ -18,8 +18,8 @@
 set ::env(LIB_FASTEST) "$::env(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ff_n40C_1v95.lib"
 set ::env(LIB_TYPICAL) "$::env(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
 set ::env(LIB_SLOWEST) "$::env(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ss_100C_1v60.lib"
-set ::env(DESIGN_NAME) "user_project_wrapper"
-set ::env(BASE_SDC_FILE) $::env(STA_MODE).sdc
+#set ::env(DESIGN_NAME) "user_project_wrapper"
+set ::env(BASE_SDC_FILE) ../openlane/$::env(DESIGN_NAME)/base.sdc
 set ::env(SYNTH_DRIVING_CELL) "sky130_fd_sc_hd__inv_8"
 set ::env(SYNTH_DRIVING_CELL_PIN) "Y"
 set ::env(SYNTH_CAP_LOAD) "17.65"
@@ -38,27 +38,11 @@ read_liberty -corner tt $::env(LIB_TYPICAL)
 read_lib  -corner tt   ../lib/sky130_sram_2kbyte_1rw1r_32x512_8_TT_1p8V_25C.lib
 read_lib  -corner tt   ../lib/sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.lib
 
-read_verilog netlist/glbl_cfg.v
-read_verilog netlist/mbist1.v
-read_verilog netlist/mbist2.v
-read_verilog netlist/wb_host.v
-read_verilog netlist/wb_interconnect.v
-read_verilog ../verilog/gl/user_project_wrapper.v  
+read_verilog netlist/$::env(DESIGN_NAME).v
 
 link_design  $::env(DESIGN_NAME)
 
-read_spef -path u_mbist1    ../spef/mbist_top1.spef  
-read_spef -path u_mbist2    ../spef/mbist_top1.spef  
-read_spef -path u_mbist3    ../spef/mbist_top1.spef  
-read_spef -path u_mbist4    ../spef/mbist_top1.spef  
-read_spef -path u_mbist5    ../spef/mbist_top2.spef  
-read_spef -path u_mbist6    ../spef/mbist_top2.spef  
-read_spef -path u_mbist7    ../spef/mbist_top2.spef  
-read_spef -path u_mbist8    ../spef/mbist_top2.spef  
-read_spef -path u_wb_host   ../spef/wb_host.spef  
-read_spef -path u_intercon  ../spef/wb_interconnect.spef
-read_spef -path u_glbl      ../spef/glbl_cfg.spef
-read_spef                   ../spef/user_project_wrapper.spef  
+read_spef  ../spef/$::env(DESIGN_NAME).spef  
 
 
 read_sdc -echo $::env(BASE_SDC_FILE)
