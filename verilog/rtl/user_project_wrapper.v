@@ -59,6 +59,8 @@
 ////     MBIST2 => MBIST1 => WB_HOST(LBIST)                       ////
 ////    1.1 - 03 Dec 2021, Dinesh A                               ////
 ////         Timing closure clean-up                              ////
+////    1.2 - 10 Dec 2021, Dinesh A                               ////
+////         Full Chip Timing closure wth caravel                 ////
 //////////////////////////////////////////////////////////////////////
 `default_nettype none
 

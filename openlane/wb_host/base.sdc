@@ -10,12 +10,17 @@ create_clock -name wbm_clk_i -period 10.0000 [get_ports {wbm_clk_i}]
 create_clock -name wbs_clk_i -period 10.0000 [get_ports {wbs_clk_i}]
 create_clock -name lbist_clk -period 10.0000 [get_ports {lbist_clk_int}]
 
-set_clock_uncertainty -from wbm_clk_i -to wbm_clk_i  -setup 0.200
-set_clock_uncertainty -from wbm_clk_i -to wbm_clk_i  -hold  0.100
-set_clock_uncertainty -from wbs_clk_i -to wbs_clk_i  -setup 0.200
-set_clock_uncertainty -from wbs_clk_i -to wbs_clk_i  -hold  0.100
-set_clock_uncertainty -from lbist_clk -to lbist_clk  -setup 0.200
-set_clock_uncertainty -from lbist_clk -to lbist_clk  -hold  0.100
+set_clock_uncertainty -from wbm_clk_i -to wbm_clk_i  -setup 0.250
+set_clock_uncertainty -from wbm_clk_i -to wbm_clk_i  -hold  0.250
+set_clock_uncertainty -from wbs_clk_i -to wbs_clk_i  -setup 0.250
+set_clock_uncertainty -from wbs_clk_i -to wbs_clk_i  -hold  0.250
+set_clock_uncertainty -from lbist_clk -to lbist_clk  -setup 0.250
+set_clock_uncertainty -from lbist_clk -to lbist_clk  -hold  0.250
+
+set ::env(SYNTH_TIMING_DERATE) 0.05
+puts "\[INFO\]: Setting timing derate to: [expr {$::env(SYNTH_TIMING_DERATE) * 10}] %"
+set_timing_derate -early [expr {1-$::env(SYNTH_TIMING_DERATE)}]
+set_timing_derate -late [expr {1+$::env(SYNTH_TIMING_DERATE)}]
 
 set_clock_groups -name async_clock -asynchronous \
  -group [get_clocks {wbs_clk_i}]\

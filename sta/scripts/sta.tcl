@@ -19,7 +19,7 @@ set ::env(LIB_FASTEST) "$::env(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/lib/sk
 set ::env(LIB_TYPICAL) "$::env(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__tt_025C_1v80.lib"
 set ::env(LIB_SLOWEST) "$::env(PDK_ROOT)/sky130A/libs.ref/sky130_fd_sc_hd/lib/sky130_fd_sc_hd__ss_100C_1v60.lib"
 set ::env(DESIGN_NAME) "user_project_wrapper"
-set ::env(BASE_SDC_FILE) $::env(STA_MODE).sdc
+set ::env(BASE_SDC_FILE) sdc/$::env(STA_MODE).sdc
 set ::env(SYNTH_DRIVING_CELL) "sky130_fd_sc_hd__inv_8"
 set ::env(SYNTH_DRIVING_CELL_PIN) "Y"
 set ::env(SYNTH_CAP_LOAD) "17.65"
