@@ -78,6 +78,7 @@ module lbist_core
         input logic           lbist_start,   // lbist start
 	input logic  [15:0]   cfg_lbist_pat, // Total Scan pattern to be run
 	input logic  [15:0]   cfg_chain_depth, // Scan Chain Depth
+	input logic           cfg_lbist_rsb, // Option to bypass First scan shift compare
 	output logic          lbist_done,    // End of Ltest 
 	output logic [31:0]   lbist_sig,     // scan signature
 
@@ -121,6 +122,7 @@ logic [15:0]scan_pat_cnt,next_scan_pat_cnt;
 logic       next_lbist_done;
 logic       lbist_start_d;
 logic       next_scan_mode;
+logic       r_sshift_done; // Indicate Reset Scan shift done, This is first pattern 
 
 always_ff @(negedge rst_n or posedge mclk_skew)
 begin
@@ -134,6 +136,7 @@ begin
       lbist_done   <= '0;
       lbist_start_d <= 0;
       scan_mode     <= 0;
+      r_sshift_done <= 0;
    end else if(srst) begin
       state        <= FSM_IDLE;
       scan_en      <= '0;
@@ -144,6 +147,7 @@ begin
       lbist_done   <= '0;
       lbist_start_d <= 0;
       scan_mode     <= 0;
+      r_sshift_done <= 0;
    end else begin
       state        <= next_state;
       scan_en      <= next_scan_en;
@@ -154,6 +158,10 @@ begin
       lbist_done   <= next_lbist_done;
       lbist_start_d <= lbist_start;
       scan_mode     <= next_scan_mode;
+      // After first scan capture, set reset scan shift done indication
+      if(state == FSM_SCAN_CAPTURE)
+	r_sshift_done <= 1;
+
    end
 end
 
@@ -273,7 +281,9 @@ assign  scan_in = (clk_cnt[1:0] == 2'b00) ? tx_crc_out[7:0]   :
 
 
 // Run CRC at SCAN SHIFT PHASE at every once in 4 cycles
-wire crc_run   = (state == FSM_SCAN_SHIFT) && (clk_cnt[1:0] == 2'b11);
+wire crc_tx_run   = (state == FSM_SCAN_SHIFT) & (clk_cnt[1:0] == 2'b11);
+wire crc_rx_run   = (cfg_lbist_rsb) ?  r_sshift_done & (state == FSM_SCAN_SHIFT) & (clk_cnt[1:0] == 2'b11):
+	               (state == FSM_SCAN_SHIFT) & (clk_cnt[1:0] == 2'b11);
 wire crc_clear = lbist_pos_edge;
 
 crc_32 u_tx_crc(
@@ -281,7 +291,7 @@ crc_32 u_tx_crc(
        .crc_out  (tx_crc_out),
 	      
        // List of inputs
-       .run      (crc_run),   // when asserted, crc is generated
+       .run      (crc_tx_run),   // when asserted, crc is generated
        .clear    (crc_clear), // When asserted crc is re-initialized
        .data_in  (8'h0),
        .mclk     (mclk_skew),
@@ -293,7 +303,7 @@ crc_32 u_rx_crc(
        .crc_out  (lbist_sig),
 	      
        // List of inputs
-       .run      (crc_run),   // when asserted, crc is generated
+       .run      (crc_rx_run),   // when asserted, crc is generated
        .clear    (crc_clear), // When asserted crc is re-initialized
        .data_in  (scan_out),
        .mclk     (mclk_skew),

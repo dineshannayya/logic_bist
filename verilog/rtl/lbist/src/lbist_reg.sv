@@ -82,6 +82,7 @@ module lbist_reg (
 	// BIST I/F
 	output logic            cfg_lbist_rst,
 	output logic            cfg_lbist_start,  // lbist start
+	output logic            cfg_lbist_rsb,    // lbist reset scan compare bypass
 	output logic [15:0]     cfg_lbist_pat,    // Total Scan pattern to be run
 	output logic [15:0]     cfg_chain_depth,    // Scan Chain Depth
 
@@ -193,6 +194,7 @@ generic_register #(8,8'h0  ) u_reg0_be0 (
 
 assign cfg_lbist_rst    = reg_0[0];
 assign cfg_lbist_start  = reg_0[1];
+assign cfg_lbist_rsb  = reg_0[2];
 assign reg_0[31:8]     = {lbist_done,23'b0};
 
 //--------------------------------------------

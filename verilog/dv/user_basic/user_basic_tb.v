@@ -250,8 +250,8 @@ begin
          wb_user_core_write(`WB_GLBL_CTRL,'h1);
 
 	 wb_user_core_read_check(`GLBL_BIST_SOFT1,read_data,32'h4C66_8354);
-	 wb_user_core_read_check(`GLBL_BIST_SOFT2,read_data,32'h1012_2021);
-	 wb_user_core_read_check(`GLBL_BIST_SOFT3,read_data,32'h0001_2000);
+	 wb_user_core_read_check(`GLBL_BIST_SOFT2,read_data,32'h2112_2021);
+	 wb_user_core_read_check(`GLBL_BIST_SOFT3,read_data,32'h0001_3000);
       end
    
       begin

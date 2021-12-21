@@ -207,6 +207,20 @@ begin
    begin
       // Enable LBIST
        wb_user_core_write(`LBIST_CTRL2,32'h0008_0040);
+
+      //--------------------- LBIST include RESET SCAN SHIFT ---
+       wb_user_core_write(`LBIST_CTRL1,32'h0000_0002);
+      // Check for MBIST Done
+      read_data = 'h0;
+      while (read_data[31] != 1'b1) begin
+         wb_user_core_read(`LBIST_CTRL1,read_data);
+      end
+      // READ LBIST Signature as a referece
+      wb_user_core_read(`LBIST_SIG,lbist_sig);
+      $display("STEP-1: Received LBIST Signature: %x",lbist_sig);
+
+      // Disable/Enable LBIST and check Previous same LBIST Signature
+       wb_user_core_write(`LBIST_CTRL1,32'h0000_0000);
        wb_user_core_write(`LBIST_CTRL1,32'h0000_0002);
       // Check for MBIST Done
       read_data = 'h0;
@@ -214,11 +228,23 @@ begin
          wb_user_core_read(`LBIST_CTRL1,read_data);
       end
       // READ LBIST Signature
+      wb_user_core_read_check(`LBIST_SIG,read_data,lbist_sig);
+      
+      //--------------------- LBIST Excluding RESET SCAN SHIFT ---
+       wb_user_core_write(`LBIST_CTRL1,32'h0000_0001);
+       wb_user_core_write(`LBIST_CTRL1,32'h0000_0006);
+      // Check for MBIST Done
+      read_data = 'h0;
+      while (read_data[31] != 1'b1) begin
+         wb_user_core_read(`LBIST_CTRL1,read_data);
+      end
+      // READ LBIST Signature as reference
       wb_user_core_read(`LBIST_SIG,lbist_sig);
+      $display("STEP-2: Received LBIST Signature: %x",lbist_sig);
 
       // Disable/Enable LBIST and check Previous same LBIST Signature
-       wb_user_core_write(`LBIST_CTRL1,32'h0000_0000);
-       wb_user_core_write(`LBIST_CTRL1,32'h0000_0002);
+       wb_user_core_write(`LBIST_CTRL1,32'h0000_0001);
+       wb_user_core_write(`LBIST_CTRL1,32'h0000_0006);
       // Check for MBIST Done
       read_data = 'h0;
       while (read_data[31] != 1'b1) begin

@@ -46,6 +46,8 @@ logic           lbist_reg_ack      ;
 
 logic           cfg_lbist_srst     ;
 logic           cfg_lbist_start    ; // lbist start
+logic           cfg_lbist_rsb      ; // lbist reset scan compare bypass
+
 logic [15:0]    cfg_lbist_pat      ; // Total Scan pattern to be run
 logic [15:0]    cfg_chain_depth    ; // Scan chain depth
 
@@ -124,6 +126,7 @@ lbist_reg u_reg (
 	// BIST I/F
        .cfg_lbist_rst   (cfg_lbist_srst   ),
        .cfg_lbist_start (cfg_lbist_start  ),  // lbist start
+       .cfg_lbist_rsb   (cfg_lbist_rsb    ),  // lbist reset scan bypass
        .cfg_lbist_pat   (cfg_lbist_pat    ),    // Total Scan pattern to be run
        .cfg_chain_depth (cfg_chain_depth  ),    // Scan Chain Depth
 
@@ -152,6 +155,7 @@ lbist_core
 
         // Reg Bus Interface Signal
         .lbist_start     (cfg_lbist_start   ),// ltest start
+        .cfg_lbist_rsb   (cfg_lbist_rsb    ),  // lbist reset scan bypass
 	.cfg_lbist_pat   (cfg_lbist_pat     ),// Total Scan pattern to be run
         .cfg_chain_depth (cfg_chain_depth   ),    // Scan Chain Depth
 	.lbist_done      (lbist_done        ),// End of Ltest 

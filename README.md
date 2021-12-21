@@ -1,5 +1,5 @@
 ```
-  MBIST Controller
+  LOGIC BIST Controller
 
 
 Permission to use, copy, modify, and/or distribute this soc for any
@@ -17,7 +17,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOC.
 
 # Table of contents
 - [Overview](#overview)
-- [MBIST Controller Block Diagram](#mbist-controller-block-diagram)
+- [Logic Controller Block Diagram](#logic-controller-block-diagram)
 - [Key Feature](#key-features)
 - [Prerequisites](#prerequisites)
 - [Tests preparation](#tests-preparation)
@@ -27,14 +27,31 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOC.
 
 
 # Overview
+Logic built-in self-test (or LBIST) is a form of built-in self-test (BIST) in which hardware and/or software is built into integrated circuits allowing them to test their own operation.
 
-MBIST is a self-testing and repair mechanism which tests the memories through an effective set of algorithms to detect possibly all the faults that could be present inside a typical memory cell whether it is stuck-at (SAF), transition delay faults (TDF), coupling (CF) or neighborhood pattern sensitive faults (NPSF).  This project uses only open source tool set for simulation,synthesis and backend tools.  The SOC flow follow the openlane methodology and SOC environment is compatible with efabless/carvel methodology.
+
+# Background
+```
+Scan chains are traditionally controlled by expensive external test equipment (ATE)
+    * requires large ram for test vectors for high coverage
+    * requires high speed electronics for at-speed test
+    * expensive
+```
+
+# Advantages
+
+The main advantage of LBIST is the ability to test internal circuits having no direct connections to external pins.
+
+# Disadvantages
+
+LBIST that requires additional circuitry increases the cost of the integrated circuit. Another disadvantage of LBIST is the possibility that the on-chip testing hardware itself can fail; external automated test equipment tests the integrated circuit with known-good test circuitry.
+
 
 # MBIST Block Diagram
 
 <table>
   <tr>
-    <td  align="center"><img src="./docs/source/_static/mbist_controller_block_diagram.png" ></td>
+    <td  align="center"><img src="./docs/source/_static/logic_bist_block_diagram.png" ></td>
   </tr>
 
 </table>
@@ -44,9 +61,7 @@ MBIST is a self-testing and repair mechanism which tests the memories through an
 ```
     * Open sourced under Apache-2.0 License (see LICENSE file) - unrestricted commercial use allowed.
     * Mbist controller with memory repair supported
-    * Currently only Row Redudency is supported
-    * 4 Address location memory repair reported
-    * 2KB SRAM
+    * LOGIC BIST with 8 Scan-in/Scan-out chain
     * Wishbone compatible design
     * Written in System Verilog
     * Open-source tool set
@@ -58,45 +73,37 @@ MBIST is a self-testing and repair mechanism which tests the memories through an
 
 
 # Prerequisites
-   - Docker (ensure docker daemon is running) -- tested with version 19.03.12, but any recent version should suffice.
-## Step-1: Docker in ubuntu 20.04 version
-```bash
-   sudo apt update
-   sudo apt-get install apt-transport-https curl rtificates -agent software-properties-common
-   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-   sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
-   sudo apt update
-   apt-cache policy docker-ce
-   sudo apt install docker-ce
+   There are hacks are done in openlane script/tool to integrated the scan chain. The tool and scripts are updated in dineshannayya:mpw4 docker.
+   Here are details on hacks:
 
-   #Add User Name to docker
-   sudo usermod -aG docker <your user name>
-   # Reboot the system to enable the docker setup
-```
-##  Step-2: Update the Submodule, To to project area
-```bash
-   git submodule init
-   git submodule update
-```
-## Step-3: clone Openlane scripts under workarea
-```bash
-   git clone https://github.com/The-OpenROAD-Project/OpenLane.git
-```
+## Hack-1: Added DFF to Scan  for replacement function
+   Directory: OpenSTA (hacks/src/OpenSTA)
+   Source Files:
+	   hacks/src/OpenSTA/network/ConcreteNetwork.cc
+	   hacks/src/OpenSTA/tcl/NetworkEdit.tcl
+	   hacks/src/OpenSTA/tcl/Sta.tcl
+    Patch File: for OpenRoad docker
+           hacks/patch/scan_swap.patch
 
-## Step-4: add Environment setting
-```bash
-    export CARAVEL_ROOT=<Carvel Installed Path>
-    export OPENLANE_ROOT=<OpenLane Installed Path>
-    export OPENLANE_IMAGE_NAME=efabless/openlane:latest
-    export PDK_ROOT=<PDK Installed PATH>
-    export PDK_PATH=<PDK Install Path>/sky130A
-```
-## Step-5: To install the PDK
-```bash
-   source ~/.bashrc
-   cd OpenLane
-   make pdk
-```
+## Hack-2: Patch to disable Manually inserted delay cell resize
+   Directory: OpenROAD
+   Source Files:
+           hacks/src/OpenROAD/Resizer.cc
+    Patch File:  for OpenRoad docker
+           hacks/patch/resizer.patch
+
+## Hack-3: Manual Pin Placement Option
+   Directory: Openlane
+   Source Files:
+           hacks/src/openlane/io_place.py
+
+## Hack-4: Synthesis Parameter Over-ride option added with ENV : SYNTH_PARAMS
+   Directory: Openlane
+   Source Files:
+           hacks/src/openlane/synth.tcl
+           hacks/src/openlane/synth_top.tcl
+
+   all these hacks/patches are implemented inside  dineshannayya:mpw4 docker
 
 # Tests preparation
 
@@ -104,6 +111,7 @@ The simulation package includes the following tests:
 
 * **wb_port**        - User Wishbone validation
 * **user_mbist_test1** - Standalone Mbist Controller Specific Test for Non Error/Single/Two/Three/Four/Five Location Error
+* **user_lbist** - Standalone LBIST Controller Specific Test 
 
 
 # Running Simulation
@@ -111,11 +119,14 @@ The simulation package includes the following tests:
 Examples:
 ``` sh
     make verify-wb_port  
+    make verify-user_basic  
     make verify-user_mbist_test1
+    make verify-user_lbist
     make verify-wb_port SIM=RTL DUMP=OFF
     make verify-wb_port SIM=RTL DUMP=ON
     make verify-user_mbist_test1 SIM=RTL DUMP=OFF
     make verify-user_mbist_test1 SIM=RTL DUMP=ON
+    make verify-user_lbist SIM=RTL DUMP=ON
 ```
 
 # Tool Sets
@@ -158,7 +169,7 @@ Mbist Controller flow uses Openlane tool sets.
 
 ## Contacts
 
-Report an issue: <https://github.com/dineshannayya/mbist_ctrl/issues>
+Report an issue: <https://github.com/dineshannayya/logic_bist/issues>
 
 # Documentation
 

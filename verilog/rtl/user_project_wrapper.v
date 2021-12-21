@@ -61,6 +61,10 @@
 ////         Timing closure clean-up                              ////
 ////    1.2 - 10 Dec 2021, Dinesh A                               ////
 ////         Full Chip Timing closure wth caravel                 ////
+////    1.3 - 21 Dec 2021, Dinesh A                               ////
+////      A. LBIST bypass added, SCAN can be controlled through   ////
+////            LA ports                                          ////
+////      B. LBIST reset chain check compare bypass added         ////
 //////////////////////////////////////////////////////////////////////
 `default_nettype none
 
@@ -575,6 +579,7 @@ wb_host
 
         .io_out               (io_out           ),
         .io_oeb               (io_oeb           ),
+        .la_data_in           (la_data_in[11:0] ),
         .la_data_out          (la_data_out      ),
 
 
@@ -991,7 +996,7 @@ glbl_cfg #(
         );
 
 
-//------------- MBIST1 - 512x24             ----
+//------------- MBIST1 - 512x32             ----
 
 mbist_top1  #(
 	`ifndef SYNTHESIS
@@ -1089,7 +1094,7 @@ sky130_sram_2kbyte_1rw1r_32x512_8 u_sram1_2kb(
     .dout1    (mem1_dout_a)
   );
 
-//------------- MBIST2 - 512x24             ----
+//------------- MBIST2 - 512x32             ----
 
 mbist_top1  #(
 	`ifndef SYNTHESIS
@@ -1186,7 +1191,7 @@ sky130_sram_2kbyte_1rw1r_32x512_8 u_sram2_2kb(
     .dout1    (mem2_dout_a)
   );
 
-//------------- MBIST3 - 512x24             ----
+//------------- MBIST3 - 512x32             ----
 
 mbist_top1  #(
 	`ifndef SYNTHESIS
@@ -1284,7 +1289,7 @@ sky130_sram_2kbyte_1rw1r_32x512_8 u_sram3_2kb(
     .dout1    (mem3_dout_a)
   );
 
-//------------- MBIST4 - 512x24             ----
+//------------- MBIST4 - 512x32             ----
 
 mbist_top1  #(
 	`ifndef SYNTHESIS

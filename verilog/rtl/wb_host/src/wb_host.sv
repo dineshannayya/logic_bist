@@ -124,6 +124,7 @@ module wb_host
 
 	output   logic  [37:0]      io_out,
 	output   logic  [37:0]      io_oeb,
+        input    logic  [11:0]      la_data_in,
         output   logic  [127:0]     la_data_out,
 
 	// Scan Control Signal
@@ -175,14 +176,33 @@ logic [31:0]        reg_1;  // Software_Reg_0
 logic  [3:0]        cfg_wb_clk_ctrl;
 logic  [3:0]        cfg_lbist_clk_ctrl;
 logic  [7:0]        cfg_glb_ctrl;
+logic               cfg_la_lbist;
 
 logic               lbist_clk_skew   ;  // LBIST clock
 logic               scan_mode_int    ;
+// LBIST  Control Signal
+logic               lbist_scan_clk;
+logic               lbist_scan_rst_n;
+logic               lbist_scan_mode;
+logic               lbist_scan_en;
+logic [SCW-1:0]     lbist_scan_in;
 
 assign io_out = 'h0;
 assign io_oeb  = 'h0;
-assign la_data_out = 'h0;
 
+//---------------------------------------------------
+// Local OR LA based Logic BIST Selection
+// --------------------------------------------------
+
+assign scan_clk      = (cfg_la_lbist) ? la_data_in[11] : lbist_scan_clk; 
+assign scan_rst_n    = (cfg_la_lbist) ? la_data_in[10] : lbist_scan_rst_n; 
+assign scan_mode_int = (cfg_la_lbist) ? la_data_in[9]  : lbist_scan_mode; 
+assign scan_en       = (cfg_la_lbist) ? la_data_in[8]  : lbist_scan_en; 
+assign scan_in       = (cfg_la_lbist) ? la_data_in[7:0]: lbist_scan_in; 
+assign la_data_out   = {120'h0,scan_out};
+
+
+//-------------------
 assign user_irq  = 'h0;
 assign wbm_rst_n = !wbm_rst_i;
 assign wbs_rst_n = !wbm_rst_i;
@@ -283,6 +303,7 @@ end
 assign cfg_glb_ctrl         = reg_0[7:0];
 assign cfg_wb_clk_ctrl      = reg_0[11:8];
 assign cfg_lbist_clk_ctrl   = reg_0[15:12];
+assign cfg_la_lbist         = reg_0[31];  // Use LA as Logic BIST
 
 
 always @( *)
@@ -422,11 +443,11 @@ lbist_top
 
 
 	// Scan Control Signal
-	.scan_clk            (scan_clk),
-	.scan_rst_n          (scan_rst_n),
-	.scan_mode           (scan_mode_int),
-	.scan_en             (scan_en),
-	.scan_in             (scan_in),
+	.scan_clk            (lbist_scan_clk),
+	.scan_rst_n          (lbist_scan_rst_n),
+	.scan_mode           (lbist_scan_mode),
+	.scan_en             (lbist_scan_en),
+	.scan_in             (lbist_scan_in),
 	.scan_out            (scan_out)
 );
 

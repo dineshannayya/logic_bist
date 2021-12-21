@@ -25,7 +25,7 @@ set ::env(DESIGN_NAME) mbist_top1
 set ::env(DESIGN_IS_CORE) "0"
 
 # Timing configuration
-set ::env(CLOCK_PERIOD) "8"
+set ::env(CLOCK_PERIOD) "10"
 set ::env(CLOCK_PORT) "u_cts_wb_clk_b1.u_buf/X  u_cts_wb_clk_b2.u_buf/X u_mem_sel.u_cts_mem_clk_a.u_buf/X u_mem_sel.u_cts_mem_clk_b.u_buf/X"
 
 set ::env(SYNTH_MAX_FANOUT) 4
