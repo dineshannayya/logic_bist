@@ -76,7 +76,8 @@ LBIST that requires additional circuitry increases the cost of the integrated ci
    There are hacks are done in openlane script/tool to integrated the scan chain. The tool and scripts are updated in dineshannayya:mpw4 docker.
    Here are details on hacks:
 
-Hack-1. **Added DFF to Scan  for replacement function**
+1. **Hack-1: Added DFF to Scan  for replacement function**
+```
    Directory: OpenSTA (hacks/src/OpenSTA)
    Source Files:
 	   hacks/src/OpenSTA/network/ConcreteNetwork.cc
@@ -85,43 +86,49 @@ Hack-1. **Added DFF to Scan  for replacement function**
     Patch File: for OpenRoad docker
            hacks/patch/scan_swap.patch
 
-Hack-2. **Patch to disable Manually inserted delay cell resize**
+```
+2. **Hack-2: Patch to disable Manually inserted delay cell resize**
+```
    Directory: OpenROAD
    Source Files:
            hacks/src/OpenROAD/Resizer.cc
     Patch File:  for OpenRoad docker
            hacks/patch/resizer.patch
+```
 
-Hack-3. **Manual Pin Placement Option**
+3. **Hack-3: Manual Pin Placement Option**
+```
    Directory: Openlane
    Source Files:
            hacks/src/openlane/io_place.py
+```
 
-Hack-4. **Synthesis Parameter Over-ride option added with ENV : SYNTH_PARAMS**
+4. **Hack-4: Synthesis Parameter Over-ride option added with ENV : SYNTH_PARAMS**
+```
    Directory: Openlane
    Source Files:
            hacks/src/openlane/synth.tcl
            hacks/src/openlane/synth_top.tcl
-
+```
    all these hacks/patches are implemented inside  dineshannayya:mpw4 docker
 
 # Prerequisites - Design
 
 for logic bist to work properly, design should met these crieria.
 
-1. **Clock Doman**
-    Single domain. All the Sub block should be synchronous and use single clock
+1. **Clock Doman:**
+    All the Sub block should be synchronous and use single clock
 
-2. **Reset**
+2. **Reset:**
     Scan Reset Bypass logic need to implemented 
 
-3. **SRAM**
+3. **SRAM:**
     SRAM input towards digital logic should have scan bypass
 
-4. **Register**
+4. **Register:**
     All the Register should be able to re-initialize with reset, even the two dimensional FIFO.
 
-5. **Input**
+5. **Input:**
     All the Input should be in known state, else add scan bypass logic
 
 # Tests preparation
