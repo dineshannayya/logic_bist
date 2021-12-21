@@ -14,16 +14,16 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-BLOCKS = glbl_cfg wb_interconnect mbist1 mbist2 wb_host
+#BLOCKS = glbl_cfg wb_interconnect mbist1 mbist2 wb_host user_project_wrapper
+BLOCKS = user_project_wrapper
 DEF = $(foreach block,$(BLOCKS), ../def/$(block).def)
 CLEAN = $(foreach block,$(BLOCKS), clean-$(block))
 
-OPENLANE_TAG = mpw3
-OPENLANE_IMAGE_NAME = dineshannayya/openlane:$(OPENLANE_TAG)
-OPENLANE_NETLIST_COMMAND = "cd /project/sta && openroad -exit scripts/or_write_verilog.tcl | tee logs/$@.log"
+OPENLANE_TAG ?= mpw3
+OPENLANE_IMAGE_NAME ?= dineshannayya/openlane:$(OPENLANE_TAG)
 OPENLANE_STA_COMMAND = "cd /project/sta && sta scripts/sta.tcl | tee logs/sta.log"
 
-all: $(BLOCKS) sta
+all: $(BLOCKS)
 
 $(DEF) :
 	@echo "Missing $@. Please create a def for that design"
@@ -32,17 +32,10 @@ $(DEF) :
 $(BLOCKS) : % : ../def/%.def  create 
 	mkdir -p reports/$@/func
 	mkdir -p reports/$@/scan
-	docker run -it  -v $(PWD)/..:/project -e DESIGN_NAME=$@ -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(OPENLANE_IMAGE_NAME) sh -c $(OPENLANE_NETLIST_COMMAND)
-
-sta: 
-	#sta inside the docker is crashing with segmentation fault, so are running sta outside the docker
-	#docker run -it  -v $(PWD)/..:/project -e DESIGN_NAME=$@ -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(OPENLANE_IMAGE_NAME) sh -c $(OPENLANE_STA_COMMAND)
-	mkdir -p reports/user_project_wrapper/func
-	mkdir -p reports/user_project_wrapper/scan
-	export STA_MODE="func"
-	sta scripts/sta.tcl   | tee logs/sta_func.log
-	export STA_MODE="scan"
-	sta scripts/sta.tcl   | tee logs/sta_scan.log
+	@echo "Design: $@ : Running Functional mode STA"
+	docker run -it  -v $(PWD)/..:/project -e DESIGN_NAME=$@ -e STA_MODE=func -v ${PDK_ROOT}:${PDK_ROOT} -e PDK_ROOT=${PDK_ROOT} -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(OPENLANE_IMAGE_NAME) sh -c $(OPENLANE_STA_COMMAND)
+	@echo "Design: $@ : Running Scan mode STA"
+	docker run -it  -v $(PWD)/..:/project -e DESIGN_NAME=$@ -e STA_MODE=scan -v ${PDK_ROOT}:${PDK_ROOT} -e PDK_ROOT=${PDK_ROOT} -u $(shell id -u $(USER)):$(shell id -g $(USER)) $(OPENLANE_IMAGE_NAME) sh -c $(OPENLANE_STA_COMMAND)
 
 create: clean
 	@echo "create temp directory :)"

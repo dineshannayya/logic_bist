@@ -17,7 +17,7 @@ OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOC.
 
 # Table of contents
 - [Overview](#overview)
-- [Logic Controller Block Diagram](#logic-controller-block-diagram)
+- [Logic Controller Block Diagram](#logic-bist-block-diagram)
 - [Key Feature](#key-features)
 - [Prerequisites](#prerequisites)
 - [Tests preparation](#tests-preparation)
@@ -47,7 +47,7 @@ The main advantage of LBIST is the ability to test internal circuits having no d
 LBIST that requires additional circuitry increases the cost of the integrated circuit. Another disadvantage of LBIST is the possibility that the on-chip testing hardware itself can fail; external automated test equipment tests the integrated circuit with known-good test circuitry.
 
 
-# MBIST Block Diagram
+# LOGIC BIST Block Diagram
 
 <table>
   <tr>
@@ -72,11 +72,11 @@ LBIST that requires additional circuitry increases the cost of the integrated ci
 ```
 
 
-# Prerequisites
+# Prerequisites - Tools
    There are hacks are done in openlane script/tool to integrated the scan chain. The tool and scripts are updated in dineshannayya:mpw4 docker.
    Here are details on hacks:
 
-## Hack-1: Added DFF to Scan  for replacement function
+Hack-1. **Added DFF to Scan  for replacement function**
    Directory: OpenSTA (hacks/src/OpenSTA)
    Source Files:
 	   hacks/src/OpenSTA/network/ConcreteNetwork.cc
@@ -85,25 +85,44 @@ LBIST that requires additional circuitry increases the cost of the integrated ci
     Patch File: for OpenRoad docker
            hacks/patch/scan_swap.patch
 
-## Hack-2: Patch to disable Manually inserted delay cell resize
+Hack-2. **Patch to disable Manually inserted delay cell resize**
    Directory: OpenROAD
    Source Files:
            hacks/src/OpenROAD/Resizer.cc
     Patch File:  for OpenRoad docker
            hacks/patch/resizer.patch
 
-## Hack-3: Manual Pin Placement Option
+Hack-3. **Manual Pin Placement Option**
    Directory: Openlane
    Source Files:
            hacks/src/openlane/io_place.py
 
-## Hack-4: Synthesis Parameter Over-ride option added with ENV : SYNTH_PARAMS
+Hack-4. **Synthesis Parameter Over-ride option added with ENV : SYNTH_PARAMS**
    Directory: Openlane
    Source Files:
            hacks/src/openlane/synth.tcl
            hacks/src/openlane/synth_top.tcl
 
    all these hacks/patches are implemented inside  dineshannayya:mpw4 docker
+
+# Prerequisites - Design
+
+for logic bist to work properly, design should met these crieria.
+
+1. **Clock Doman**
+    Single domain. All the Sub block should be synchronous and use single clock
+
+2. **Reset**
+    Scan Reset Bypass logic need to implemented 
+
+3. **SRAM**
+    SRAM input towards digital logic should have scan bypass
+
+4. **Register**
+    All the Register should be able to re-initialize with reset, even the two dimensional FIFO.
+
+5. **Input**
+    All the Input should be in known state, else add scan bypass logic
 
 # Tests preparation
 

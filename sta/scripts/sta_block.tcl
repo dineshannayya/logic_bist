@@ -38,7 +38,7 @@ read_liberty -corner tt $::env(LIB_TYPICAL)
 read_lib  -corner tt   ../lib/sky130_sram_2kbyte_1rw1r_32x512_8_TT_1p8V_25C.lib
 read_lib  -corner tt   ../lib/sky130_sram_1kbyte_1rw1r_32x256_8_TT_1p8V_25C.lib
 
-read_verilog netlist/$::env(DESIGN_NAME).v
+read_verilog ../verilog/gl/$::env(DESIGN_NAME).v
 
 link_design  $::env(DESIGN_NAME)
 
