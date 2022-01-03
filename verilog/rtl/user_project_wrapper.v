@@ -65,6 +65,9 @@
 ////      A. LBIST bypass added, SCAN can be controlled through   ////
 ////            LA ports                                          ////
 ////      B. LBIST reset chain check compare bypass added         ////
+////    1.4  Jan 02, 2022, Dinesh A                               ////
+////       1. LA[0] is added as soft reset option at wb_port      ////
+////       2. Uart Master is added at wb_port                     ////
 //////////////////////////////////////////////////////////////////////
 `default_nettype none
 
@@ -577,9 +580,10 @@ wb_host
         .bist_rst_n           (bist_rst_n       ),
 	.wbd_int_rst_n        (wbd_int_rst_n    ),
 
+        .io_in                (io_in[0]         ),
         .io_out               (io_out           ),
         .io_oeb               (io_oeb           ),
-        .la_data_in           (la_data_in[11:0] ),
+        .la_data_in           (la_data_in[35:0] ),
         .la_data_out          (la_data_out      ),
 
 

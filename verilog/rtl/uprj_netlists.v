@@ -75,6 +75,19 @@
     `include "lbist/src/lbist_core.sv"
     `include "lbist/src/lbist_reg.sv"
 
+     `include "uart/src/uart_core.sv"
+     `include "uart/src/uart_cfg.sv"
+     `include "uart/src/uart_rxfsm.sv"
+     `include "uart/src/uart_txfsm.sv"
+     `include "lib/async_fifo_th.sv"  
+     `include "lib/double_sync_low.v"  
+     `include "lib/clk_buf.v"  
+     `include "lib/wb_arb.sv"
+
+    `include "uart2wb/src/uart2wb.sv" 
+    `include "uart2wb/src/uart2_core.sv" 
+    `include "uart2wb/src/uart_msg_handler.v" 
+
     `include "clk_skew_adjust/src/clk_skew_adjust.v"
     `include "sram_macros/sky130_sram_2kbyte_1rw1r_32x512_8.v"
     `include "sram_macros/sky130_sram_1kbyte_1rw1r_32x256_8.v"

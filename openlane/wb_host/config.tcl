@@ -26,7 +26,7 @@ set ::env(DESIGN_IS_CORE) "0"
 
 # Timing configuration
 set ::env(CLOCK_PERIOD) "10"
-set ::env(CLOCK_PORT) "wbm_clk_i wbs_clk_i lbist_clk_int"
+set ::env(CLOCK_PORT) "wbm_clk_i wbs_clk_i lbist_clk_int u_uart2wb.u_core.u_uart_clk.u_mux/X"
 
 set ::env(SYNTH_MAX_FANOUT) 4
 
@@ -48,7 +48,15 @@ set ::env(VERILOG_FILES) "\
      $script_dir/../../verilog/rtl/lib/reset_sync.sv      \
      $script_dir/../../verilog/rtl/lbist/src/lbist_top.sv \
      $script_dir/../../verilog/rtl/lbist/src/lbist_core.sv \
-     $script_dir/../../verilog/rtl/lbist/src/lbist_reg.sv"
+     $script_dir/../../verilog/rtl/lbist/src/lbist_reg.sv \
+     $script_dir/../../verilog/rtl/uart/src/uart_txfsm.sv \
+     $script_dir/../../verilog/rtl/uart/src/uart_rxfsm.sv \
+     $script_dir/../../verilog/rtl/lib/double_sync_low.v  \
+     $script_dir/../../verilog/rtl/lib/wb_arb.sv     \
+     $script_dir/../../verilog/rtl/uart2wb/src/uart2wb.sv \
+     $script_dir/../../verilog/rtl/uart2wb/src/uart2_core.sv \
+     $script_dir/../../verilog/rtl/uart2wb/src/uart_msg_handler.v \
+     "
 
 set ::env(SYNTH_DEFINES) [list SYNTHESIS ]
 set ::env(SYNTH_READ_BLACKBOX_LIB) 1
@@ -67,7 +75,7 @@ set ::env(GND_PIN) [list {vssd1}]
 set ::env(FP_PIN_ORDER_CFG) $::env(DESIGN_DIR)/pin_order.cfg
 
 set ::env(FP_SIZING) absolute
-set ::env(DIE_AREA) "0 0 450 300"
+set ::env(DIE_AREA) "0 0 700 300"
 
 
 # If you're going to use multiple power domains, then keep this disabled.
