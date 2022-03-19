@@ -68,6 +68,12 @@
 ////    1.4  Jan 02, 2022, Dinesh A                               ////
 ////       1. LA[0] is added as soft reset option at wb_port      ////
 ////       2. Uart Master is added at wb_port                     ////
+////    1.5  Feb 18, 2022, Dinesh A                               ////
+////       As SRAM timing model are not accurate, added additionl ////
+////       drive data towards SRAM in negedge phase(cfg_mem_lphase)///
+////    1.6  Mar 16, 2022, Dinesh A                               ////
+////         RTL changes in wb_host to fix caraval wb address     ////
+////         reduction to 0x3000_0000 to 0x300F_FFFF              ////
 //////////////////////////////////////////////////////////////////////
 `default_nettype none
 
@@ -513,6 +519,8 @@ wire [3:0] cfg_cska_wh       = cfg_clk_ctrl1[3:0];
 wire [3:0] cfg_cska_wi       = cfg_clk_ctrl1[7:4];
 wire [3:0] cfg_cska_glbl     = cfg_clk_ctrl1[11:8];
 wire [3:0] cfg_cska_lbist    = cfg_clk_ctrl1[15:12];
+
+wire       cfg_mem_lphase    = cfg_clk_ctrl1[31]; // SRAM data lanuch phase selection
 
 wire [3:0] cfg_cska_mbist1   = cfg_clk_ctrl2[3:0];
 wire [3:0] cfg_cska_mbist2   = cfg_clk_ctrl2[7:4];
@@ -1029,6 +1037,8 @@ mbist_top1  #(
        .scan_mode_o            (scan_mode_mbist1  ),
        .scan_so                (scan_out_mbist1   ),
 
+       .cfg_mem_lphase         (cfg_mem_lphase    ),
+
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist1_int), 
 	.cfg_cska_mbist       (cfg_cska_mbist1  ), 
@@ -1125,6 +1135,8 @@ mbist_top1  #(
        .scan_en_o              (scan_en_mbist2    ),
        .scan_mode_o            (scan_mode_mbist2  ),
        .scan_so                (scan_out_mbist2   ),
+
+       .cfg_mem_lphase         (cfg_mem_lphase    ),
 
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist2_int), 
@@ -1224,6 +1236,8 @@ mbist_top1  #(
        .scan_mode_o            (scan_mode_mbist3  ),
        .scan_so                (scan_out_mbist3   ),
 
+       .cfg_mem_lphase         (cfg_mem_lphase    ),
+
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist3_int      ), 
 	.cfg_cska_mbist       (cfg_cska_mbist3  ), 
@@ -1321,6 +1335,8 @@ mbist_top1  #(
        .scan_mode_o            (scan_mode_mbist4  ),
        .scan_so                (scan_out_mbist4   ),
 
+       .cfg_mem_lphase         (cfg_mem_lphase    ),
+
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist4_int      ), 
 	.cfg_cska_mbist       (cfg_cska_mbist4  ), 
@@ -1417,6 +1433,8 @@ mbist_top2  #(
        .scan_en_o              (scan_en_mbist5    ),
        .scan_mode_o            (scan_mode_mbist5  ),
        .scan_so                (scan_out_mbist5   ),
+
+       .cfg_mem_lphase         (cfg_mem_lphase    ),
 
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist5_int      ), 
@@ -1516,6 +1534,8 @@ mbist_top2  #(
        .scan_mode_o            (scan_mode_mbist6  ),
        .scan_so                (scan_out_mbist6   ),
 
+       .cfg_mem_lphase         (cfg_mem_lphase    ),
+
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist6_int      ), 
 	.cfg_cska_mbist       (cfg_cska_mbist6  ), 
@@ -1612,6 +1632,7 @@ mbist_top2  #(
        .scan_mode_o            (scan_mode_mbist7  ),
        .scan_so                (scan_out_mbist7   ),
 
+       .cfg_mem_lphase         (cfg_mem_lphase    ),
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist7_int      ), 
 	.cfg_cska_mbist       (cfg_cska_mbist7  ), 
@@ -1710,6 +1731,7 @@ mbist_top2  #(
        .scan_mode_o            (scan_mode_mbist8  ),
        .scan_so                (scan_out_mbist8   ),
 
+       .cfg_mem_lphase         (cfg_mem_lphase    ),
 
      // Clock Skew adjust
 	.wbd_clk_int          (wbd_clk_mbist8_int), 

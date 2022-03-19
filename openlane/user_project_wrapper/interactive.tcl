@@ -18,12 +18,7 @@
 
 package require openlane;
 
-
 proc run_placement_step {args} {
-    # set pdndef_dirname [file dirname $::env(pdn_tmp_file_tag).def]
-    # set pdndef [lindex [glob $pdndef_dirname/*pdn*] 0]
-    # set_def $pdndef
-    puts "\[INFO\]: Running Placement Step"
     if { ! [ info exists ::env(PLACEMENT_CURRENT_DEF) ] } {
         set ::env(PLACEMENT_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -34,8 +29,6 @@ proc run_placement_step {args} {
 }
 
 proc run_cts_step {args} {
-    # set_def $::env(opendp_result_file_tag).def
-    puts "\[INFO\]: Running CTS"
     if { ! [ info exists ::env(CTS_CURRENT_DEF) ] } {
         set ::env(CTS_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -47,10 +40,6 @@ proc run_cts_step {args} {
 }
 
 proc run_routing_step {args} {
-    # set resizerdef_dirname [file dirname $::env(resizer_tmp_file_tag)_timing.def]
-    # set resizerdef [lindex [glob $resizerdef_dirname/*resizer*] 0]
-    # set_def $resizerdef
-    puts "\[INFO\]: Running Routing"
     if { ! [ info exists ::env(ROUTING_CURRENT_DEF) ] } {
         set ::env(ROUTING_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -60,8 +49,6 @@ proc run_routing_step {args} {
 }
 
 proc run_diode_insertion_2_5_step {args} {
-    puts "\[INFO\]: Running Diode Insertion"
-    # set_def $::env(tritonRoute_result_file_tag).def
     if { ! [ info exists ::env(DIODE_INSERTION_CURRENT_DEF) ] } {
         set ::env(DIODE_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -74,24 +61,7 @@ proc run_diode_insertion_2_5_step {args} {
 
 }
 
-proc run_power_pins_insertion_step {args} {
-    puts "\[INFO\]:Running Power Pin Insertion"
-    # set_def $::env(tritonRoute_result_file_tag).def
-    if { ! [ info exists ::env(POWER_PINS_INSERTION_CURRENT_DEF) ] } {
-        set ::env(POWER_PINS_INSERTION_CURRENT_DEF) $::env(CURRENT_DEF)
-    } else {
-        set ::env(CURRENT_DEF) $::env(POWER_PINS_INSERTION_CURRENT_DEF)
-    }
-    if { $::env(LVS_INSERT_POWER_PINS) } {
-		write_powered_verilog
-		set_netlist $::env(lvs_result_file_tag).powered.v
-    }
-
-}
-
 proc run_lvs_step {{ lvs_enabled 1 }} {
-    # set_def $::env(tritonRoute_result_file_tag).def
-    puts "\[INFO\]:Running LVS Step"
     if { ! [ info exists ::env(LVS_CURRENT_DEF) ] } {
         set ::env(LVS_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -105,7 +75,6 @@ proc run_lvs_step {{ lvs_enabled 1 }} {
 }
 
 proc run_drc_step {{ drc_enabled 1 }} {
-    puts "\[INFO\]:Running DRC"
     if { ! [ info exists ::env(DRC_CURRENT_DEF) ] } {
         set ::env(DRC_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -118,7 +87,6 @@ proc run_drc_step {{ drc_enabled 1 }} {
 }
 
 proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
-    puts "\[INFO\]: Running Antenna checl"
     if { ! [ info exists ::env(ANTENNA_CHECK_CURRENT_DEF) ] } {
         set ::env(ANTENNA_CHECK_CURRENT_DEF) $::env(CURRENT_DEF)
     } else {
@@ -129,69 +97,89 @@ proc run_antenna_check_step {{ antenna_check_enabled 1 }} {
 	}
 }
 
-proc gen_pdn_new {args} {
+proc run_eco_step {args} {
+	if {  $::env(ECO_ENABLE) == 1 } {
+        run_eco
+    }
+}
+
+proc save_final_views {args} {
+	set options {
+		{-save_path optional}
+	}
+	set flags {}
+	parse_key_args "save_final_views" args arg_values $options flags_map $flags
+
+	set arg_list [list]
+
+	# If they don't exist, save_views will simply not copy them
+	lappend arg_list -lef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef
+	lappend arg_list -gds_path $::env(finishing_results)/$::env(DESIGN_NAME).gds
+	lappend arg_list -mag_path $::env(finishing_results)/$::env(DESIGN_NAME).mag
+	lappend arg_list -maglef_path $::env(finishing_results)/$::env(DESIGN_NAME).lef.mag
+	lappend arg_list -spice_path $::env(finishing_results)/$::env(DESIGN_NAME).spice
+	
+	# Guaranteed to have default values
+	lappend arg_list -def_path $::env(CURRENT_DEF)
+	lappend arg_list -verilog_path $::env(CURRENT_NETLIST)
+
+	# Not guaranteed to have default values
+	if { [info exists ::env(SPEF_TYPICAL)] } {
+		lappend arg_list -spef_path $::env(SPEF_TYPICAL)
+	}
+	if { [info exists ::env(CURRENT_SDF)] } {
+		lappend arg_list -sdf_path $::env(CURRENT_SDF)
+	}
+	if { [info exists ::env(CURRENT_SDC)] } {
+		lappend arg_list -sdc_path $::env(CURRENT_SDC)
+	}
+
+	# Add the path if it exists...
+	if { [info exists arg_values(-save_path) ] } {
+		lappend arg_list -save_path $arg_values(-save_path)
+	}
+
+	# Aaand fire!
+	save_views {*}$arg_list
+
+}
+
+proc run_post_run_hooks {} {
+	if { [file exists $::env(DESIGN_DIR)/hooks/post_run.py]} {
+		puts_info "Running post run hook"
+		set result [exec $::env(OPENROAD_BIN) -python $::env(DESIGN_DIR)/hooks/post_run.py]
+		puts_info "$result"
+	} else {
+		puts_info "hooks/post_run.py not found, skipping"
+	}
+}
+
+
+
+
+proc gen_pdn {args} {
     puts_info "Generating PDN..."
     TIMER::timer_start
 	
-    set ::env(SAVE_DEF) [index_file $::env(pdn_tmp_file_tag).def]
-    set ::env(PGA_RPT_FILE) [index_file $::env(pdn_report_file_tag).pga.rpt]
+    set ::env(SAVE_DEF) [index_file $::env(floorplan_tmpfiles).def]
+    set ::env(PGA_RPT_FILE) [index_file $::env(floorplan_tmpfiles).pga.rpt]
 
-    try_catch $::env(OPENROAD_BIN) -exit $::env(SCRIPTS_DIR)/openroad/or_pdn.tcl \
-	|& tee $::env(TERMINAL_OUTPUT) [index_file $::env(pdn_log_file_tag).log 0]
+    run_openroad_script $::env(SCRIPTS_DIR)/openroad/pdn.tcl \
+        |& -indexed_log [index_file $::env(floorplan_logs)/pdn.log]
 
 
     TIMER::timer_stop
-    exec echo "[TIMER::get_runtime]" >> [index_file $::env(pdn_log_file_tag)_runtime.txt 0]
+    exec echo "[TIMER::get_runtime]" | python3 $::env(SCRIPTS_DIR)/write_runtime.py "pdn generation - openroad"
 
-	quit_on_unconnected_pdn_nodes
+    quit_on_unconnected_pdn_nodes
 
     set_def $::env(SAVE_DEF)
 }
 
-proc run_power_grid_generation_new {args} {
-	if { [info exists ::env(VDD_NETS)] || [info exists ::env(GND_NETS)] } {
-		# they both must exist and be equal in length
-		# current assumption: they cannot have a common ground
-		if { ! [info exists ::env(VDD_NETS)] || ! [info exists ::env(GND_NETS)] } {
-			puts_err "VDD_NETS and GND_NETS must *both* either be defined or undefined"
-			return -code error
-		}
-		# standard cell power and ground nets are assumed to be the first net 
-		set ::env(VDD_PIN) [lindex $::env(VDD_NETS) 0]
-		set ::env(GND_PIN) [lindex $::env(GND_NETS) 0]
-	} elseif { [info exists ::env(SYNTH_USE_PG_PINS_DEFINES)] } {
-		set ::env(VDD_NETS) [list]
-		set ::env(GND_NETS) [list]
-		# get the pins that are in $yosys_tmp_file_tag.pg_define.v
-		# that are not in $yosys_result_file_tag.v
-		#
-		set full_pins {*}[extract_pins_from_yosys_netlist $::env(yosys_tmp_file_tag).pg_define.v]
-		puts_info $full_pins
+proc run_power_grid_generation {args} {
 
-		set non_pg_pins {*}[extract_pins_from_yosys_netlist $::env(yosys_result_file_tag).v]
-		puts_info $non_pg_pins
-
-		# assumes the pins are ordered correctly (e.g., vdd1, vss1, vcc1, vss1, ...)
-		foreach {vdd gnd} $full_pins {
-			if { $vdd ne "" && $vdd ni $non_pg_pins } {
-				lappend ::env(VDD_NETS) $vdd
-			}
-			if { $gnd ne "" && $gnd ni $non_pg_pins } {
-				lappend ::env(GND_NETS) $gnd
-			}
-		}
-	} else {
-		set ::env(VDD_NETS) $::env(VDD_PIN)
-		set ::env(GND_NETS) $::env(GND_PIN)
-	}
-
-	puts_info "Power planning the following nets"
-	puts_info "Power: $::env(VDD_NETS)"
-	puts_info "Ground: $::env(GND_NETS)"
-
-	if { [llength $::env(VDD_NETS)] != [llength $::env(GND_NETS)] } {
-		puts_err "VDD_NETS and GND_NETS must be of equal lengths"
-		return -code error
+	if {[info exists ::env(FP_PDN_POWER_STRAPS)]} {
+	     set power_domains [split $::env(FP_PDN_POWER_STRAPS) ","]
 	}
 
 	# internal macros power connections 
@@ -217,11 +205,12 @@ proc run_power_grid_generation_new {args} {
 	
 	# generate multiple power grids per pair of (VDD,GND)
 	# offseted by WIDTH + SPACING
-	foreach vdd $::env(VDD_NETS) gnd $::env(GND_NETS) {
-		set ::env(VDD_NET) $vdd
-		set ::env(GND_NET) $gnd
-                puts "\[INFO\]: Processing Power Nets: $vdd and $gnd."
+	foreach domain $power_domains {
+		set ::env(VDD_NET)       [lindex $domain 0]
+	        set ::env(GND_NET)       [lindex $domain 1]
+	        set ::env(_WITH_STRAPS)  [lindex $domain 2]
 
+	        puts_info "Connecting Power: $::env(VDD_NET) & $::env(GND_NET) to All internal macros."
 		# internal macros power connections
 		set ::env(FP_PDN_MACROS) ""
 		if { $::env(FP_PDN_ENABLE_MACROS_GRID) == 1 } {
@@ -234,20 +223,21 @@ proc run_power_grid_generation_new {args} {
 					set ground [lindex $hooks 1]			 
 					if { $power == $::env(VDD_NET) && $ground == $::env(GND_NET) } {
 						set ::env(FP_PDN_ENABLE_MACROS_GRID) 1
+                                                set ::env(FP_PDN_IRDROP) "0"
 						puts_info "Connecting $instance_name to $power and $ground nets."
 						lappend ::env(FP_PDN_MACROS) $instance_name
 					}
 				}
 			} 
-                   puts "\[INFO\]: FP_PDN_MACROS: $::env(FP_PDN_MACROS) ."
 		} else {
-			puts_warn "All internal macros will not be connected to power."
+			puts_warn "All internal macros will not be connected to power $::env(VDD_NET) & $::env(GND_NET)."
 		}
 		
-		gen_pdn_new
+		gen_pdn
 
 		set ::env(FP_PDN_ENABLE_RAILS) 0
 		set ::env(FP_PDN_ENABLE_MACROS_GRID) 0
+                set ::env(FP_PDN_IRDROP) "0"
 
 		# allow failure until open_pdks is up to date...
 		catch {set ::env(FP_PDN_VOFFSET) [expr $::env(FP_PDN_VOFFSET)+$::env(FP_PDN_VWIDTH)+$::env(FP_PDN_VSPACING)]}
@@ -260,147 +250,188 @@ proc run_power_grid_generation_new {args} {
 		catch {set ::env(FP_PDN_CORE_RING_HOFFSET) [expr $::env(FP_PDN_CORE_RING_HOFFSET)\
 			+2*($::env(FP_PDN_CORE_RING_HWIDTH)+\
 			max($::env(FP_PDN_CORE_RING_VSPACING), $::env(FP_PDN_CORE_RING_HSPACING)))]}
+		puts "FP_PDN_VOFFSET: $::env(FP_PDN_VOFFSET)"
+		puts "FP_PDN_HOFFSET: $::env(FP_PDN_HOFFSET)"
+		puts "FP_PDN_CORE_RING_VOFFSET: $::env(FP_PDN_CORE_RING_VOFFSET)"
+		puts "FP_PDN_CORE_RING_HOFFSET: $::env(FP_PDN_CORE_RING_HOFFSET)"
+
 	}
 	set ::env(FP_PDN_ENABLE_RAILS) 1
 }
 
-proc run_floorplan_new {args} {
-		puts_info "Running Floorplanning..."
-		# |----------------------------------------------------|
-		# |----------------   2. FLOORPLAN   ------------------|
-		# |----------------------------------------------------|
-		#
-		# intial fp
-		init_floorplan
+
+proc run_floorplan {args} {
+	puts_info "Running Floorplanning..."
+	# |----------------------------------------------------|
+	# |----------------   2. FLOORPLAN   ------------------|
+	# |----------------------------------------------------|
+	#
+	# intial fp
+	init_floorplan
+
+	# check for deprecated io variables
+	if { [info exists ::env(FP_IO_HMETAL)]} {
+		set ::env(FP_IO_HLAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_HMETAL) - 1}]]
+		puts_warn "You're using FP_IO_HMETAL in your configuration, which is a deprecated variable that will be removed in the future."
+		puts_warn "We recommend you update your configuration as follows:"
+		puts_warn "\tset ::env(FP_IO_HLAYER) {$::env(FP_IO_HLAYER)}"
+	}
+
+	if { [info exists ::env(FP_IO_VMETAL)]} {
+		set ::env(FP_IO_VLAYER) [lindex $::env(TECH_METAL_LAYERS) [expr {$::env(FP_IO_VMETAL) - 1}]]
+		puts_warn "You're using FP_IO_VMETAL in your configuration, which is a deprecated variable that will be removed in the future."
+		puts_warn "We recommend you update your configuration as follows:"
+		puts_warn "\tset ::env(FP_IO_VLAYER) {$::env(FP_IO_VLAYER)}"
+	}
 
 
-		# place io
-		if { [info exists ::env(FP_PIN_ORDER_CFG)] } {
-				place_io_ol
+	# place io
+	if { [info exists ::env(FP_PIN_ORDER_CFG)] } {
+		place_io_ol
+	} else {
+		if { [info exists ::env(FP_CONTEXT_DEF)] && [info exists ::env(FP_CONTEXT_LEF)] } {
+			place_io
+			global_placement_or
+			place_contextualized_io \
+				-lef $::env(FP_CONTEXT_LEF) \
+				-def $::env(FP_CONTEXT_DEF)
 		} else {
-			if { [info exists ::env(FP_CONTEXT_DEF)] && [info exists ::env(FP_CONTEXT_LEF)] } {
-				place_io
-				global_placement_or
-				place_contextualized_io \
-					-lef $::env(FP_CONTEXT_LEF) \
-					-def $::env(FP_CONTEXT_DEF)
-			} else {
-				place_io
-			}
+			place_io
 		}
+	}
 
-		apply_def_template
+	apply_def_template
 
-		if { [info exist ::env(EXTRA_LEFS)] } {
-			if { [info exist ::env(MACRO_PLACEMENT_CFG)] } {
-				file copy -force $::env(MACRO_PLACEMENT_CFG) $::env(TMP_DIR)/macro_placement.cfg
-				manual_macro_placement f
-			} else {
-				global_placement_or
-				basic_macro_placement
-			}
+	if { [info exist ::env(EXTRA_LEFS)] } {
+		if { [info exist ::env(MACRO_PLACEMENT_CFG)] } {
+			file copy -force $::env(MACRO_PLACEMENT_CFG) $::env(placement_tmpfiles)/macro_placement.cfg
+			manual_macro_placement f
+		} else {
+			global_placement_or
+			basic_macro_placement
 		}
+	}
 
-		# tapcell
-		tap_decap_or
-		scrot_klayout -layout $::env(CURRENT_DEF)
-		# power grid generation
-		run_power_grid_generation_new
+	tap_decap_or
+
+	scrot_klayout -layout $::env(CURRENT_DEF) $::env(floorplan_logs)/screenshot.log
+
+	run_power_grid_generation
 }
 
 
 proc run_flow {args} {
-       set script_dir [file dirname [file normalize [info script]]]
-
-		set options {
+	set options {
 		{-design required}
+		{-from optional}
+		{-to optional}
 		{-save_path optional}
-		{-no_lvs optional}
-	    {-no_drc optional}
-	    {-no_antennacheck optional}
+		{-override_env optional}
 	}
-	set flags {-save}
-	parse_key_args "run_flow" args arg_values $options flags_map $flags -no_consume
-
+	set flags {-save -run_hooks -no_lvs -no_drc -no_antennacheck }
+	parse_key_args "run_non_interactive_mode" args arg_values $options flags_map $flags -no_consume
 	prep {*}$args
+    # signal trap SIGINT save_state;
 
-        set LVS_ENABLED 1
-        set DRC_ENABLED 0
-        set ANTENNACHECK_ENABLED 1
+	if { [info exists arg_values(-override_env)] } {
+		set env_overrides [split $arg_values(-override_env) ','] 
+		foreach override $env_overrides {
+			set kva [split $override '=']
+			set key [lindex $kva 0]
+			set value [lindex $kva 1]
+			set ::env(${key}) $value
+		}
+	}
 
-        set steps [dict create "synthesis" {run_synthesis "" } \
-                "floorplan" {run_floorplan ""} \
-                "placement" {run_placement_step ""} \
-                "cts" {run_cts_step ""} \
-                "routing" {run_routing_step ""}\
-                "diode_insertion" {run_diode_insertion_2_5_step ""} \
-                "power_pins_insertion" {run_power_pins_insertion_step ""} \
-                "gds_magic" {run_magic ""} \
-                "gds_drc_klayout" {run_klayout ""} \
-                "gds_xor_klayout" {run_klayout_gds_xor ""} \
-                "lvs" "run_lvs_step $LVS_ENABLED" \
-                "drc" "run_drc_step $DRC_ENABLED" \
-                "antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
-                "cvc" {run_lef_cvc}
-        ]
+    set LVS_ENABLED 1
+    set DRC_ENABLED 0
+    set ANTENNACHECK_ENABLED 1
 
-       set_if_unset arg_values(-to) "cvc";
+    set steps [dict create \
+		"synthesis" {run_synthesis "" } \
+		"floorplan" {run_floorplan ""} \
+		"placement" {run_placement_step ""} \
+		"cts" {run_cts_step ""} \
+		"routing" {run_routing_step ""}\
+                "eco" {run_eco_step ""} \
+		"diode_insertion" {run_diode_insertion_2_5_step ""} \
+		"gds_magic" {run_magic ""} \
+		"gds_drc_klayout" {run_klayout ""} \
+		"gds_xor_klayout" {run_klayout_gds_xor ""} \
+		"lvs" "run_lvs_step $LVS_ENABLED" \
+		"drc" "run_drc_step $DRC_ENABLED" \
+		"antenna_check" "run_antenna_check_step $ANTENNACHECK_ENABLED" \
+		"cvc" {run_lef_cvc}
+    ]
 
-       if {  [info exists ::env(CURRENT_STEP) ] } {
-           puts "\[INFO\]:Picking up where last execution left off"
-           puts [format "\[INFO\]:Current stage is %s " $::env(CURRENT_STEP)]
-       } else {
-           set ::env(CURRENT_STEP) "synthesis";
-       }
-       set_if_unset arg_values(-from) $::env(CURRENT_STEP);
-       set exe 0;
-       dict for {step_name step_exe} $steps {
-           if { [ string equal $arg_values(-from) $step_name ] } {
-               set exe 1;
-           }
+    set_if_unset arg_values(-to) "cvc";
 
-           if { $exe } {
-               # For when it fails
-               set ::env(CURRENT_STEP) $step_name
-               [lindex $step_exe 0] [lindex $step_exe 1] ;
-           }
+	if {  [info exists ::env(CURRENT_STEP) ] } {
+        puts "\[INFO\]:Picking up where last execution left off"
+        puts [format "\[INFO\]:Current stage is %s " $::env(CURRENT_STEP)]
+    } else {
+        set ::env(CURRENT_STEP) "synthesis";
+    }
 
-           if { [ string equal $arg_values(-to) $step_name ] } {
-               set exe 0:
-               break;
-           }
+    set_if_unset arg_values(-from) $::env(CURRENT_STEP);
+    set exe 0;
+    dict for {step_name step_exe} $steps {
+        if { [ string equal $arg_values(-from) $step_name ] } {
+            set exe 1;
+        }
 
-       }
+        if { $exe } {
+            # For when it fails
+            set ::env(CURRENT_STEP) $step_name
+            [lindex $step_exe 0] [lindex $step_exe 1] ;
+        }
 
-       # for when it resumes
-       set steps_as_list [dict keys $steps]
-       set next_idx [expr [lsearch $steps_as_list $::env(CURRENT_STEP)] + 1]
-       set ::env(CURRENT_STEP) [lindex $steps_as_list $next_idx]
+        if { [ string equal $arg_values(-to) $step_name ] } {
+            set exe 0:
+            break;
+        }
 
+    }
+
+    # for when it resumes
+    set steps_as_list [dict keys $steps]
+    set next_idx [expr [lsearch $steps_as_list $::env(CURRENT_STEP)] + 1]
+    set ::env(CURRENT_STEP) [lindex $steps_as_list $next_idx]
+
+	# Saves to <RUN_DIR>/results/final
+	if { $::env(SAVE_FINAL_VIEWS) == "1" } {
+		save_final_views
+	}
+
+	# Saves to design directory or custom
 	if {  [info exists flags_map(-save) ] } {
 		if { ! [info exists arg_values(-save_path)] } {
-			set arg_values(-save_path) ""
+			set arg_values(-save_path) $::env(DESIGN_DIR)
 		}
-		save_views 	-lef_path $::env(magic_result_file_tag).lef \
-			-def_path $::env(CURRENT_DEF) \
-			-gds_path $::env(magic_result_file_tag).gds \
-			-mag_path $::env(magic_result_file_tag).mag \
-			-maglef_path $::env(magic_result_file_tag).lef.mag \
-			-spice_path $::env(magic_result_file_tag).spice \
-			-spef_path $::env(CURRENT_SPEF) \
-			-verilog_path $::env(CURRENT_NETLIST) \
-			-save_path $arg_values(-save_path) \
+		save_final_views\
+			-save_path $arg_values(-save_path)\
 			-tag $::env(RUN_TAG)
 	}
-
-
 	calc_total_runtime
 	save_state
 	generate_final_summary_report
 	
 	check_timing_violations
+	
+	if { [info exists arg_values(-save_path)]\
+	    && $arg_values(-save_path) != "" } {
+	    set ::env(HOOK_OUTPUT_PATH) "[file normalize $arg_values(-save_path)]"
+	} else {
+	    set ::env(HOOK_OUTPUT_PATH) $::env(RESULTS_DIR)/final
+	}
+	
+	if {[info exists flags_map(-run_hooks)]} {
+		run_post_run_hooks
+	}
+	
+	puts_success "Flow complete."
 
-	puts_success "Flow Completed Without Fatal Errors."
+	show_warnings "Note that the following warnings have been generated:"
 
 }
 

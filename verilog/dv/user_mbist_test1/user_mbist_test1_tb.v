@@ -39,33 +39,7 @@
 `timescale 1 ns / 1 ns
 
 `include "uprj_netlists.v"
-
-`define WB_MAP           `30080_0000
-`define GLBL_FUNC_MAP    'h3000_0000
-`define MBIST1_FUNC_MAP  'h3000_1000
-`define MBIST2_FUNC_MAP  'h3000_2000
-`define MBIST3_FUNC_MAP  'h3000_3000
-`define MBIST4_FUNC_MAP  'h3000_4000
-`define MBIST5_FUNC_MAP  'h3000_5000
-`define MBIST6_FUNC_MAP  'h3000_6000
-`define MBIST7_FUNC_MAP  'h3000_7000
-`define MBIST8_FUNC_MAP  'h3000_8000
-
-`define GLBL_BIST_CTRL1  'h3000_0008    
-`define GLBL_BIST_CTRL2  'h3000_000C
-`define GLBL_BIST_STAT1  'h3000_0010
-`define GLBL_BIST_STAT2  'h3000_0014
-`define GLBL_BIST_SWDATA 'h3000_0018
-`define GLBL_BIST_SRDATA 'h3000_001C
-`define GLBL_BIST_SPDATA 'h3000_0020
-
-`define WB_GLBL_CTRL     'h3080_0000
-`define WB_BANK_SEL      'h3080_0004
-`define WB_CLK_CTRL1     'h3080_0008
-`define WB_CLK_CTRL2     'h3080_000C
-
-
-
+`include "user_reg_map.v"
 
 module user_mbist_test1_tb;
 	reg clock;
@@ -135,9 +109,9 @@ module user_mbist_test1_tb;
 
 		test_fail = 0;
 		// Remove Wb Reset
-		wb_user_core_write(`WB_GLBL_CTRL,'h1);
+		wb_user_core_write(`ADDR_SPACE_WBHOST+`WBHOST_GLBL_CFG,'h1);
 
-		$dumpon;
+		$dumpoff;
 	    	$display("###################################################");
 	    	$display(" MBIST Test with Without Address Failure");
 	    	$display("###################################################");
@@ -283,6 +257,7 @@ module user_mbist_test1_tb;
 	        end else begin
 	    	    $display("Monitor: Step-5.3: BIST Test with Four Memory Error insertion test Failed");
 		end
+		$dumpon;
 	    	$display("###################################################");
 	    	$display(" MBIST Test with Five Address Failure");
 	    	$display("###################################################");
@@ -314,33 +289,33 @@ module user_mbist_test1_tb;
 		fork
 		begin
 		    // Remove the Bist Enable and Bist Run
-                    wb_user_core_write(`GLBL_BIST_CTRL2,'h000);
+                    wb_user_core_write(`ADDR_SPACE_GLBL+`GLBL_BIST_CTRL2,'h000);
   
 	            // Fill Random Data	
 		    for (i=0; i< 9'h1FC; i=i+1) begin
    	                writemem[i] = $random;
-                        wb_user_core_write(`MBIST1_FUNC_MAP+(i*4),writemem[i]);
-                        wb_user_core_write(`MBIST2_FUNC_MAP+(i*4),writemem[i]);
-                        wb_user_core_write(`MBIST3_FUNC_MAP+(i*4),writemem[i]);
-                        wb_user_core_write(`MBIST4_FUNC_MAP+(i*4),writemem[i]);
+                        wb_user_core_write(`ADDR_SPACE_MBIST1+(i*4),writemem[i]);
+                        wb_user_core_write(`ADDR_SPACE_MBIST2+(i*4),writemem[i]);
+                        wb_user_core_write(`ADDR_SPACE_MBIST3+(i*4),writemem[i]);
+                        wb_user_core_write(`ADDR_SPACE_MBIST4+(i*4),writemem[i]);
 		        if(i < 9'h0FC) begin // SRAM5-SRAM8 are 1KB
-                           wb_user_core_write(`MBIST5_FUNC_MAP+(i*4),writemem[i]);
-                           wb_user_core_write(`MBIST6_FUNC_MAP+(i*4),writemem[i]);
-                           wb_user_core_write(`MBIST7_FUNC_MAP+(i*4),writemem[i]);
-                           wb_user_core_write(`MBIST8_FUNC_MAP+(i*4),writemem[i]);
+                           wb_user_core_write(`ADDR_SPACE_MBIST5+(i*4),writemem[i]);
+                           wb_user_core_write(`ADDR_SPACE_MBIST6+(i*4),writemem[i]);
+                           wb_user_core_write(`ADDR_SPACE_MBIST7+(i*4),writemem[i]);
+                           wb_user_core_write(`ADDR_SPACE_MBIST8+(i*4),writemem[i]);
 	                end
 		    end
 		    // Read back data
 		    for (i=0; i< 9'h1FC; i=i+1) begin
-                        wb_user_core_read_check(`MBIST1_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
-                        wb_user_core_read_check(`MBIST2_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
-                        wb_user_core_read_check(`MBIST3_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
-                        wb_user_core_read_check(`MBIST4_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+                        wb_user_core_read_check(`ADDR_SPACE_MBIST1+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+                        wb_user_core_read_check(`ADDR_SPACE_MBIST2+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+                        wb_user_core_read_check(`ADDR_SPACE_MBIST3+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+                        wb_user_core_read_check(`ADDR_SPACE_MBIST4+(i*4),read_data,writemem[i],32'hFFFFFFFF);
 		        if(i < 9'h0FC) begin // SRAM5 - SRAM8 are 1KB
-                           wb_user_core_read_check(`MBIST5_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
-                           wb_user_core_read_check(`MBIST6_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
-                           wb_user_core_read_check(`MBIST7_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
-                           wb_user_core_read_check(`MBIST8_FUNC_MAP+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+                           wb_user_core_read_check(`ADDR_SPACE_MBIST5+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+                           wb_user_core_read_check(`ADDR_SPACE_MBIST6+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+                           wb_user_core_read_check(`ADDR_SPACE_MBIST7+(i*4),read_data,writemem[i],32'hFFFFFFFF);
+                           wb_user_core_read_check(`ADDR_SPACE_MBIST8+(i*4),read_data,writemem[i],32'hFFFFFFFF);
 	                end
 		    end
 
@@ -349,52 +324,52 @@ module user_mbist_test1_tb;
 		    // So Address 0x1FC = Data[0x10], 0x1FD = Data[0x20]
 		    //    Address 0x1FE = Data[0x30], 0x1FF = Data[0x40]
 		    // Check 2kb SRAM1
-                    wb_user_core_read_check(`MBIST1_FUNC_MAP + (9'h1FC *4),read_data,writemem[9'h10],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST1_FUNC_MAP + (9'h1FD *4),read_data,writemem[9'h20],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST1_FUNC_MAP + (9'h1FE *4),read_data,writemem[9'h30],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST1_FUNC_MAP + (9'h1FF *4),read_data,writemem[9'h40],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST1 + (9'h1FC *4),read_data,writemem[9'h10],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST1 + (9'h1FD *4),read_data,writemem[9'h20],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST1 + (9'h1FE *4),read_data,writemem[9'h30],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST1 + (9'h1FF *4),read_data,writemem[9'h40],32'hFFFFFFFF);
 
 		    // Check 2kb SRAM2
-                    wb_user_core_read_check(`MBIST2_FUNC_MAP + (9'h1FC *4),read_data,writemem[9'h11],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST2_FUNC_MAP + (9'h1FD *4),read_data,writemem[9'h21],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST2_FUNC_MAP + (9'h1FE *4),read_data,writemem[9'h31],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST2_FUNC_MAP + (9'h1FF *4),read_data,writemem[9'h41],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST2 + (9'h1FC *4),read_data,writemem[9'h11],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST2 + (9'h1FD *4),read_data,writemem[9'h21],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST2 + (9'h1FE *4),read_data,writemem[9'h31],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST2 + (9'h1FF *4),read_data,writemem[9'h41],32'hFFFFFFFF);
 
 		    // Check 2kb SRAM3
-                    wb_user_core_read_check(`MBIST3_FUNC_MAP + (9'h1FC *4),read_data,writemem[9'h12],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST3_FUNC_MAP + (9'h1FD *4),read_data,writemem[9'h22],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST3_FUNC_MAP + (9'h1FE *4),read_data,writemem[9'h32],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST3_FUNC_MAP + (9'h1FF *4),read_data,writemem[9'h42],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST3 + (9'h1FC *4),read_data,writemem[9'h12],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST3 + (9'h1FD *4),read_data,writemem[9'h22],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST3 + (9'h1FE *4),read_data,writemem[9'h32],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST3 + (9'h1FF *4),read_data,writemem[9'h42],32'hFFFFFFFF);
 
 		    // Check 2kb SRAM4
-                    wb_user_core_read_check(`MBIST4_FUNC_MAP + (9'h1FC *4),read_data,writemem[9'h13],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST4_FUNC_MAP + (9'h1FD *4),read_data,writemem[9'h23],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST4_FUNC_MAP + (9'h1FE *4),read_data,writemem[9'h33],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST4_FUNC_MAP + (9'h1FF *4),read_data,writemem[9'h43],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST4 + (9'h1FC *4),read_data,writemem[9'h13],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST4 + (9'h1FD *4),read_data,writemem[9'h23],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST4 + (9'h1FE *4),read_data,writemem[9'h33],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST4 + (9'h1FF *4),read_data,writemem[9'h43],32'hFFFFFFFF);
 
 		    // Check 1kb SRAM5
-                    wb_user_core_read_check(`MBIST5_FUNC_MAP + (8'hFC *4),read_data,writemem[9'h14],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST5_FUNC_MAP + (8'hFD *4),read_data,writemem[9'h24],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST5_FUNC_MAP + (8'hFE *4),read_data,writemem[9'h34],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST5_FUNC_MAP + (8'hFF *4),read_data,writemem[9'h44],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST5 + (8'hFC *4),read_data,writemem[9'h14],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST5 + (8'hFD *4),read_data,writemem[9'h24],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST5 + (8'hFE *4),read_data,writemem[9'h34],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST5 + (8'hFF *4),read_data,writemem[9'h44],32'hFFFFFFFF);
 
 		    // Check 1kb SRAM6
-                    wb_user_core_read_check(`MBIST6_FUNC_MAP + (8'hFC *4),read_data,writemem[9'h15],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST6_FUNC_MAP + (8'hFD *4),read_data,writemem[9'h25],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST6_FUNC_MAP + (8'hFE *4),read_data,writemem[9'h35],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST6_FUNC_MAP + (8'hFF *4),read_data,writemem[9'h45],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST6 + (8'hFC *4),read_data,writemem[9'h15],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST6 + (8'hFD *4),read_data,writemem[9'h25],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST6 + (8'hFE *4),read_data,writemem[9'h35],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST6 + (8'hFF *4),read_data,writemem[9'h45],32'hFFFFFFFF);
 
 		    // Check 1kb SRAM7
-                    wb_user_core_read_check(`MBIST7_FUNC_MAP + (8'hFC *4),read_data,writemem[9'h16],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST7_FUNC_MAP + (8'hFD *4),read_data,writemem[9'h26],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST7_FUNC_MAP + (8'hFE *4),read_data,writemem[9'h36],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST7_FUNC_MAP + (8'hFF *4),read_data,writemem[9'h46],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST7 + (8'hFC *4),read_data,writemem[9'h16],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST7 + (8'hFD *4),read_data,writemem[9'h26],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST7 + (8'hFE *4),read_data,writemem[9'h36],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST7 + (8'hFF *4),read_data,writemem[9'h46],32'hFFFFFFFF);
 
 		    // Check 1kb SRAM8
-                    wb_user_core_read_check(`MBIST8_FUNC_MAP + (8'hFC *4),read_data,writemem[9'h17],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST8_FUNC_MAP + (8'hFD *4),read_data,writemem[9'h27],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST8_FUNC_MAP + (8'hFE *4),read_data,writemem[9'h37],32'hFFFFFFFF);
-                    wb_user_core_read_check(`MBIST8_FUNC_MAP + (8'hFF *4),read_data,writemem[9'h47],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST8 + (8'hFC *4),read_data,writemem[9'h17],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST8 + (8'hFD *4),read_data,writemem[9'h27],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST8 + (8'hFE *4),read_data,writemem[9'h37],32'hFFFFFFFF);
+                    wb_user_core_read_check(`ADDR_SPACE_MBIST8 + (8'hFF *4),read_data,writemem[9'h47],32'hFFFFFFFF);
                 end
                 begin
                    // Loop for BIST TimeOut
@@ -479,19 +454,19 @@ integer j;
 begin
    repeat (2) @(posedge clock);
    // Remove the Bist Enable and Bist Run
-   wb_user_core_write(`GLBL_BIST_CTRL2,'h000);
+   wb_user_core_write(`ADDR_SPACE_GLBL+`GLBL_BIST_CTRL2,'h000);
    // Remove WB and BIST RESET
-   wb_user_core_write(`WB_GLBL_CTRL,'h001);
+   wb_user_core_write(`ADDR_SPACE_WBHOST+`WBHOST_GLBL_CFG,'h001);
    // Set the Bist Enable and Bist Run
-   wb_user_core_write(`GLBL_BIST_CTRL2,'h33333333);
+   wb_user_core_write(`ADDR_SPACE_GLBL+`GLBL_BIST_CTRL2,'h33333333);
    // Remove WB and BIST RESET
-   wb_user_core_write(`WB_GLBL_CTRL,'h003);
+   wb_user_core_write(`ADDR_SPACE_WBHOST+`WBHOST_GLBL_CFG,'h003);
    fork
    begin
       // Check for MBIST Done
       read_data = 'h0;
       while (read_data[0] != 1'b1) begin
-         wb_user_core_read(`GLBL_BIST_STAT1,read_data);
+         wb_user_core_read(`ADDR_SPACE_GLBL+`GLBL_BIST_STAT1,read_data);
       end
       // wait for some time for all the BIST to complete
       repeat (1000) @(posedge clock);
@@ -501,8 +476,8 @@ begin
       // [2]   - Bist Correct   
       // [3]   - Reserved
       // [7:4] - Bist Error Cnt 
-      wb_user_core_read_check(`GLBL_BIST_STAT1,read_data,mbist_signature[31:0],32'hFFFFFFFF);
-      wb_user_core_read_check(`GLBL_BIST_STAT2,read_data,mbist_signature[63:32],32'hFFFFFFFF);
+      wb_user_core_read_check(`ADDR_SPACE_GLBL+`GLBL_BIST_STAT1,read_data,mbist_signature[31:0],32'hFFFFFFFF);
+      wb_user_core_read_check(`ADDR_SPACE_GLBL+`GLBL_BIST_STAT2,read_data,mbist_signature[63:32],32'hFFFFFFFF);
    end
    // Insert  Error Insertion
    begin
@@ -681,18 +656,18 @@ begin
       fail_addr4 = faultaddr[3]+j;
 
       // Select the Serial SDI/SDO interface
-      wb_user_core_write(`GLBL_BIST_CTRL1,j); 
+      wb_user_core_write(`ADDR_SPACE_GLBL+`GLBL_BIST_CTRL1,j); 
       if(num_fault == 1)
-          wb_user_core_read_check(`GLBL_BIST_SRDATA,read_data,{16'h0,7'h0,fail_addr1},32'h0000_FFFF);
+          wb_user_core_read_check(`ADDR_SPACE_GLBL+`GLBL_BIST_SRDATA,read_data,{16'h0,7'h0,fail_addr1},32'h0000_FFFF);
       if(num_fault == 2)
-          wb_user_core_read_check(`GLBL_BIST_SRDATA,read_data,{7'h0,fail_addr2,7'h0,fail_addr1},32'hFFFF_FFFF);
+          wb_user_core_read_check(`ADDR_SPACE_GLBL+`GLBL_BIST_SRDATA,read_data,{7'h0,fail_addr2,7'h0,fail_addr1},32'hFFFF_FFFF);
       if(num_fault == 3) begin
-          wb_user_core_read_check(`GLBL_BIST_SRDATA,read_data,{7'h0,fail_addr2,7'h0,fail_addr1},32'hFFFF_FFFF);
-          wb_user_core_read_check(`GLBL_BIST_SRDATA,read_data,{16'h0,7'h0,fail_addr3},32'h0000_FFFF);
+          wb_user_core_read_check(`ADDR_SPACE_GLBL+`GLBL_BIST_SRDATA,read_data,{7'h0,fail_addr2,7'h0,fail_addr1},32'hFFFF_FFFF);
+          wb_user_core_read_check(`ADDR_SPACE_GLBL+`GLBL_BIST_SRDATA,read_data,{16'h0,7'h0,fail_addr3},32'h0000_FFFF);
       end
       if(num_fault >= 4) begin
-          wb_user_core_read_check(`GLBL_BIST_SRDATA,read_data,{7'h0,fail_addr2,7'h0,fail_addr1},32'hFFFF_FFFF);
-          wb_user_core_read_check(`GLBL_BIST_SRDATA,read_data,{7'h0,faultaddr[3]+j,7'h0,fail_addr3},32'hFFFF_FFFF);
+          wb_user_core_read_check(`ADDR_SPACE_GLBL+`GLBL_BIST_SRDATA,read_data,{7'h0,fail_addr2,7'h0,fail_addr1},32'hFFFF_FFFF);
+          wb_user_core_read_check(`ADDR_SPACE_GLBL+`GLBL_BIST_SRDATA,read_data,{7'h0,faultaddr[3]+j,7'h0,fail_addr3},32'hFFFF_FFFF);
       end
    end
 end

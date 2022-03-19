@@ -16,15 +16,24 @@
  */
 
 // This include is relative to $CARAVEL_PATH (see Makefile)
-#include "verilog/dv/caravel/defs.h"
-#include "verilog/dv/caravel/stub.c"
+#include <defs.h>
+#include <stub.c>
+#include "../c_func/inc/user_reg_map.h"
 
 // User Project Slaves (0x3000_0000)
-#define reg_mprj_slave (*(volatile uint32_t*)0x30000000)
 
-#define reg_mprj_wbhost_reg0 (*(volatile uint32_t*)0x30800000)
-#define reg_mprj_glbl_reg0 (*(volatile uint32_t*)0x30000000)
-#define reg_mprj_glbl_reg1 (*(volatile uint32_t*)0x30000004)
+#define reg_mprj_wbhost_reg0 (*(volatile uint32_t*)0x30080000)
+
+
+
+
+/*
+	Wishbone Test:
+		- Configures MPRJ lower 8-IO pins as outputs
+		- Checks counter value through the wishbone port
+*/
+int i = 0; 
+int clk = 0;
 
 void main()
 {
@@ -47,7 +56,9 @@ void main()
 	/* Set up the housekeeping SPI to be connected internally so	*/
 	/* that external pin changes don't affect it.			*/
 
-	reg_spimaster_config = 0xa002;	// Enable, prescaler = 2,
+    reg_spi_enable = 1;
+    reg_wb_enable = 1;
+	// reg_spimaster_config = 0xa002;	// Enable, prescaler = 2,
                                         // connect to housekeeping SPI
 
 	// Connect the housekeeping SPI to the SPI master
@@ -83,18 +94,18 @@ void main()
 	reg_mprj_datal = 0xAB600000;
 
     // Remove Wishbone Reset
-    reg_mprj_wbhost_reg0 = 0x1;
+    reg_wbhost_glbl_cfg = 0x1;
 
-    if (reg_mprj_glbl_reg0 != 0x44332211) bFail = 1;
-    if (reg_mprj_glbl_reg1 != 0xDDCCBBAA) bFail = 1;
+    if (reg_glbl_soft_reg0 != 0x44332211) bFail = 1;
+    if (reg_glbl_soft_reg1 != 0xDDCCBBAA) bFail = 1;
 
     // Write software Write & Read Register
-    reg_mprj_glbl_reg0  = 0x11223344; 
-    reg_mprj_glbl_reg1  = 0x22334455; 
+    reg_glbl_soft_reg0  = 0x11223344; 
+    reg_glbl_soft_reg1  = 0x22334455; 
 
 
-    if (reg_mprj_glbl_reg0  != 0x11223344) bFail = 1;
-    if (reg_mprj_glbl_reg1  != 0x22334455) bFail = 1;
+    if (reg_glbl_soft_reg0  != 0x11223344) bFail = 1;
+    if (reg_glbl_soft_reg1  != 0x22334455) bFail = 1;
 
     if(bFail == 0) {
         reg_mprj_datal = 0xAB610000;

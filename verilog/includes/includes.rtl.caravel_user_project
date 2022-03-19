@@ -1,0 +1,45 @@
+# Caravel user project includes
++incdir+$(USER_PROJECT_VERILOG)/dv/model
++incdir+$(USER_PROJECT_VERILOG)/rtl/mbist/include
+-v $(USER_PROJECT_VERILOG)/rtl/user_project_wrapper.v
+-v $(USER_PROJECT_VERILOG)/rtl/mbist/src/core/mbist_addr_gen.sv
+-v $(USER_PROJECT_VERILOG)/rtl/mbist/src/core/mbist_fsm.sv 
+-v $(USER_PROJECT_VERILOG)/rtl/mbist/src/core/mbist_op_sel.sv 
+-v $(USER_PROJECT_VERILOG)/rtl/mbist/src/core/mbist_repair_addr.sv 
+-v $(USER_PROJECT_VERILOG)/rtl/mbist/src/core/mbist_sti_sel.sv 
+-v $(USER_PROJECT_VERILOG)/rtl/mbist/src/core/mbist_pat_sel.sv
+-v $(USER_PROJECT_VERILOG)/rtl/mbist/src/core/mbist_mux.sv
+-v $(USER_PROJECT_VERILOG)/rtl/mbist/src/core/mbist_data_cmp.sv
+-v $(USER_PROJECT_VERILOG)/rtl/mbist/src/core/mbist_mem_wrapper.sv
+-v $(USER_PROJECT_VERILOG)/rtl/mbist/src/top/mbist_top1.sv 
+-v $(USER_PROJECT_VERILOG)/rtl/mbist/src/top/mbist_top2.sv 
+-v $(USER_PROJECT_VERILOG)/rtl/wb_host/src/wb_host.sv
+-v $(USER_PROJECT_VERILOG)/rtl/lib/async_fifo.sv
+-v $(USER_PROJECT_VERILOG)/rtl/lib/async_wb.sv
+-v $(USER_PROJECT_VERILOG)/rtl/lib/registers.v
+-v $(USER_PROJECT_VERILOG)/rtl/lib/clk_ctl.v
+-v $(USER_PROJECT_VERILOG)/rtl/lib/reset_sync.sv
+-v $(USER_PROJECT_VERILOG)/rtl/lib/ser_inf_32b.sv
+-v $(USER_PROJECT_VERILOG)/rtl/lib/ctech_cells.sv
+-v $(USER_PROJECT_VERILOG)/rtl/lib/async_reg_bus.sv
+-v $(USER_PROJECT_VERILOG)/rtl/lib/clk_gate.sv
+-v $(USER_PROJECT_VERILOG)/rtl/lib/crc_32.sv
+-v $(USER_PROJECT_VERILOG)/rtl/lib/wb_stagging.sv
+-v $(USER_PROJECT_VERILOG)/rtl/wb_interconnect/src/wb_interconnect.sv
+-v $(USER_PROJECT_VERILOG)/rtl/glbl/src/glbl_cfg.sv
+-v $(USER_PROJECT_VERILOG)/rtl/lbist/src/lbist_top.sv
+-v $(USER_PROJECT_VERILOG)/rtl/lbist/src/lbist_core.sv
+-v $(USER_PROJECT_VERILOG)/rtl/lbist/src/lbist_reg.sv
+-v $(USER_PROJECT_VERILOG)/rtl/uart/src/uart_core.sv
+-v $(USER_PROJECT_VERILOG)/rtl/uart/src/uart_cfg.sv
+-v $(USER_PROJECT_VERILOG)/rtl/uart/src/uart_rxfsm.sv
+-v $(USER_PROJECT_VERILOG)/rtl/uart/src/uart_txfsm.sv
+-v $(USER_PROJECT_VERILOG)/rtl/lib/async_fifo_th.sv  
+-v $(USER_PROJECT_VERILOG)/rtl/lib/double_sync_low.v  
+-v $(USER_PROJECT_VERILOG)/rtl/lib/clk_buf.v  
+-v $(USER_PROJECT_VERILOG)/rtl/lib/wb_arb.sv
+-v $(USER_PROJECT_VERILOG)/rtl/uart2wb/src/uart2wb.sv 
+-v $(USER_PROJECT_VERILOG)/rtl/uart2wb/src/uart2_core.sv 
+-v $(USER_PROJECT_VERILOG)/rtl/uart2wb/src/uart_msg_handler.v 
+-v $(USER_PROJECT_VERILOG)/rtl/clk_skew_adjust/src/clk_skew_adjust.v
+-v $(USER_PROJECT_VERILOG)/rtl/sram_macros/sky130_sram_1kbyte_1rw1r_32x256_8.v

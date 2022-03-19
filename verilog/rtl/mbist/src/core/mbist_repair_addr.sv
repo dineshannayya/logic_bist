@@ -98,12 +98,17 @@ begin
 end
 
 integer index;
+logic   eFlag; // Indicate error fix
 
 always_comb
 begin
    AddressOut = AddressIn;
+   eFlag      = 0;
    for(index=0; index < BIST_ERR_LIMIT; index=index+1) begin
-      if(ErrorCnt > index && AddressIn == RepairMem[index]) AddressOut = BIST_REPAIR_ADDR_START+index;
+	   if(ErrorCnt > index && AddressIn == RepairMem[index]) begin
+		AddressOut = BIST_REPAIR_ADDR_START+index;
+		eFlag      = 1;
+	   end
    end
 end
 

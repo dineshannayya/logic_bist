@@ -17,10 +17,6 @@
 
 `timescale 1 ns / 1 ps
 
-`include "uprj_netlists.v"
-`include "caravel_netlists.v"
-`include "spiflash.v"
-
 module wb_port_tb;
 	reg clock;
 	reg RSTB;
@@ -48,12 +44,15 @@ module wb_port_tb;
 	end
 
 	initial begin
-		$dumpfile("wb_port.vcd");
-		$dumpvars(0, wb_port_tb);
+		$dumpfile("simx.vcd");
+		$dumpvars(1, wb_port_tb);
+		$dumpvars(1, wb_port_tb.uut.mprj.u_wb_host);
+        end
+        initial begin
 
 		// Repeat cycles of 1000 clock edges as needed to complete testbench
 		repeat (30) begin
-			repeat (1000) @(posedge clock);
+			repeat (2000) @(posedge clock);
 			// $display("+1000 cycles");
 		end
 		$display("%c[1;31m",27);
@@ -102,9 +101,9 @@ module wb_port_tb;
 		power4 <= 1'b1;
 	end
 
-	always @(mprj_io) begin
-		#1 $display("MPRJ-IO state = %b ", mprj_io[7:0]);
-	end
+	//always @(mprj_io) begin
+	//	#1 $display("MPRJ-IO state = %b ", mprj_io[7:0]);
+	//end
 
 	wire flash_csb;
 	wire flash_clk;
@@ -156,8 +155,6 @@ module wb_port_tb;
 `ifndef GL // Drive Power for Hold Fix Buf
     // All standard cell need power hook-up for functionality work
     initial begin
-
-
     end
 `endif    
 endmodule

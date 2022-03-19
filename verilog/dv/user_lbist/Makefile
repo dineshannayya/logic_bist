@@ -40,6 +40,10 @@ GCC64_PREFIX?=riscv64-unknown-elf
 SIM?=RTL
 DUMP?=OFF
 
+### To Enable IVERILOG FST DUMP
+export IVERILOG_DUMPER = fst
+
+
 .SUFFIXES:
 
 PATTERN = user_lbist

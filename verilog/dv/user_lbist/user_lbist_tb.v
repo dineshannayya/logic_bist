@@ -75,29 +75,8 @@
 `timescale 1 ns/10 ps
 
 `include "uprj_netlists.v"
+`include "user_reg_map.v"
 
-`define WB_MAP           `30080_0000
-`define GLBL_FUNC_MAP    'h3000_0000
-
-`define GLBL_BIST_CTRL1  'h3000_0008    
-`define GLBL_BIST_CTRL2  'h3000_000C
-`define GLBL_BIST_STAT1  'h3000_0010
-`define GLBL_BIST_STAT2  'h3000_0014
-`define GLBL_BIST_SWDATA 'h3000_0018
-`define GLBL_BIST_SRDATA 'h3000_001C
-`define GLBL_BIST_SPDATA 'h3000_0020
-`define GLBL_BIST_SOFT1  'h3000_0024
-`define GLBL_BIST_SOFT2  'h3000_0028
-`define GLBL_BIST_SOFT3  'h3000_002C
-
-`define WB_GLBL_CTRL     'h3080_0000
-`define WB_BANK_SEL      'h3080_0004
-`define WB_CLK_CTRL1     'h3080_0008
-`define WB_CLK_CTRL2     'h3080_000C
-
-`define LBIST_CTRL1      'h30C0_0000
-`define LBIST_CTRL2      'h30C0_0004
-`define LBIST_SIG        'h30C0_0008
 
 
 
@@ -200,58 +179,58 @@ begin
 
    test_fail=0;
    //  WBS CLK: CLOCK1
-   wb_user_core_write('h3080_0000,{16'h0,4'b0,4'h0,8'h00});
+   wb_user_core_write(`ADDR_SPACE_WBHOST+`WBHOST_GLBL_CFG,{16'h0,4'b0,4'h0,8'h00});
 
 
    fork
    begin
       // Enable LBIST
-       wb_user_core_write(`LBIST_CTRL2,32'h0008_0040);
+       wb_user_core_write(`ADDR_SPACE_LBIST+`LBIST_CTRL2,32'h0008_0040);
 
       //--------------------- LBIST include RESET SCAN SHIFT ---
-       wb_user_core_write(`LBIST_CTRL1,32'h0000_0002);
+       wb_user_core_write(`ADDR_SPACE_LBIST+`LBIST_CTRL1,32'h0000_0002);
       // Check for MBIST Done
       read_data = 'h0;
       while (read_data[31] != 1'b1) begin
-         wb_user_core_read(`LBIST_CTRL1,read_data);
+         wb_user_core_read(`ADDR_SPACE_LBIST+`LBIST_CTRL1,read_data);
       end
       // READ LBIST Signature as a referece
-      wb_user_core_read(`LBIST_SIG,lbist_sig);
+      wb_user_core_read(`ADDR_SPACE_LBIST+`LBIST_SIG,lbist_sig);
       $display("STEP-1: Received LBIST Signature: %x",lbist_sig);
 
       // Disable/Enable LBIST and check Previous same LBIST Signature
-       wb_user_core_write(`LBIST_CTRL1,32'h0000_0000);
-       wb_user_core_write(`LBIST_CTRL1,32'h0000_0002);
+       wb_user_core_write(`ADDR_SPACE_LBIST+`LBIST_CTRL1,32'h0000_0000);
+       wb_user_core_write(`ADDR_SPACE_LBIST+`LBIST_CTRL1,32'h0000_0002);
       // Check for MBIST Done
       read_data = 'h0;
       while (read_data[31] != 1'b1) begin
-         wb_user_core_read(`LBIST_CTRL1,read_data);
+         wb_user_core_read(`ADDR_SPACE_LBIST+`LBIST_CTRL1,read_data);
       end
       // READ LBIST Signature
-      wb_user_core_read_check(`LBIST_SIG,read_data,lbist_sig);
+      wb_user_core_read_check(`ADDR_SPACE_LBIST+`LBIST_SIG,read_data,lbist_sig);
       
       //--------------------- LBIST Excluding RESET SCAN SHIFT ---
-       wb_user_core_write(`LBIST_CTRL1,32'h0000_0001);
-       wb_user_core_write(`LBIST_CTRL1,32'h0000_0006);
+       wb_user_core_write(`ADDR_SPACE_LBIST+`LBIST_CTRL1,32'h0000_0001);
+       wb_user_core_write(`ADDR_SPACE_LBIST+`LBIST_CTRL1,32'h0000_0006);
       // Check for MBIST Done
       read_data = 'h0;
       while (read_data[31] != 1'b1) begin
-         wb_user_core_read(`LBIST_CTRL1,read_data);
+         wb_user_core_read(`ADDR_SPACE_LBIST+`LBIST_CTRL1,read_data);
       end
       // READ LBIST Signature as reference
-      wb_user_core_read(`LBIST_SIG,lbist_sig);
+      wb_user_core_read(`ADDR_SPACE_LBIST+`LBIST_SIG,lbist_sig);
       $display("STEP-2: Received LBIST Signature: %x",lbist_sig);
 
       // Disable/Enable LBIST and check Previous same LBIST Signature
-       wb_user_core_write(`LBIST_CTRL1,32'h0000_0001);
-       wb_user_core_write(`LBIST_CTRL1,32'h0000_0006);
+       wb_user_core_write(`ADDR_SPACE_LBIST+`LBIST_CTRL1,32'h0000_0001);
+       wb_user_core_write(`ADDR_SPACE_LBIST+`LBIST_CTRL1,32'h0000_0006);
       // Check for MBIST Done
       read_data = 'h0;
       while (read_data[31] != 1'b1) begin
-         wb_user_core_read(`LBIST_CTRL1,read_data);
+         wb_user_core_read(`ADDR_SPACE_LBIST+`LBIST_CTRL1,read_data);
       end
       // READ LBIST Signature
-      wb_user_core_read_check(`LBIST_SIG,read_data,lbist_sig);
+      wb_user_core_read_check(`ADDR_SPACE_LBIST+`LBIST_SIG,read_data,lbist_sig);
 
    end
    begin

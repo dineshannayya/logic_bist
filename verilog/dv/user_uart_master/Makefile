@@ -14,6 +14,9 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
+## PDK 
+PDK_PATH = $(PDK_ROOT)/sky130A
+
 ## Caravel Pointers
 CARAVEL_ROOT ?= ../../../caravel
 CARAVEL_PATH ?= $(CARAVEL_ROOT)
@@ -22,26 +25,20 @@ CARAVEL_VERILOG_PATH  = $(CARAVEL_PATH)/verilog
 CARAVEL_RTL_PATH = $(CARAVEL_VERILOG_PATH)/rtl
 CARAVEL_BEHAVIOURAL_MODELS = $(CARAVEL_VERILOG_PATH)/dv/caravel
 
-
 ## User Project Pointers
 UPRJ_VERILOG_PATH ?= ../../../verilog
 UPRJ_RTL_PATH = $(UPRJ_VERILOG_PATH)/rtl
-UPRJ_GL_PATH = $(UPRJ_VERILOG_PATH)/gl
-UPRJ_BEHAVIOURAL_MODELS = ../model
-UPRJ_BEHAVIOURAL_AGENTS = ../agents
-UPRJ_INCLUDE_PATH1 = $(UPRJ_RTL_PATH)/syntacore/scr1/src/includes
-UPRJ_INCLUDE_PATH2 = $(UPRJ_RTL_PATH)/sdram_ctrl/src/defs
-UPRJ_INCLUDE_PATH3 = $(UPRJ_RTL_PATH)/i2cm/src/includes
-UPRJ_INCLUDE_PATH4 = $(UPRJ_RTL_PATH)/usb1_host/src/includes
-UPRJ_INCLUDE_PATH5 = $(UPRJ_RTL_PATH)/mbist/include
-
-## SYNTACORE FIRMWARE
-SYNTACORE_FIRMWARE_PATH = $(UPRJ_VERILOG_PATH)/rtl/syntacore/scr1/sim/tests/common
+UPRJ_BEHAVIOURAL_MODELS = ../
+UPRJ_INCLUDE_PATH1 = $(UPRJ_RTL_PATH)/mbist/include
 
 
 ## Simulation mode: RTL/GL
+SIM_DEFINES = -DFUNCTIONAL -DSIM
 SIM?=RTL
 DUMP?=OFF
+
+#To enable fst dump in iverilog
+export IVERILOG_DUMPER = fst
 
 .SUFFIXES:
 
@@ -49,33 +46,27 @@ PATTERN = user_uart_master
 
 all:  ${PATTERN:=.vcd}
 
-
 vvp:  ${PATTERN:=.vvp}
 
-%.vvp: %_tb.v
+%.vvp: %_tb.v 
 ifeq ($(SIM),RTL)
    ifeq ($(DUMP),OFF)
-	iverilog -g2005-sv -DFUNCTIONAL -DSIM -I $(PDK_PATH) \
+	iverilog -g2005-sv $(SIM_DEFINES) -I $(PDK_PATH) \
 	-I $(CARAVEL_BEHAVIOURAL_MODELS) -I $(CARAVEL_RTL_PATH) \
-	-I $(UPRJ_BEHAVIOURAL_MODELS)    -I $(UPRJ_RTL_PATH) -I $(UPRJ_VERILOG_PATH) \
-	-I $(UPRJ_BEHAVIOURAL_AGENTS)    \
-	-I $(UPRJ_INCLUDE_PATH1)    -I $(UPRJ_INCLUDE_PATH2) -I $(UPRJ_INCLUDE_PATH3) \
-	-I $(UPRJ_INCLUDE_PATH4) -I $(UPRJ_INCLUDE_PATH5) \
+	-I $(UPRJ_BEHAVIOURAL_MODELS)    -I $(UPRJ_RTL_PATH) \
+	-I $(UPRJ_INCLUDE_PATH1) \
 	$< -o $@ 
-    else  
-	iverilog -g2005-sv -DWFDUMP -DFUNCTIONAL -DSIM -I $(PDK_PATH) \
+    else 
+	iverilog -g2005-sv -DWFDUMP $(SIM_DEFINES) -I $(PDK_PATH) \
 	-I $(CARAVEL_BEHAVIOURAL_MODELS) -I $(CARAVEL_RTL_PATH) \
-	-I $(UPRJ_BEHAVIOURAL_MODELS)    -I $(UPRJ_RTL_PATH) -I $(UPRJ_VERILOG_PATH) \
-	-I $(UPRJ_BEHAVIOURAL_AGENTS)    \
-	-I $(UPRJ_INCLUDE_PATH1)    -I $(UPRJ_INCLUDE_PATH2) -I $(UPRJ_INCLUDE_PATH3) \
-	-I $(UPRJ_INCLUDE_PATH4) -I $(UPRJ_INCLUDE_PATH5) \
-	$< -o $@ 
-   endif
+	-I $(UPRJ_BEHAVIOURAL_MODELS)    -I $(UPRJ_RTL_PATH) \
+	-I $(UPRJ_INCLUDE_PATH1) \
+	$< -o $@
+   endif 
 else  
-	iverilog -g2005-sv -DFUNCTIONAL -DSIM -DGL -I $(PDK_PATH) \
+	iverilog $(SIM_DEFINES) -DGL -I $(PDK_PATH) \
 	-I $(CARAVEL_BEHAVIOURAL_MODELS) -I $(CARAVEL_RTL_PATH) -I $(CARAVEL_VERILOG_PATH) \
-	-I $(UPRJ_BEHAVIOURAL_MODELS) -I $(UPRJ_GL_PATH) \
-	-I $(UPRJ_BEHAVIOURAL_AGENTS)    \
+	-I $(UPRJ_BEHAVIOURAL_MODELS) -I$(UPRJ_RTL_PATH)   -I $(UPRJ_VERILOG_PATH) \
 	$< -o $@ 
 endif
 
@@ -83,10 +74,9 @@ endif
 	vvp $<
 
 
-
 # ---- Clean ----
 
 clean:
-	rm -f *.vvp *.vcd *.log 
+	rm -f *.vvp *.vcd *.log
 
 .PHONY: clean all

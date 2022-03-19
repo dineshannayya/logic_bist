@@ -37,6 +37,9 @@ SIM_DEFINES = -DFUNCTIONAL -DSIM
 SIM?=RTL
 DUMP?=OFF
 
+#To enable fst dump in iverilog
+export IVERILOG_DUMPER = fst
+
 .SUFFIXES:
 
 PATTERN = user_mbist_test1
@@ -70,20 +73,6 @@ endif
 %.vcd: %.vvp
 	vvp $<
 
-check-env:
-ifndef PDK_ROOT
-	$(error PDK_ROOT is undefined, please export it before running make)
-endif
-ifeq (,$(wildcard $(PDK_ROOT)/sky130A))
-	$(error $(PDK_ROOT)/sky130A not found, please install pdk before running make)
-endif
-#ifeq (,$(wildcard $(GCC64_PREFIX)-gcc ))
-#	$(error $(GCC64_PREFIX)-gcc is not found, please export GCC_PATH and GCC_PREFIX before running make)
-#endif
-# check for efabless style installation
-ifeq (,$(wildcard $(PDK_ROOT)/sky130A/libs.ref/*/verilog))
-SIM_DEFINES := ${SIM_DEFINES} -DEF_STYLE
-endif
 
 # ---- Clean ----
 

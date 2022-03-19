@@ -31,6 +31,11 @@ set ::env(CLOCK_PORT) "clk_i"
 
 set ::env(SYNTH_MAX_FANOUT) 4
 
+## CTS BUFFER
+set ::env(CTS_CLK_BUFFER_LIST) "sky130_fd_sc_hd__clkbuf_4 sky130_fd_sc_hd__clkbuf_8"
+set ::env(CTS_SINK_CLUSTERING_SIZE) "16"
+set ::env(CLOCK_BUFFER_FANOUT) "8"
+
 # Sources
 # -------
 
@@ -46,6 +51,7 @@ set ::env(SYNTH_PARAMS) "SCW  8, \
 	                 CH_DATA_WD 104 \
 			 "
 set ::env(SYNTH_READ_BLACKBOX_LIB) 1
+set ::env(SYNTH_DEFINES) [list SYNTHESIS ]
 set ::env(SDC_FILE) "$script_dir/base.sdc"
 set ::env(BASE_SDC_FILE) "$script_dir/base.sdc"
 
@@ -75,8 +81,6 @@ set ::env(PL_TIME_DRIVEN) 1
 set ::env(FP_CORE_UTIL) "50"
 set ::env(PL_TARGET_DENSITY) "0.50"
 
-# helps in anteena fix
-set ::env(USE_ARC_ANTENNA_CHECK) "0"
 
 set ::env(FP_IO_VEXTEND) 4
 set ::env(FP_IO_HEXTEND) 4
@@ -87,16 +91,17 @@ set ::env(FP_PDN_VWIDTH) 5
 set ::env(FP_PDN_HWIDTH) 5
 
 set ::env(GLB_RT_MAXLAYER) 5
+set ::env(RT_MAX_LAYER) {met4}
 set ::env(GLB_RT_MAX_DIODE_INS_ITERS) 10
+
 set ::env(DIODE_INSERTION_STRATEGY) 4
 
-
+set ::env(PL_RESIZER_BUFFER_INPUT_PORTS) "0"
+set ::env(PL_RESIZER_BUFFER_OUTPUT_PORTS) "1"
+set ::env(GLB_RESIZER_TIMING_OPTIMIZATIONS) "1"
+set ::env(PL_RESIZER_DESIGN_OPTIMIZATIONS) "1"
 set ::env(QUIT_ON_TIMING_VIOLATIONS) "0"
 set ::env(QUIT_ON_MAGIC_DRC) "1"
 set ::env(QUIT_ON_LVS_ERROR) "0"
 set ::env(QUIT_ON_SLEW_VIOLATIONS) "0"
-
-set ::env(GLB_RESIZER_TIMING_OPTIMIZATIONS) "0"
-set ::env(PL_RESIZER_BUFFER_INPUT_PORTS) "0"
-set ::env(PL_RESIZER_BUFFER_OUTPUT_PORTS) "1"
-
+set ::env(QUIT_ON_SETUP_VIOLATIONS) "0"

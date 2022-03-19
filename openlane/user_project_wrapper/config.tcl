@@ -16,11 +16,15 @@
 # Base Configurations. Don't Touch
 # section begin
 
+set ::env(STD_CELL_LIBRARY) "sky130_fd_sc_hd"
+
 # YOU ARE NOT ALLOWED TO CHANGE ANY VARIABLES DEFINED IN THE FIXED WRAPPER CFGS 
-source $::env(CARAVEL_ROOT)/openlane/user_project_wrapper_empty/fixed_wrapper_cfgs.tcl
+source $::env(CARAVEL_ROOT)/openlane/user_project_wrapper/fixed_wrapper_cfgs.tcl
+
 
 # YOU CAN CHANGE ANY VARIABLES DEFINED IN THE DEFAULT WRAPPER CFGS BY OVERRIDING THEM IN THIS CONFIG.TCL
-source $::env(CARAVEL_ROOT)/openlane/user_project_wrapper_empty/default_wrapper_cfgs.tcl
+source $::env(CARAVEL_ROOT)/openlane/user_project_wrapper/default_wrapper_cfgs.tcl
+
 
 set script_dir [file dirname [file normalize [info script]]]
 
@@ -52,7 +56,7 @@ set ::env(CLOCK_PERIOD) "10"
 set ::env(FP_SIZING) "absolute"
 set ::env(MACRO_PLACEMENT_CFG) $script_dir/macro.cfg
 
-set ::env(PDN_CFG) $script_dir/pdn.tcl
+set ::env(PDN_CFG) $script_dir/pdn_cfg.tcl
 
 ### Black-box verilog and views
 set ::env(VERILOG_FILES_BLACKBOX) "\
@@ -62,16 +66,16 @@ set ::env(VERILOG_FILES_BLACKBOX) "\
 	$script_dir/../../verilog/gl/wb_interconnect.v \
 	$script_dir/../../verilog/gl/wb_host.v \
 	$script_dir/../../verilog/gl/glbl_cfg.v\
-	$script_dir/../../verilog/gl/mbist1.v\
-	$script_dir/../../verilog/gl/mbist2.v\
+	$script_dir/../../verilog/gl/mbist_top1.v\
+	$script_dir/../../verilog/gl/mbist_top2.v\
 	"
 
 set ::env(EXTRA_LEFS) "\
 	$script_dir/../../lef/sky130_sram_2kbyte_1rw1r_32x512_8.lef \
 	$script_dir/../../lef/sky130_sram_1kbyte_1rw1r_32x256_8.lef \
 	$script_dir/../../lef/glbl_cfg.lef \
-	$script_dir/../../lef/mbist1.lef \
-	$script_dir/../../lef/mbist2.lef \
+	$script_dir/../../lef/mbist_top1.lef \
+	$script_dir/../../lef/mbist_top2.lef \
 	$script_dir/../../lef/wb_interconnect.lef \
 	$script_dir/../../lef/wb_host.lef"
 
@@ -79,8 +83,8 @@ set ::env(EXTRA_GDS_FILES) "\
 	$script_dir/../../gds/sky130_sram_2kbyte_1rw1r_32x512_8.gds \
 	$script_dir/../../gds/sky130_sram_1kbyte_1rw1r_32x256_8.gds \
 	$script_dir/../../gds/glbl_cfg.gds \
-	$script_dir/../../gds/mbist1.gds \
-	$script_dir/../../gds/mbist2.gds \
+	$script_dir/../../gds/mbist_top1.gds \
+	$script_dir/../../gds/mbist_top2.gds \
 	$script_dir/../../gds/wb_interconnect.gds \
 	$script_dir/../../gds/wb_host.gds"
 
@@ -89,18 +93,23 @@ set ::env(BASE_SDC_FILE) "$script_dir/base.sdc"
 
 set ::env(GLB_RT_MAXLAYER) 5
 
-# disable pdn check nodes becuase it hangs with multiple power domains.
-# any issue with pdn connections will be flagged with LVS so it is not a critical check.
+set ::env(GLB_RT_MAXLAYER) 6
+set ::env(RT_MAX_LAYER) {met5}
+
 set ::env(FP_PDN_CHECK_NODES) 0
 
 
 ## Internal Macros
 ### Macro PDN Connections
-#set ::env(FP_PDN_ENABLE_MACROS_GRID) "0"
-#set ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS) "1"
+set ::env(FP_PDN_ENABLE_MACROS_GRID) "1"
+set ::env(FP_PDN_ENABLE_GLOBAL_CONNECTIONS) "1"
 
 set ::env(VDD_NETS) "vccd1 vccd2 vdda1 vdda2"
 set ::env(GND_NETS) "vssd1 vssd2 vssa1 vssa2"
+#
+set ::env(VDD_PIN) "vccd1"
+set ::env(GND_PIN) "vssd1"
+set ::env(FP_PDN_POWER_STRAPS) "vccd1 vssd1 1, vccd2 vssd2 0, vdda1 vssa1 0, vdda2 vssa2 0"
 
 # Add Blockage arond the SRAM to avoid Magic DRC & 
 # add signal routing blockage for met5
@@ -131,27 +140,27 @@ set ::env(GLB_RT_OBS) "met1 2000.00 800.00  2683.10 1216.54, \
 		       met5 0 0 2920 3520"
 
 
-set ::env(FP_PDN_MACRO_HOOKS) "\
-     u_wb_host	vccd1 vssd1 \
-     u_intercon	vccd1 vssd1 \
-     u_glbl	vccd1 vssd1 \
-     u_mbist1   vccd1 vssd1 \
-     u_mbist2   vccd1 vssd1 \
-     u_mbist3   vccd1 vssd1 \
-     u_mbist4   vccd1 vssd1 \
-     u_mbist5   vccd1 vssd1 \
-     u_mbist6   vccd1 vssd1 \
-     u_mbist7   vccd1 vssd1 \
-     u_mbist8   vccd1 vssd1 \
-     u_sram1_2kb vccd1 vssd1 \
-     u_sram2_2kb vccd1 vssd1 \
-     u_sram3_2kb vccd1 vssd1 \
-     u_sram4_2kb vccd1 vssd1 \
-     u_sram5_1kb vccd1 vssd1 \
-     u_sram6_1kb vccd1 vssd1 \
-     u_sram7_1kb vccd1 vssd1 \
-     u_sram8_1kb vccd1 vssd1 \
-     "
+#set ::env(FP_PDN_MACRO_HOOKS) "\
+#     u_wb_host	vccd1 vssd1 \
+#     u_intercon	vccd1 vssd1 \
+#     u_glbl	vccd1 vssd1 \
+#     u_mbist1   vccd1 vssd1 \
+#     u_mbist2   vccd1 vssd1 \
+#     u_mbist3   vccd1 vssd1 \
+#     u_mbist4   vccd1 vssd1 \
+#     u_mbist5   vccd1 vssd1 \
+#     u_mbist6   vccd1 vssd1 \
+#     u_mbist7   vccd1 vssd1 \
+#     u_mbist8   vccd1 vssd1 \
+#     u_sram1_2kb vccd1 vssd1 \
+#     u_sram2_2kb vccd1 vssd1 \
+#     u_sram3_2kb vccd1 vssd1 \
+#     u_sram4_2kb vccd1 vssd1 \
+#     u_sram5_1kb vccd1 vssd1 \
+#     u_sram6_1kb vccd1 vssd1 \
+#     u_sram7_1kb vccd1 vssd1 \
+#     u_sram8_1kb vccd1 vssd1 \
+#     "
 
 
 # The following is because there are no std cells in the example wrapper project.
@@ -171,10 +180,23 @@ set ::env(TAP_DECAP_INSERTION) 0
 set ::env(CLOCK_TREE_SYNTH) 0
 
 set ::env(QUIT_ON_LVS_ERROR) "0"
-set ::env(QUIT_ON_MAGIC_DRC) "0"
+set ::env(QUIT_ON_TR_DRC) "1"
+set ::env(QUIT_ON_MAGIC_DRC) "1"
 set ::env(QUIT_ON_NEGATIVE_WNS) "0"
 set ::env(QUIT_ON_SLEW_VIOLATIONS) "0"
 set ::env(QUIT_ON_TIMING_VIOLATIONS) "0"
-set ::env(QUIT_ON_TR_DRC) "0"
+
+set ::env(FP_PDN_IRDROP) "0"
+set ::env(FP_PDN_HORIZONTAL_HALO) "10"
+set ::env(FP_PDN_VERTICAL_HALO) "10"
+
+set ::env(FP_PDN_VOFFSET) "5"
+set ::env(FP_PDN_VPITCH) "80"
+set ::env(FP_PDN_VSPACING) "15.5"
+set ::env(FP_PDN_VWIDTH) "3.1"
+
+set ::env(FP_PDN_HOFFSET) "16.65"
+set ::env(FP_PDN_HPITCH) "130"
+
 
 

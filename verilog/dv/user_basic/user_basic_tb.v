@@ -75,26 +75,7 @@
 `timescale 1 ns/10 ps
 
 `include "uprj_netlists.v"
-
-`define WB_MAP           `30080_0000
-`define GLBL_FUNC_MAP    'h3000_0000
-
-`define GLBL_BIST_CTRL1  'h3000_0008    
-`define GLBL_BIST_CTRL2  'h3000_000C
-`define GLBL_BIST_STAT1  'h3000_0010
-`define GLBL_BIST_STAT2  'h3000_0014
-`define GLBL_BIST_SWDATA 'h3000_0018
-`define GLBL_BIST_SRDATA 'h3000_001C
-`define GLBL_BIST_SPDATA 'h3000_0020
-`define GLBL_BIST_SOFT1  'h3000_0024
-`define GLBL_BIST_SOFT2  'h3000_0028
-`define GLBL_BIST_SOFT3  'h3000_002C
-
-`define WB_GLBL_CTRL     'h3080_0000
-`define WB_BANK_SEL      'h3080_0004
-`define WB_CLK_CTRL1     'h3080_0008
-`define WB_CLK_CTRL2     'h3080_000C
-
+`include "user_reg_map.v"
 
 module user_basic_tb;
 parameter CLK1_PERIOD = 10;
@@ -199,59 +180,59 @@ begin
 
 	  $display("Step-1, WBS CLK: CLOCK1  LBIST CLK: CLOCK1");
 	  test_step = 1;
-          wb_user_core_write('h3080_0000,{16'h0,4'h0,4'h0,8'h00});
+          wb_user_core_write(`ADDR_SPACE_WBHOST+`WBHOST_GLBL_CFG,{16'h0,4'h0,4'h0,8'h00});
 	  clock_monitor(CLK1_PERIOD,CLK1_PERIOD);
 
 	  $display("Step-2, WBS CLK: CLOCK1/2,LBIST CLK: CLOCK1/2 ");
 	  test_step = 2;
-          wb_user_core_write('h3080_0000,{16'h0,4'h8,4'h8,8'h00});
+          wb_user_core_write(`ADDR_SPACE_WBHOST+`WBHOST_GLBL_CFG,{16'h0,4'h8,4'h8,8'h00});
 	  clock_monitor(2*CLK1_PERIOD,2*CLK1_PERIOD);
 
 	  $display("Step-3, WBS CLK: CLOCK1/(2+1), LBIST CLK: CLOCK1/(2+1)");
 	  test_step = 3;
-          wb_user_core_write('h3080_0000,{16'h0,4'h9,4'h9,8'h00});
+          wb_user_core_write(`ADDR_SPACE_WBHOST+`WBHOST_GLBL_CFG,{16'h0,4'h9,4'h9,8'h00});
 	  clock_monitor(3*CLK1_PERIOD,3*CLK1_PERIOD);
 
 	  $display("Step-4, WBS CLK: CLOCK1/(2+2), LBIST CLK: CLOCK1/(2+2) ");
 	  test_step = 4;
-          wb_user_core_write('h3080_0000,{16'h0,4'hA,4'hA,8'h00});
+          wb_user_core_write(`ADDR_SPACE_WBHOST+`WBHOST_GLBL_CFG,{16'h0,4'hA,4'hA,8'h00});
 	  clock_monitor(4*CLK1_PERIOD,4*CLK1_PERIOD);
 
 	  $display("Step-5, WBS CLK: CLOCK1/(2+3), LBIST CLK: CLOCK1/(2+3)");
 	  test_step = 5;
-          wb_user_core_write('h3080_0000,{16'h0,4'hB,4'hB,8'h00});
+          wb_user_core_write(`ADDR_SPACE_WBHOST+`WBHOST_GLBL_CFG,{16'h0,4'hB,4'hB,8'h00});
 	  clock_monitor(5*CLK1_PERIOD,5*CLK1_PERIOD);
 
 	  $display("Step-6, WBS CLK: CLOCK1/(2+4),LBIST CLK: CLOCK1/(2+4)");
 	  test_step = 6;
-          wb_user_core_write('h3080_0000,{16'h0,4'hC,4'hC,8'h00});
+          wb_user_core_write(`ADDR_SPACE_WBHOST+`WBHOST_GLBL_CFG,{16'h0,4'hC,4'hC,8'h00});
 	  clock_monitor(6*CLK1_PERIOD,6*CLK1_PERIOD);
 
 	  $display("Step-7, WBS CLK: CLOCK2/(2+5),LBIST CLK: CLOCK2/(2+5)");
 	  test_step = 6;
-          wb_user_core_write('h3080_0000,{16'h0,4'hD,4'hD,8'h00});
+          wb_user_core_write(`ADDR_SPACE_WBHOST+`WBHOST_GLBL_CFG,{16'h0,4'hD,4'hD,8'h00});
 	  clock_monitor(7*CLK1_PERIOD,7*CLK1_PERIOD);
 
 	  $display("Step-8, WBS CLK: CLOCK2/(2+6),LBIST CLK: CLOCK2/(2+6)");
 	  test_step = 8;
-          wb_user_core_write('h3080_0000,{16'h0,4'hE,4'hE,8'h00});
+          wb_user_core_write(`ADDR_SPACE_WBHOST+`WBHOST_GLBL_CFG,{16'h0,4'hE,4'hE,8'h00});
 	  clock_monitor(8*CLK1_PERIOD,8*CLK1_PERIOD);
 
 	  $display("Step-9, WBS CLK: CLOCK2/(2+7),LBIST CLK: CLOCK2/(2+7)");
 	  test_step = 9;
-          wb_user_core_write('h3080_0000,{16'h0,4'hF,4'hF,8'h00});
+          wb_user_core_write(`ADDR_SPACE_WBHOST+`WBHOST_GLBL_CFG,{16'h0,4'hF,4'hF,8'h00});
 	  clock_monitor(9*CLK1_PERIOD,9*CLK1_PERIOD);
          
 	 $display("###################################################");
          $display("Monitor: Checking the chip signature :");
 	//  WBS CLK: CLOCK1
-         wb_user_core_write('h3080_0000,{20'h0,4'h0,8'h00});
+         wb_user_core_write(`ADDR_SPACE_WBHOST+`WBHOST_GLBL_CFG,{20'h0,4'h0,8'h00});
          // Remove Wb/PinMux Reset
-         wb_user_core_write(`WB_GLBL_CTRL,'h1);
+         wb_user_core_write(`ADDR_SPACE_WBHOST+`WBHOST_GLBL_CFG,'h1);
 
-	 wb_user_core_read_check(`GLBL_BIST_SOFT1,read_data,32'h4C66_8354);
-	 wb_user_core_read_check(`GLBL_BIST_SOFT2,read_data,32'h0201_2022);
-	 wb_user_core_read_check(`GLBL_BIST_SOFT3,read_data,32'h0001_4000);
+	 wb_user_core_read_check(`ADDR_SPACE_GLBL+`GLBL_BIST_SOFT1,read_data,32'h4C66_8354);
+	 wb_user_core_read_check(`ADDR_SPACE_GLBL+`GLBL_BIST_SOFT2,read_data,32'h1603_2022);
+	 wb_user_core_read_check(`ADDR_SPACE_GLBL+`GLBL_BIST_SOFT3,read_data,32'h0001_6000);
       end
    
       begin

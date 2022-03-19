@@ -38,6 +38,8 @@
 ////    0.1 - 26th Oct 2021, Dinesh A                             ////
 ////          Fixed Error Address are serial shifted through      ////
 ////          sdi/sdo                                             ////
+////    0.2 - Feb 18, 2022, Dinesh A                              ////
+////          Addition SRAM data launch phase selection option    ////
 ////                                                              ////
 //////////////////////////////////////////////////////////////////////
 
@@ -64,6 +66,8 @@ module mbist_top1
        output logic [SCW-1:0]  scan_so,
        output logic            scan_en_o,
        output logic            scan_mode_o,
+
+       input  logic            cfg_mem_lphase, // Data Towards SRAM data lanuch phase , 0 -> posedge, 1 -> negedge
 	
     // Clock Skew Adjust
        input   logic                        wbd_clk_int, 
@@ -427,6 +431,7 @@ mbist_mux
        u_mem_sel (
 
 	            .scan_mode            (scan_mode     ),
+		    .cfg_mem_lphase       (cfg_mem_lphase),
 
                     .rst_n                (srst_n        ),
                     // MBIST CTRL SIGNAL

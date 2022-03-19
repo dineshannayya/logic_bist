@@ -48,6 +48,7 @@ module   mbist_mux
 	 parameter BIST_RAD_WD_O          = BIST_ADDR_WD) (
 
       input   logic                      scan_mode,
+      input   logic                      cfg_mem_lphase,
 
       input   logic                      rst_n,
       // MBIST CTRL SIGNAL
@@ -101,16 +102,73 @@ wire   [BIST_ADDR_WD-1:0]      addr_b;
 wire                           mem_clk_a_cts; // used for internal clock tree
 wire                           mem_clk_b_cts; // usef for internal clock tree
 
+//----------------------------------------------------------------
+// As there SRAM timing model is not correct. we have created
+// additional position drive data in negedge
+// ----------------------------------------------------------------
 
+logic                       mem_cen_a_int;
+logic   [BIST_ADDR_WD-1:0]  mem_addr_a_int;
 
+logic                       mem_cen_b_int;
+logic                       mem_web_b_int;
+logic [BIST_DATA_WD/8-1:0]  mem_mask_b_int;
+logic   [BIST_ADDR_WD-1:0]  mem_addr_b_int;
+logic   [BIST_DATA_WD-1:0]  mem_din_b_int;
+
+logic                       mem_cen_a_neg;
+logic   [BIST_ADDR_WD-1:0]  mem_addr_a_neg;
+
+logic                       mem_cen_b_neg;
+logic                       mem_web_b_neg;
+logic [BIST_DATA_WD/8-1:0]  mem_mask_b_neg;
+logic   [BIST_ADDR_WD-1:0]  mem_addr_b_neg;
+logic   [BIST_DATA_WD-1:0]  mem_din_b_neg;
+
+always @(negedge rst_n or negedge mem_clk_a) begin
+   if(rst_n == 0) begin
+      mem_cen_a_neg  <= '0;
+      mem_addr_a_neg <= '0;
+   end else begin
+      mem_cen_a_neg  <= mem_cen_a_int;
+      mem_addr_a_neg <= mem_addr_a_int;
+   end
+end
+
+always @(negedge rst_n or negedge mem_clk_b) begin
+   if(rst_n == 0) begin
+       mem_cen_b_neg   <= '0;
+       mem_web_b_neg   <= '0;
+       mem_mask_b_neg  <= '0;
+       mem_addr_b_neg  <= '0;
+       mem_din_b_neg   <= '0;
+   end else begin
+       mem_cen_b_neg   <= mem_cen_b_int;
+       mem_web_b_neg   <= mem_web_b_int;
+       mem_mask_b_neg  <= mem_mask_b_int;
+       mem_addr_b_neg  <= mem_addr_b_int;
+       mem_din_b_neg   <= mem_din_b_int;
+   end
+end
+
+assign mem_cen_a   = (cfg_mem_lphase == 0) ?  mem_cen_a_int  : mem_cen_a_neg;
+assign mem_addr_a  = (cfg_mem_lphase == 0) ?  mem_addr_a_int : mem_addr_a_neg;
+
+assign mem_cen_b   = (cfg_mem_lphase == 0) ?  mem_cen_b_int  : mem_cen_b_neg;
+assign mem_web_b   = (cfg_mem_lphase == 0) ?  mem_web_b_int  : mem_web_b_neg;
+assign mem_mask_b  = (cfg_mem_lphase == 0) ?  mem_mask_b_int : mem_mask_b_neg;
+assign mem_addr_b  = (cfg_mem_lphase == 0) ?  mem_addr_b_int : mem_addr_b_neg;
+assign mem_din_b   = (cfg_mem_lphase == 0) ?  mem_din_b_int  : mem_din_b_neg;
+
+//-----------------------------------------
 assign addr_a   = (bist_en) ? bist_addr   : func_addr_a;
 assign addr_b   = (bist_en) ? bist_addr   : func_addr_b;
 
-assign mem_cen_a    = (bist_en) ? !bist_rd   : func_cen_a;
-assign mem_cen_b    = (bist_en) ? !bist_wr   : func_cen_b;
+assign mem_cen_a_int    = (bist_en) ? !bist_rd   : func_cen_a;
+assign mem_cen_b_int    = (bist_en) ? !bist_wr   : func_cen_b;
 
-assign mem_web_b    = (bist_en) ? !bist_wr   : func_web_b;
-assign mem_mask_b   = (bist_en) ? {{BIST_MASK_WD}{1'b1}}       : func_mask_b;
+assign mem_web_b_int    = (bist_en) ? !bist_wr   : func_web_b;
+assign mem_mask_b_int   = (bist_en) ? {{BIST_MASK_WD}{1'b1}}       : func_mask_b;
 
 //assign mem_clk_a    = (bist_en) ? bist_clk   : func_clk_a;
 //assign mem_clk_b    = (bist_en) ? bist_clk   : func_clk_b;
@@ -121,8 +179,7 @@ ctech_mux2x1 u_mem_clk_b_sel (.A0 (func_clk_b),.A1 (bist_clk),.S  (bist_en),    
 ctech_clk_buf u_cts_mem_clk_a (.A (mem_clk_a), . X(mem_clk_a_cts));
 ctech_clk_buf u_cts_mem_clk_b (.A (mem_clk_b), . X(mem_clk_b_cts));
 
-assign mem_din_b    = (bist_en) ? bist_wdata   : func_din_b;
-
+assign mem_din_b_int    = (bist_en) ? bist_wdata   : func_din_b;
 
 
 // During scan, SRAM data is unknown, feed data in back to avoid unknow
@@ -138,7 +195,7 @@ mbist_repair_addr
 	.BIST_RAD_WD_I          (BIST_RAD_WD_I),
 	.BIST_RAD_WD_O          (BIST_RAD_WD_O)) 
      u_repair_A(
-    .AddressOut    (mem_addr_a       ),
+    .AddressOut    (mem_addr_a_int   ),
     .Correct       (bist_correct     ),
     .sdo           (bist_sdo         ),
 
@@ -160,7 +217,7 @@ mbist_repair_addr
 	.BIST_RAD_WD_I          (BIST_RAD_WD_I),
 	.BIST_RAD_WD_O          (BIST_RAD_WD_O)) 
     u_repair_B(
-    .AddressOut    (mem_addr_b      ),
+    .AddressOut    (mem_addr_b_int  ),
     .Correct       (                ), // Both Bist Correct are same
     .sdo           (                ),
 
